@@ -1,0 +1,81 @@
+<?php
+
+// +----------------------------------------------------------------------
+// | WeMall Plugin for ThinkAdmin
+// +----------------------------------------------------------------------
+// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// +----------------------------------------------------------------------
+// | 官方网站: https://thinkadmin.top
+// +----------------------------------------------------------------------
+// | 免责声明 ( https://thinkadmin.top/disclaimer )
+// | 会员免费 ( https://thinkadmin.top/vip-introduce )
+// +----------------------------------------------------------------------
+// | gitee 代码仓库：https://gitee.com/zoujingli/think-plugs-wemall
+// | github 代码仓库：https://github.com/zoujingli/think-plugs-wemall
+// +----------------------------------------------------------------------
+
+namespace plugin\wemall\controller\shop\goods;
+
+use plugin\wemall\model\PluginWemallGoodsMark;
+use think\admin\Controller;
+use think\admin\helper\QueryHelper;
+
+/**
+ * 商品标签管理
+ * @class Mark
+ * @package plugin\wemall\controller\shop\goods
+ */
+class Mark extends Controller
+{
+    /**
+     * 商品标签管理
+     * @auth true
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    public function index()
+    {
+        PluginWemallGoodsMark::mQuery()->layTable(function () {
+            $this->title = '商品标签管理';
+        }, function (QueryHelper $query) {
+            $query->like('name')->equal('status')->dateBetween('create_at');
+        });
+    }
+
+    /**
+     * 添加商品标签
+     * @auth true
+     */
+    public function add()
+    {
+        PluginWemallGoodsMark::mForm('form');
+    }
+
+    /**
+     * 编辑商品标签
+     * @auth true
+     */
+    public function edit()
+    {
+        PluginWemallGoodsMark::mForm('form');
+    }
+
+    /**
+     * 修改商品标签状态
+     * @auth true
+     */
+    public function state()
+    {
+        PluginWemallGoodsMark::mSave();
+    }
+
+    /**
+     * 删除商品标签
+     * @auth true
+     */
+    public function remove()
+    {
+        PluginWemallGoodsMark::mDelete();
+    }
+}

@@ -1,0 +1,55 @@
+{
+  "type": "think-admin-plugin",
+  "name": "zoujingli/think-plugs-wemall",
+  "homepage": "https://thinkadmin.top",
+  "description": "WeMall for ThinkAdmin",
+  "authors": [
+    {
+      "name": "Anyon",
+      "email": "zoujingli@qq.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.1",
+    "ext-json": "*",
+    "zoujingli/think-plugs-admin": "^1.0||dev-master",
+    "zoujingli/think-plugs-account": "^1.0||dev-master",
+    "zoujingli/think-plugs-payment": "^1.0||dev-master"
+  },
+  "autoload": {
+    "files": [
+      "./src/helper.php"
+    ],
+    "psr-4": {
+      "plugin\\wemall\\": "src"
+    }
+  },
+  "extra": {
+    "think": {
+      "services": [
+        "plugin\\wemall\\Service"
+      ]
+    },
+    "config": {
+      "type": "module",
+      "name": "微商城系统",
+      "icon": "https://static.cdn.cuci.cc/bd/2a2f272511ee7216cdec6cf3843a38.png",
+      "cover": "https://static.cdn.cuci.cc/bd/2a2f272511ee7216cdec6cf3843a38.png",
+      "description": "微商城系统"
+    },
+    "plugin": {
+      "copy": {
+        "stc/database": "database/migrations"
+      },
+      "event": [
+        "plugin\\wemall\\Event"
+      ]
+    }
+  },
+  "minimum-stability": "dev",
+  "config": {
+    "allow-plugins": {
+      "zoujingli/think-install": true
+    }
+  }
+}

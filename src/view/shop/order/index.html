@@ -1,0 +1,125 @@
+{extend name="main"}
+
+{block name="button"}
+<!--{if auth("clean")}-->
+<button class='layui-btn layui-btn-sm layui-btn-primary' data-queue='{:url("clean")}'>定时清理</button>
+<!--{/if}-->
+{/block}
+
+{block name="content"}
+<div class="layui-tab layui-tab-card">
+    <ul class="layui-tab-title notselect">
+        {foreach $types as $k=>$v}{if isset($type) and 't'.$type eq $k}
+        <li class="layui-this" data-open="{:url('index')}?type={$k}">{$v}<sup class="layui-badge border-radius">{$total[$k]??0}</sup></li>
+        {else}
+        <li data-open="{:url('index')}?type={$k}">{$v}<sup class="layui-badge border-radius">{$total[$k]??0}</sup></li>
+        {/if}{/foreach}
+    </ul>
+    <div class="layui-tab-content">
+        {include file='shop/order/index_search'}
+        <table id="OrderTable" data-line="2" data-url="{:request()->url()}" data-target-search="form.form-search"></table>
+    </div>
+</div>
+{/block}
+
+{block name='script'}
+<script>
+    function str2num(v) {
+        return parseFloat(v);
+    }
+
+    function str2name(v) {
+        let _ = [];
+        v.split(';;').forEach(s => _.push(s.split('::').pop()));
+        return _.join(' ');
+    }
+
+    let ostatus = ['已取消', '预订单', '待支付', '待审核', '待发货', '已发货', '已收货', '已评论'];
+    let ostyles = ['layui-bg-gray layui-border-red', 'layui-bg-red', 'layui-bg-orange', 'layui-bg-black', 'layui-bg-blue', 'layui-bg-green', 'layui-bg-green'];
+
+    $(function () {
+        $('#OrderTable').layTable({
+            even: true, height: 'full', page: false,
+            sort: {field: 'id', type: 'desc'},
+            cols: [[
+                {
+                    field: '', title: '会员用户', minWidth: 160, templet: function (d) {
+                        let tpls = [];
+                        tpls.push('用户昵称：{{d.user.nickname||d.user.username||"-"}}');
+                        tpls.push('用户编号：<b class="font-code">{{d.user.code}}</b>');
+                        return laytpl(
+                            '<div class="flex">' +
+                            '   <div>{{-showTableImage(d.user.headimg,false,"sm")}}</div>' +
+                            '   <div class="padding-left-5"></div>' +
+                            '   <div>' + tpls.join('<br>') + '</div>' +
+                            '</div>'
+                        ).render(d);
+                    }
+                },
+                {
+                    field: '', title: '订单信息', minWidth: 220, templet: function (d) {
+                        let tpls = '订单号：<b class="font-code">{{d.order_no}}</b>';
+                        if (d.amount_real > 0) {
+                            tpls += '<br>需支付 <b class="font-code">{{str2num(d.amount_real)}}</b> 元';
+                        } else {
+                            tpls += '<br>无需支付';
+                        }
+                        if (d.amount_express > 0) {
+                            tpls += ' ( 随减 <b class="font-code">{{str2num(d.amount_reduct)}}</b> 元，含邮费 <b class="font-code">{{str2num(d.amount_express)}}</b> 元)';
+                        } else {
+                            tpls += ' ( 随减 <b class="font-code">{{str2num(d.amount_reduct)}}</b> 元，包邮免费 )';
+                        }
+                        let status = laytpl('<span class="layui-badge layui-badge-middle {{d.style}}" style="zoom:85%;line-height:15px;padding:3px 4px">{{d.status}}</span>').render({
+                            status: ostatus[d.status], style: ostyles[d.status]
+                        });
+                        return '<div class="flex">' + status + '<div class="nowrap sub-strong-blue">' + laytpl(tpls).render(d) + '</div></div>';
+                    }
+                },
+                {
+                    field: '', title: '商品详情', templet: function (d) {
+                        let tpls = [];
+                        d.items.forEach(function (v) {
+                            tpls.push(laytpl(
+                                '<div class="flex">' +
+                                '   <div>{{-showTableImage(d.gcover,false,"sm")}}</div>' +
+                                '   <div class="padding-left-5"></div>' +
+                                '   <div>' +
+                                '       <span class="layui-badge think-bg-gray">{{d.gname}}</span>' +
+                                '       <span class="layui-badge think-bg-gray">{{str2name(d.gspec)}}</span><br>' +
+                                '       <span class="layui-badge think-bg-gray">{{d.stock_sales}}件 x {{str2num(d.price_selling)}}元/件 = {{str2num(d.total_selling)}}元</span> ' +
+                                '   </div>' +
+                                '</div>'
+                            ).render(v));
+                        });
+                        return tpls.join('<br>');
+                    }
+                },
+                {
+                    field: '', title: '收货地址', templet: function (d) {
+                        if (d.address) {
+                            let tpls = [];
+                            tpls.push('<b>{{d.user_name}}</b> <span class="color-blue font-code">{{d.user_phone}}</span>');
+                            tpls.push('{{d.region_prov}} {{d.region_city}} {{d.region_city}} {{d.region_addr}}');
+                            return laytpl(tpls.join('<br>')).render(d.address);
+                        } else {
+                            return '<div class="padding-top-10"><span class="color-desc">无收货信息</span></div>';
+                        }
+                    }
+                },
+                {field: 'id', sort: true, title: '创建时间', minWidth: 170, templet: "<div>更新时间：{{d.update_time}}<br>创建时间：{{d.create_time}}</div>"},
+                {toolbar: '#toolbar', hide: true, title: '操作面板', width: 120, align: 'center', fixed: 'right'},
+            ]]
+        });
+    });
+</script>
+
+
+<!-- 操控面板的模板 -->
+<script type="text/html" id="toolbar">
+
+    <!--{if auth('remove')}-->
+    <a class="layui-btn layui-btn-sm layui-btn-danger" data-confirm="确定要删除此商品吗？" data-action="{:url('remove')}" data-value="code#{{d.code}}">删 除</a>
+    <!--{/if}-->
+
+</script>
+{/block}

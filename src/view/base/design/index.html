@@ -1,0 +1,83 @@
+{extend name='table'}
+
+{block name="button"}
+<button class='layui-btn layui-btn-sm layui-btn-danger' onclick="$.form.reload(!layui.data('design',null))">重 置</button>
+<!--{if auth("add")}-->
+<button class='layui-btn layui-btn-sm' data-target-submit data-title="添加折扣">保 存</button>
+<!--{/if}-->
+{/block}
+
+{block name="content"}
+{include file="base/design/index-style"}
+<form id="DesignForm" class="padding-20 layui-anim layui-anim-fadein">
+    <div class="design-layout" id="TemplateApp">
+        <div class="design-layout-menu shadow-mini">
+            <div class="layui-tab layui-tab-brief">
+                <ul class="layui-tab-title notselect">
+                    <li class="layui-this">组件库</li>
+                    <li>页面链接</li>
+                </ul>
+                <div class="layui-tab-content">
+                    <div class="layui-tab-item layui-show notselect">
+                        <div class="layui-collapse">
+                            <div class="layui-colla-item" v-for="x in tools">
+                                <div class="layui-colla-title">{{x.name}}</div>
+                                <div class="layui-colla-content layui-show">
+                                    <div class="flex">
+                                        <a v-for="xx in x.items" @click="addItem(xx)">
+                                            <i v-if="xx.icon" class="layui-icon" :class="xx.icon"></i> {{xx.name}}
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-tab-item">内容-2</div>
+                </div>
+            </div>
+        </div>
+
+        <div class='design-layout-view'>
+            <div class="design-layout-view-head">
+                <div>
+                    <div class="design-layout-view-head-image"></div>
+                    <div :class="idx===-1?'active':''" sv-element :style="showStyle(page.head.style)">
+                        <div sv-handle class="think-elips-1 pointer font-s14" @click="setPage(pdx,true)">{{page.head.name || ''}}</div>
+                    </div>
+                </div>
+            </div>
+            <div class='design-layout-view-body'>
+                <div :style="showStyle(page.style)">
+                    <div style="height:0;opacity:0;overflow:hidden">防止MarginTop合并影响到父容器</div>
+                    {include file='base/design/index-view'}
+                </div>
+            </div>
+            <div class="design-layout-view-foot">
+                <div sv-element :class="idx===-2?'active':''">
+                    <div class="notselect">
+                        <div sv-handle class="flex pointer not-after" @click="setPage(pdx,false,true)" :style="toolbar.style">
+                            <a v-for="(x,$index) in pages" v-if="x.show" :key="x.unid" :class="x.active?'active':''" @click="setPage($index,false,true)">
+                                <span class="headimg headimg-ss block auto-center" v-if="x.active && x.foot.icon.active" :style="showBgimg(x.foot.icon.active)"></span>
+                                <span class="headimg headimg-ss block auto-center" v-if="!x.active && x.foot.icon.normal" :style="showBgimg(x.foot.icon.normal)"></span>
+                                <span :style="showColor(x.active?(toolbar.style.vActiveColor||''):(toolbar.style.vNormalColor||''))">{{x.foot.name}}</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class='design-layout-form shadow-mini'>
+            {include file='base/design/index-x-head-form'}
+            {include file='base/design/index-x-normal-form'}
+            {include file='base/design/index-x-toolbar-form'}
+        </div>
+
+    </div>
+</form>
+
+{/block}
+{block name='script'}
+{include file="base/design/index-init"}
+{include file="base/design/index-script"}
+{/block}

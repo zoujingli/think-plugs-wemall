@@ -1,0 +1,24 @@
+<div v-if="idx===-1" class="layui-tab layui-tab-brief">
+    <ul class="layui-tab-title notselect">
+        <li class="layui-this">标题设置</li>
+        <li>页面设置</li>
+    </ul>
+    <div class="layui-tab-content padding-right-30">
+        <div class="layui-tab-item layui-show notselect">
+            <label class="layui-form-item relative flex label-required-null">
+                <span class="design-form-label label-required-next">页面标题</span>
+                <input class="layui-input flex-1" required v-model="page.head.name" placeholder="请输入页面标题">
+            </label>
+            <div class="layui-form-item flex">
+                <span class="design-form-label">文字颜色</span>
+                <div class="flex-1">
+                    <color-picker :mstyle="page.head.style" :key="Math.random()" mfield="color"></color-picker>
+                </div>
+            </div>
+            <layout-setting :mstyle="page.head.style" :key="Math.random()" mtypes="背景颜色,背景图片,背景样式"></layout-setting>
+        </div>
+        <div class="layui-tab-item">
+            <layout-setting :mstyle="page.style" :key="Math.random()" mtypes="背景颜色,背景图片,背景样式"></layout-setting>
+        </div>
+    </div>
+</div>
