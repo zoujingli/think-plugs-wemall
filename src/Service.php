@@ -70,8 +70,8 @@ class Service extends Plugin
                 'name' => '数据管理',
                 'subs' => [
                     // ['name' => '数据统计报表', 'icon' => 'layui-icon layui-icon-theme', 'node' => "{$code}/total.portal/index"],
-                    ['name' => '轮播图片管理', 'icon' => 'layui-icon layui-icon-carousel', 'node' => "{$name}/base.slider/index"],
-                    ['name' => '页面内容管理', 'icon' => 'layui-icon layui-icon-read', 'node' => "{$name}/base.pager/index"],
+                    // ['name' => '轮播图片管理', 'icon' => 'layui-icon layui-icon-carousel', 'node' => "{$name}/base.slider/index"],
+                    ['name' => '页面内容管理', 'icon' => 'layui-icon layui-icon-read', 'node' => "{$name}/base.page/index"],
                     ['name' => '支付参数管理', 'icon' => 'layui-icon layui-icon-rmb', 'node' => "plugin-payment/config/index"],
                     ['name' => '手机短信管理', 'icon' => 'layui-icon layui-icon-email', 'node' => "plugin-account/message/index"],
                     // ['name' => '系统通知管理', 'icon' => 'layui-icon layui-icon-notice', 'node' => "{$code}/base.message/index"],

@@ -19,14 +19,21 @@
 * 多终端用户管理插件：[ThinkPlugsAccount](https://doc.thinkadmin.top/vip-plugs-account)
 * 多终端支付管理插件：[ThinkPlugsPayment](https://doc.thinkadmin.top/vip-plugs-payment)
 
+### 接口文档
+
+接口文档：https://documenter.getpostman.com/view/4518676/2s93eeRpDr
+
 ### 安装插件
 
 ```shell
 ### 安装前建议尝试更新所有组件
 composer update --optimize-autoloader
 
-### 注意，插件仅支持在 ThinkAdmin v6.1 中使用
+### 安装稳定版本 ( 插件仅支持在 ThinkAdmin v6.1 中使用 )
 composer require zoujingli/think-plugs-wemall --optimize-autoloader
+
+### 安装测试版本（ 插件仅支持在 ThinkAdmin v6.1 中使用 ）
+composer require zoujingli/think-plugs-wemall dev-master --optimize-autoloader
 ```
 
 ### 卸载插件
