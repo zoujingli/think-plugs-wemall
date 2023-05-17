@@ -6,16 +6,15 @@
 
         <label class="layui-form-item relative block">
             <span class="help-label"><b>页面名称</b>Page Name</span>
-            <input class="layui-input" name="name" placeholder="请输入页面名称" required value='{$data.name|default=$base.name}'>
+            <input class="layui-input" name="name" placeholder="请输入页面名称" required value='{$data.name|default=""}'>
         </label>
 
         <div class="layui-form-item label-required-prev">
             <span class="help-label"><b>页面内容</b>Page Content</span>
-            <textarea class="layui-hide" name="content">{$data.content|default=$base.content}</textarea>
+            <textarea class="layui-hide" name="content">{$data.content|default=""}</textarea>
         </div>
 
         <div class="hr-line-dashed"></div>
-        <input type="hidden" name="type" value="{$get.type|default=''}">
 
         <div class="layui-form-item text-center">
             <button class="layui-btn" type="submit">保存数据</button>

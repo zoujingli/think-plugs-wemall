@@ -10,7 +10,7 @@ use think\admin\helper\QueryHelper;
 class Page extends Controller
 {
     /**
-     * 文章内容管理
+     * 页面内容管理
      * @auth true
      * @menu true
      * @throws \think\db\exception\DataNotFoundException
@@ -20,31 +20,31 @@ class Page extends Controller
     public function index()
     {
         $this->type = $this->get['type'] ?? 'index';
-        PluginWemallBasePage::mQuery()->layTable(function () {
-            $this->title = '文章内容管理';
+        PluginWemallBasePage::mQuery($this->get)->layTable(function () {
+            $this->title = '页面内容管理';
         }, function (QueryHelper $query) {
-            $query->like('code,name')->like('mark', ',')->dateBetween('create_at');
+            $query->like('code,name')->dateBetween('create_at');
             $query->where(['status' => intval($this->type === 'index'), 'deleted' => 0]);
         });
     }
 
     /**
-     * 添加文章内容
+     * 添加页面内容
      * @auth true
      */
     public function add()
     {
-        $this->title = '添加文章内容';
+        $this->title = '添加页面内容';
         PluginWemallBasePage::mForm('form');
     }
 
     /**
-     * 编辑文章内容
+     * 编辑页面内容
      * @auth true
      */
     public function edit()
     {
-        $this->title = '编辑文章内容';
+        $this->title = '编辑页面内容';
         PluginWemallBasePage::mForm('form');
     }
 
@@ -83,7 +83,7 @@ class Page extends Controller
     }
 
     /**
-     * 删除文章内容
+     * 删除页面内容
      * @auth true
      */
     public function remove()
@@ -92,7 +92,7 @@ class Page extends Controller
     }
 
     /**
-     * 文章内容选择
+     * 页面内容选择
      * @login true
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\DbException
