@@ -48,6 +48,8 @@ class PluginWemallGoodsItem extends Abs
             'status'          => 'status',
             'price_market'    => 'market',
             'price_selling'   => 'selling',
+            'allow_balance'   => 'allow_balance',
+            'allow_integral'  => 'allow_integral',
             'number_virtual'  => 'virtual',
             'number_express'  => 'express',
             'reward_balance'  => 'balance',

@@ -1,0 +1,49 @@
+<!--{literal}-->
+<div v-else-if="x.type==='BaseImage'" :style="showStyle(x.outerStyle)">
+    <div class="flex auto-center" :style="showStyle(x.interStyle||{})">
+        <div v-if="x.inputStyle.vType===0" class="flex-1 flex">
+            <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[0].image))" class="uploadimage shadow-inset full-height flex-1"></div>
+        </div>
+        <div v-if="x.inputStyle.vType===1" class="flex-1 flex">
+            <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[0].image))" class="uploadimage shadow-inset full-height flex-1"></div>
+            <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[1].image))" class="uploadimage shadow-inset full-height flex-1"></div>
+        </div>
+        <div v-if="x.inputStyle.vType===2" class="flex-1 flex">
+            <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[0].image))" class="uploadimage shadow-inset full-height flex-1"></div>
+            <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[1].image))" class="uploadimage shadow-inset full-height flex-1"></div>
+            <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[2].image))" class="uploadimage shadow-inset full-height flex-1"></div>
+        </div>
+        <div v-if="x.inputStyle.vType===3" class="flex-1 flex">
+            <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[0].image))" class="uploadimage shadow-inset full-height flex-1"></div>
+            <div class="flex-1 flex flex-direction-column">
+                <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[1].image))" class="uploadimage shadow-inset full-100"></div>
+                <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[2].image))" class="uploadimage shadow-inset full-100"></div>
+            </div>
+        </div>
+        <div v-if="x.inputStyle.vType===4" class="flex-1 flex">
+            <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[0].image))" class="uploadimage shadow-inset full-100"></div>
+            <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[1].image))" class="uploadimage shadow-inset full-100"></div>
+            <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[2].image))" class="uploadimage shadow-inset full-100"></div>
+            <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[3].image))" class="uploadimage shadow-inset full-100"></div>
+        </div>
+        <div v-if="x.inputStyle.vType===5" class="flex-1 flex flex-direction-column">
+            <div class="flex flex-1 flex-direction-row">
+                <div class="flex-1" :style="showStyle(x.inputStyle||{})">
+                    <div :style="showBgimg(x.data[0].image)" class="uploadimage border-radius-0 shadow-inset full-100 flex-1"></div>
+                </div>
+                <div class="flex-1" :style="showStyle(x.inputStyle||{})">
+                    <div :style="showBgimg(x.data[1].image)" class="uploadimage border-radius-0 shadow-inset full-100 flex-1"></div>
+                </div>
+            </div>
+            <div class="flex flex-1 flex-direction-row">
+                <div class="flex-1" :style="showStyle(x.inputStyle||{})">
+                    <div :style="showBgimg(x.data[2].image)" class="uploadimage border-radius-0 shadow-inset full-100"></div>
+                </div>
+                <div class="flex-1" :style="showStyle(x.inputStyle||{})">
+                    <div :style="showBgimg(x.data[3].image)" class="uploadimage border-radius-0 shadow-inset full-100"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--{/literal}-->

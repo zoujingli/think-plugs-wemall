@@ -109,6 +109,22 @@
         margin-top: 10px;
     }
 
+    .goods-spec-table tr th {
+        padding: 9px 0;
+        cursor: pointer;
+        text-align: center;
+    }
+
+    .goods-spec-table tr th:first-child {
+        text-align: left;
+        padding-left: 15px;
+    }
+
+    .goods-spec-table tr th .layui-icon {
+        font-size: 13px;
+        margin-left: 3px;
+    }
+
     .goods-spec-table tr td:has(input) {
         padding: 0;
     }
@@ -129,9 +145,12 @@
         padding: 0;
     }
 
-    .goods-spec-table tr td label input {
+    .goods-spec-table tr td label input.layui-input {
         border: none;
+        width: 100%;
+        height: 38px !important;
         text-align: center;
+        line-height: 38px !important;
         padding-left: 0;
     }
 </style>

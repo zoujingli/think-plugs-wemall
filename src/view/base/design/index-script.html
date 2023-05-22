@@ -12,29 +12,27 @@
         }
         // 创建菜单导航页
         let CreateNewPage = (type) => {
-            if (!PageTypesConfig[type]) app.showError("页面 " + type + " 不能被创建！");
-            let items = [], define = PageTypesConfig[type];
-            if (type === '商品分类') {
-                items.push({
-                        name: '商品分类', type: 'PageCates', top: 2, limit: 1, data: [], lock: true,
-                        inputStyle: {vType: 0}, interStyle: false, outerStyle: false,
-                    }
-                );
+            if (!PageTypesConfig[type]) {
+                return app.showError('页面 ' + type + ' 不能被创建！');
             }
-            if (type === '个人中心') {
-                items.push({
-                    name: '个人中心', type: 'PageCenter', top: 1, limit: 1, data: [], lock: true,
-                    inputStyle: {vType: 0}, interStyle: false, outerStyle: false,
-                });
-            }
+            let items = [], lock = false, define = PageTypesConfig[type];
             if (type === '购物车') {
+                lock = true;
                 items.push({
                     name: '购物车', type: 'PageCart', top: 1, limit: 1, data: [], lock: true,
                     inputStyle: {vType: 0}, interStyle: false, outerStyle: false,
                 });
             }
+            if (type === '商品分类') items.push({
+                name: '商品分类', type: 'PageCate', top: 3, limit: 1, data: [], lock: true,
+                inputStyle: {vType: 0}, interStyle: false, outerStyle: false,
+            });
+            if (type === '个人中心') items.push({
+                name: '个人中心', type: 'PageCenter', top: 1, limit: 1, data: [], lock: true,
+                inputStyle: {vType: 0}, interStyle: false, outerStyle: false,
+            });
             return {
-                type: type, link: {name: '', value: ''}, show: true, style: {}, items: items,
+                type: type, link: {name: '', value: ''}, show: true, style: {}, items: items, lock: lock,
                 head: {name: define.title, style: {backgroundColor: D.mainBgColor, color: D.mainTxColor}},
                 foot: {name: define.name, icon: define.icon || {normal: '', active: ''}, style: {}},
             };
@@ -63,6 +61,7 @@
             el: '#TemplateApp', components: {draggable: Sortable},
             data: function () {
                 return {
+                    heigth: 0,
                     defaultCatesTypes: [{name: '默认样式', image: 'https://storage.thinkadmin.top/d/temps/a1/25cb427262b32c9eb678ad376b3501.png'}],
                     defaultCenterTypes: [{name: '默认样式', image: 'https://storage.thinkadmin.top/d/temps/a1/25cb427262b32c9eb678ad376b3501.png'}],
                     idx: -9, pdx: 0, item: {}, items: [], page: {head: {style: {}}, style: {}},
@@ -93,15 +92,13 @@
                                 },
                                 {
                                     name: '导航栏', icon: 'layui-icon-prev-circle', type: 'BaseIcon',
-                                    data: [
-                                        {unid: this.guid('img'), image: D.image}
-                                    ],
+                                    data: [{unid: this.guid('img'), image: D.image}],
                                     fontStyle: {
                                         vTypes: '文字大小,文字粗细,文字行高,文字位置,文字颜色',
                                         vFontSize: 3, vLineHeight: 10, fontWeight: 400, textAlign: 'center', color: D.normalColor
                                     },
                                     inputStyle: {
-                                        vType: 1, vTypes: '边框圆角,容器高度,容器宽度2,边框宽度,边框颜色,左右间距,上下间距',
+                                        vName: '图片设置', vType: 1, vTypes: '容器高度,容器宽度2,左右间距,上下间距,边框圆角,边框宽度,边框颜色',
                                         vWidth2: 15, vHeight: 15, vMarginTopBottom: 1, vMarginLeftRight: 1,
                                         vBorderType: 'trbl', vBorderRadius: 1, vBorderWidth: 0, borderStyle: 'solid', borderColor: D.borderColor
                                     },
@@ -127,10 +124,8 @@
                                 {
                                     name: '图片魔方', icon: 'layui-icon-template', type: 'BaseImage',
                                     data: [
-                                        {unid: this.guid('img'), image: D.image},
-                                        {unid: this.guid('img'), image: D.image},
-                                        {unid: this.guid('img'), image: D.image},
-                                        {unid: this.guid('img'), image: D.image}
+                                        {unid: this.guid('img'), image: D.image}, {unid: this.guid('img'), image: D.image},
+                                        {unid: this.guid('img'), image: D.image}, {unid: this.guid('img'), image: D.image}
                                     ],
                                     inputStyle: {
                                         vType: 5, vTypes: '边框圆角,边框宽度,边框颜色,左右间距,上下间距',
@@ -151,8 +146,8 @@
                                     },
                                     interStyle: {vWidth: 90},
                                     inputStyle: {
-                                        vTypes: '边框圆角,文字颜色,背景颜色,背景图片,背景样式',
-                                        color: D.normalColor, vBorderWidth: 0, vBorderRadius: 50, vPlaceholder: '请输入商品名称'
+                                        vTypes: '左右内距,边框圆角,文字颜色,背景颜色,背景图片,背景样式',
+                                        color: D.normalColor, vBorderWidth: 0, vPaddingLeftRight: 5, vBorderRadius: 50, vPlaceholder: '请输入商品名称'
                                     }
                                 },
                             ]
@@ -168,11 +163,10 @@
                             name: '工具组件', items: [
                                 {
                                     name: '标题', icon: 'layui-icon-component', type: 'ToolTitle', data: [],
-                                    outerStyle: {}, interStyle: {vWidth: 90},
-                                    inputStyle: {
-                                        vText: '标题文字', vFontSize: 4, vLineHeight: 10, fontWeight: 400, textAlign: 'left',
+                                    outerStyle: {}, interStyle: {vWidth: 90}, inputStyle: {
                                         vTypes: '文字颜色,文字大小,文字粗细,文字行高,文字位置',
-                                    },
+                                        vText: '标题文字', vFontSize: 4, vLineHeight: 10, fontWeight: 400, textAlign: 'left',
+                                    }
                                 },
                                 {
                                     name: '辅助空白', icon: 'layui-icon-screen-full', type: 'ToolBlank', data: [], outerStyle: {}, interStyle: false,
@@ -237,41 +231,32 @@
             },
             mounted: function () {
                 this.pages.some((page, pdx) => page.active ? !!this.setPage(pdx) : false) || this.setPage(0);
-                this.$nextTick(() => layui.element.render());
+                this.$nextTick(() => {
+                    layui.element.render();
+                    let menu = this.$el.querySelector('div.design-layout-menu');
+                    this.height = menu.offsetHeight + 'px';
+                });
             },
             methods: {
-                reInit: function () {
-                    this.pages.forEach(v => {
-                        v.unid = v.unid || this.guid('pg');
-                        v.items.some(x => {
-                            return this.tools.some(t => {
-                                return t.items.some(tt => {
-                                    if (tt.type === x.type) {
-                                        console.log(tt.type, x.type)
-                                        return true;
-                                    }
-                                });
-                            })
-                        });
-                    })
-                },
                 onMove: function (e) {
                     return !(e.draggedContext.element.top || e.relatedContext.element.top);
                 },
                 addPage: function (type) {
                     if (this.pages.some(v => v.type === type)) {
-                        return this.showError("页面 " + type + " 已经存在，不能重复创建！");
+                        this.showError('页面 ' + type + ' 已经存在，不能重复创建！');
                     } else {
                         this.pages.push(CreateNewPage(type));
                     }
                 },
-                addData: function (data, form) {
-                    data.push(Object.assign({}, form || {}, {unid: this.guid('img')}));
+                addData: function (data, form, prefix) {
+                    data.push(Object.assign({}, form || {}, {unid: this.guid(prefix || 'IMG')}));
                 },
                 addItem: function (tool) {
                     // 检查初始表单验证
                     $('.design-layout-form .layui-tab li:first').trigger('click')
                     if (!vali.checkAllInput()) return this.showError('请完成表单输入');
+                    // 页面锁定状态检查
+                    if (this.page.lock) return this.showError('此页面不能添加组件！');
                     // 处理组件数量限制
                     if (tool.limit && tool.limit > 0) {
                         let count = 0, idx = -1;
@@ -287,28 +272,27 @@
                     this.items.splice(this.idx + 1, 0, this.copy(tool));
                     this.setItem(this.items.length > 1 ? this.idx + 1 : 0).autoScroll();
                 },
-                /*! 切换页面 */
-                setPage: function (pdx, init, toolbar) {
+                /*! 切换页面 （ 页面编号，选中标题，菜单切换 ）*/
+                setPage: function (pdx, isInit, isMenu) {
                     // 检查初始表单验证
                     $('.design-layout-form .layui-tab li:first').trigger('click')
                     if (!vali.checkAllInput()) return this.showError('请完成表单输入');
-                    this.pdx = pdx;
-                    this.page = this.pages[pdx] || {};
+                    this.page = this.pages[this.pdx = pdx] || {};
+                    this.page.items.forEach(v => v.unid = v.unid || this.guid('UN'));
+                    this.pages.forEach((v, i) => v.active = i === pdx);
                     this.items = this.page.items || [];
-                    this.items.forEach(v => v.unid = this.guid('un'));
-                    this.pages.forEach((v, i) => v.active = i === pdx)
-
-                    if (toolbar) {
+                    if (isMenu) {
                         this.idx = -2;
                         this.item = this.page;
                         this.items.some(v => v.active = false);
-                        return this;
+                        return true;
+                    } else {
+                        return (!isInit && this.items.some((v, i) => {
+                            if (v.active) return !!this.setItem(i).autoScroll('instant')
+                        })) || !!this.setItem(-1).autoScroll('instant');
                     }
-                    return (!init && this.items.some((v, i) => {
-                        if (v.active) return !!this.setItem(i).autoScroll('instant')
-                    })) || !!this.setItem(-1).autoScroll('instant');
                 },
-                /*! 切换组件 */
+                /*! 切换组件 ( 操作索引，强制更新 ) */
                 setItem: function (idx, force) {
                     // 检查初始表单验证
                     if (!force && idx !== this.idx) {
@@ -317,7 +301,7 @@
                     }
                     let head = (this.idx = idx) < 0;
                     this.item = head ? this.page.head : this.items[idx] || {};
-                    this.item.unid = this.item.unid || this.guid('un');
+                    this.item.unid = this.item.unid || this.guid('UN');
                     this.items.forEach((v, i) => v.active = head ? false : i === idx);
                     return this;
                 },
@@ -338,7 +322,11 @@
                     if (ix >= is.length - 1) return app.showError('已经是最后一个组件，不能再下移了哦！');
                     (item => is.splice(ix + 1, 1) && is.splice(ix, 0, item) && co && (this.idx = ix + 1))(is[ix + 1]);
                 },
-                /*! 自动滚动 */
+                FullHeightStyle: function () {
+                    let menu = this.$el.querySelector('div.design-layout-view-body');
+                    return {height: menu.offsetHeight + 'px', position: 'relative'};
+                },
+                /*! 自动滚动 （ 滚动类型 ） */
                 autoScroll: function (type) {
                     if (this.idx >= 0) this.$nextTick(() => {
                         let elem = this.$el.querySelector('[sv-element].active');

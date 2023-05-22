@@ -16,17 +16,17 @@
 
 namespace plugin\wemall\controller\base;
 
-use plugin\wemall\model\PluginWemallConfigUpgrade;
+use plugin\wemall\model\PluginWemallConfigLevel;
 use plugin\wemall\service\UserRebateService;
 use think\admin\Controller;
 use think\admin\helper\QueryHelper;
 
 /**
  * 用户等级管理
- * Class Upgrade
+ * @class Level
  * @package plugin\wemall\controller\base
  */
-class Upgrade extends Controller
+class Level extends Controller
 {
     /**
      * 用户等级管理
@@ -39,7 +39,7 @@ class Upgrade extends Controller
      */
     public function index()
     {
-        PluginWemallConfigUpgrade::mQuery()->layTable(function () {
+        PluginWemallConfigLevel::mQuery()->layTable(function () {
             $this->title = '用户等级管理';
         }, function (QueryHelper $query) {
             $query->like('name')->equal('status')->dateBetween('create_at');
@@ -54,8 +54,8 @@ class Upgrade extends Controller
      */
     public function add()
     {
-        $this->max = PluginWemallConfigUpgrade::maxNumber() + 1;
-        PluginWemallConfigUpgrade::mForm('form');
+        $this->max = PluginWemallConfigLevel::maxNumber() + 1;
+        PluginWemallConfigLevel::mForm('form');
     }
 
     /**
@@ -66,8 +66,8 @@ class Upgrade extends Controller
      */
     public function edit()
     {
-        $this->max = PluginWemallConfigUpgrade::maxNumber();
-        PluginWemallConfigUpgrade::mForm('form');
+        $this->max = PluginWemallConfigLevel::maxNumber();
+        PluginWemallConfigLevel::mForm('form');
     }
 
     /**
@@ -79,7 +79,7 @@ class Upgrade extends Controller
     {
         if ($this->request->isGet()) {
             $this->prizes = UserRebateService::prizes;
-            $vo['number'] = $vo['number'] ?? PluginWemallConfigUpgrade::maxNumber();
+            $vo['number'] = $vo['number'] ?? PluginWemallConfigLevel::maxNumber();
         } else {
             $vo['utime'] = time();
             // 用户升级条件开关
@@ -112,7 +112,7 @@ class Upgrade extends Controller
         if ($state) {
             $isasc = input('old_number', 0) <= input('number', 0);
             $order = $isasc ? 'number asc,utime asc' : 'number asc,utime desc';
-            foreach (PluginWemallConfigUpgrade::mk()->order($order)->select() as $number => $upgrade) {
+            foreach (PluginWemallConfigLevel::mk()->order($order)->select() as $number => $upgrade) {
                 $upgrade->save(['number' => $number]);
             }
         }
@@ -124,7 +124,7 @@ class Upgrade extends Controller
      */
     public function state()
     {
-        PluginWemallConfigUpgrade::mSave();
+        PluginWemallConfigLevel::mSave();
     }
 
     /**
@@ -133,7 +133,7 @@ class Upgrade extends Controller
      */
     public function remove()
     {
-        PluginWemallConfigUpgrade::mDelete();
+        PluginWemallConfigLevel::mDelete();
     }
 
     /**

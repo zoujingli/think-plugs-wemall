@@ -21,7 +21,7 @@ namespace plugin\wemall\model;
  * @class PluginWemallConfigUpgrade
  * @package plugin\wemall\model
  */
-class PluginWemallConfigUpgrade extends Abs
+class PluginWemallConfigLevel extends Abs
 {
     /**
      * 获取用户等级

@@ -36,7 +36,7 @@ class Transfer extends Command
     protected function configure()
     {
         $this->setName('xdata:WemallTransfer');
-        $this->setDescription('批量执行线上打款操作');
+        $this->setDescription('执行提现打款操作');
     }
 
     /**

@@ -16,11 +16,11 @@
 
 namespace plugin\wemall\service;
 
-use plugin\account\model\PluginAccountUser;
-use plugin\wemall\model\PluginWemallConfigUpgrade;
+use plugin\wemall\model\PluginWemallConfigLevel;
 use plugin\wemall\model\PluginWemallOrder;
 use plugin\wemall\model\PluginWemallOrderItem;
 use plugin\wemall\model\PluginWemallUserRelation;
+use think\admin\Exception;
 use think\admin\Library;
 use think\admin\Service;
 
@@ -33,46 +33,74 @@ class UserUpgradeService extends Service
 {
 
     /**
+     * 读取用户代理编号
+     * @param integer $unid
+     * @param integer $agent
+     * @param array|null $relation
+     * @return array
+     * @throws \think\admin\Exception
+     */
+    public static function withAgent(int $unid, int $agent, ?array $relation = null): array
+    {
+        if (empty($relation)) {
+            $relation = PluginWemallUserRelation::mk()->where(['unid' => $unid])->findOrEmpty()->toArray();
+            if ($relation) throw new Exception("无效的关联信息");
+        }
+        // 绑定代理数据
+        $puid0 = $relation['puid0'] ?? 0; // 临时绑定
+        $puid1 = $relation['puid1'] ?? 0; // 上1级代理
+        $puid2 = $relation['puid2'] ?? 0; // 上2级代理
+        if (empty($agent) && empty($puid1) && $puid0 > 0) {
+            $puid1 = $puid0;
+            $puid2 = intval(PluginWemallUserRelation::mk()->findOrEmpty($puid0)->getAttr('puid1'));
+        } elseif ($agent > 0 && empty($puid1)) {
+            $puid1 = $agent;
+            $puid2 = self::bindAgent($unid, $puid1, 0)['puid1'] ?? 0;
+        }
+        return ['unid' => $unid, 'puid1' => $puid1, 'puid2' => $puid2];
+    }
+
+    /**
      * 尝试绑定上级代理
      * @param integer $unid 用户UID
-     * @param integer $pid0 代理UID
+     * @param integer $puid 代理UID
      * @param integer $mode 操作类型（0临时绑定, 1永久绑定, 2强行绑定）
      * @return array
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\admin\Exception
      */
-    public static function bindAgent(int $unid, int $pid0 = 0, int $mode = 1): array
+    public static function bindAgent(int $unid, int $puid = 0, int $mode = 1): array
     {
-        $user = PluginAccountUser::mk()->findOrEmpty($unid);
-        if ($user->isEmpty()) return [0, '查询用户资料失败'];
-        if ($user['pids'] && in_array($mode, [0, 1])) return [1, '已经绑定代理'];
-        // 检查代理用户
-        if (empty($pid0)) $pid0 = $user['pid0'];
-        if (empty($pid0)) return [0, '绑定的代理不存在'];
-        if ($unid == $pid0) return [0, '不能绑定自己为代理'];
-        // 检查代理资格
-        $agent = PluginAccountUser::mk()->where(['id' => $pid0])->find();
-        if (empty($agent['level_code'])) return [0, '代理无推荐资格'];
-        if (strpos($agent['path'], ",{$unid},") !== false) return [0, '不能绑定下属'];
         try {
+            $user = PluginWemallUserRelation::mk()->where(['unid' => $unid])->findOrEmpty();
+            if ($user->isEmpty()) throw new Exception('查询用户失败');
+            if ($user->getAttr('puid1') && $mode !== 2) throw new Exception('已经绑定代理');
+            // 检查代理用户
+            if (empty($puid)) $puid = $user->getAttr('puid0');
+            if (empty($puid)) throw new Exception('代理不存在');
+            if ($unid == $puid) throw new Exception('不能绑定自己');
+            // 检查代理资格
+            $agent = PluginWemallUserRelation::mk()->where(['unid' => $puid])->findOrEmpty();
+            if ($agent->isEmpty()) throw new Exception('代理无推荐资格');
+            if (strpos($agent->getAttr('path'), ",{$unid},") !== false) throw new Exception('不能绑定下级');
             Library::$sapp->db->transaction(function () use ($user, $agent, $mode) {
                 // 更新用户代理
-                $path1 = rtrim($agent['path'] ?: '-', '-') . "-{$agent['id']}-";
-                $user->save(['pid0' => $agent['id'], 'puid1' => $agent['id'], 'pid2' => $agent['puid1'], 'pids' => $mode > 0 ? 1 : 0, 'path' => $path1, 'layer' => substr_count($path1, '-')]);
+                $path1 = rtrim($agent['path'] ?: ',', ',') . ",{$agent['id']},";
+                $user->save(['puid0' => $agent['id'], 'puid1' => $agent['id'], 'puid2' => $agent['puid1'], 'pids' => $mode > 0 ? 1 : 0, 'path' => $path1, 'layer' => substr_count($path1, ',')]);
                 // 更新下级代理
-                $path2 = "{$user['path']}{$user['id']}-";
-                if (PluginAccountUser::mk()->whereLike('path', "{$path2}%")->count() > 0) {
-                    foreach (PluginAccountUser::mk()->whereLike('path', "{$path2}%")->order('layer desc')->select() as $item) {
-                        $attr = array_reverse(str2arr($path3 = preg_replace("#^{$path2}#", "{$path1}{$user['id']}-", $item['path']), '-'));
-                        $item->save(['pid0' => $attr[0] ?? 0, 'puid1' => $attr[0] ?? 0, 'pid2' => $attr[1] ?? 0, 'path' => $path3, 'layer' => substr_count($path3, '-')]);
+                $path2 = ",{$user['path']}{$user['id']},";
+                if (PluginWemallUserRelation::mk()->whereLike('path', "{$path2}%")->count() > 0) {
+                    foreach (PluginWemallUserRelation::mk()->whereLike('path', "{$path2}%")->order('layer desc')->select() as $item) {
+                        $attr = array_reverse(str2arr($path3 = preg_replace("#^{$path2}#", "{$path1}{$user['id']},", $item['path'])));
+                        $item->save(['puid0' => $attr[0] ?? 0, 'puid1' => $attr[0] ?? 0, 'puid2' => $attr[1] ?? 0, 'path' => $path3, 'layer' => substr_count($path3, '-')]);
                     }
                 }
             });
             static::upgrade($user['id']);
-            return [1, '绑定代理成功'];
+            return $agent->toArray();
+        } catch (Exception $exception) {
+            throw $exception;
         } catch (\Exception $exception) {
-            return [0, "绑定代理失败, {$exception->getMessage()}"];
+            throw new Exception("绑定代理失败, {$exception->getMessage()}");
         }
     }
 
@@ -91,7 +119,7 @@ class UserUpgradeService extends Service
         $relation = PluginWemallUserRelation::mk()->where(['unid' => $unid])->findOrEmpty();
         if ($relation->isEmpty()) return true;
         // 初始化等级参数
-        $levels = PluginWemallConfigUpgrade::mk()->where(['status' => 1])->select()->toArray();
+        $levels = PluginWemallConfigLevel::mk()->where(['status' => 1])->select()->toArray();
         [$levelName, $levelCode, $levelTeams] = [$levels[0]['name'] ?? '普通用户', 0, []];
         // 统计用户数据
         foreach ($levels as $level => $vo) if ($vo['upgrade_team'] === 1) $levelTeams[] = $level;

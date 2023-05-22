@@ -16,9 +16,8 @@
 
 namespace plugin\wemall\controller\shop;
 
-use plugin\payment\service\Payment as PaymentService;
 use plugin\wemall\model\PluginWemallConfigDiscount;
-use plugin\wemall\model\PluginWemallConfigUpgrade;
+use plugin\wemall\model\PluginWemallConfigLevel;
 use plugin\wemall\model\PluginWemallExpressTemplate;
 use plugin\wemall\model\PluginWemallGoods;
 use plugin\wemall\model\PluginWemallGoodsCate;
@@ -54,7 +53,7 @@ class Goods extends Controller
             $this->title = '商品数据管理';
             $this->cates = PluginWemallGoodsCate::items();
             $this->marks = PluginWemallGoodsMark::items();
-            $this->upgrades = PluginWemallConfigUpgrade::items(true);
+            $this->upgrades = PluginWemallConfigLevel::items(true);
             $this->deliverys = PluginWemallExpressTemplate::items(true);
         }, function (QueryHelper $query) {
             $query->withoutField('specs,content');
@@ -138,16 +137,15 @@ class Goods extends Controller
         if ($this->request->isGet()) {
             $this->marks = PluginWemallGoodsMark::items();
             $this->cates = PluginWemallGoodsCate::items(true);
-            $this->payments = PaymentService::items(true);
-            $this->upgrades = PluginWemallConfigUpgrade::items(true);
+            $this->upgrades = PluginWemallConfigLevel::items(true);
             $this->discounts = PluginWemallConfigDiscount::items(true);
             $this->deliverys = PluginWemallExpressTemplate::items(true);
             $data['marks'] = $data['marks'] ?? [];
             $data['cates'] = $data['cates'] ?? [];
-            $data['payment'] = $data['payment'] ?? [];
             $data['delivery_code'] = $data['delivery_code'] ?? 'FREE';
             $data['specs'] = json_encode($data['specs'] ?? [], 64 | 256);
             $data['items'] = PluginWemallGoodsItem::itemsJson($data['code']);
+            $data['slider'] = is_array($data['slider']) ? join('|', $data['slider']) : '';
         } elseif ($this->request->isPost()) try {
             if (empty($data['cover'])) $this->error('商品图片不能为空！');
             if (empty($data['slider'])) $this->error('轮播图片不能为空！');
@@ -156,9 +154,10 @@ class Goods extends Controller
             foreach ($items as $item) if ($item['status'] > 0) $count++;
             if (empty($count)) $this->error('无效的的商品价格信息！');
             $data['marks'] = arr2str($data['marks'] ?? []);
-            $data['payment'] = arr2str(in_array('all', $data['payment'] ?? []) ? ['all'] : ($data['payment'] ?? []));
             $data['price_market'] = min(array_column($items, 'market'));
             $data['price_selling'] = min(array_column($items, 'selling'));
+            $data['allow_balance'] = max(array_column($items, 'allow_balance'));
+            $data['allow_integral'] = max(array_column($items, 'allow_integral'));
             $this->app->db->transaction(function () use ($data, $items) {
                 PluginWemallGoods::mk()->where(['code' => $data['code']])->findOrEmpty()->save($data);
                 PluginWemallGoodsItem::mk()->where(['gcode' => $data['code']])->update(['status' => 0]);
@@ -171,6 +170,8 @@ class Goods extends Controller
                         'gcode'           => $data['code'],
                         'price_market'    => $item['market'],
                         'price_selling'   => $item['selling'],
+                        'allow_balance'   => $item['allow_balance'],
+                        'allow_integral'  => $item['allow_integral'],
                         'number_virtual'  => $item['virtual'],
                         'number_express'  => $item['express'],
                         'reward_balance'  => $item['balance'],

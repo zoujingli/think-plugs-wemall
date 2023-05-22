@@ -1,31 +1,44 @@
+<!--{literal}-->
+<style>
+    .design-setting-tpl input[type=number].layui-input {
+        height: 28px;
+        line-height: 28px;
+        text-align: center;
+    }
+</style>
 <script class="layui-hide" type="text/html" id="LayoutSettingFormTemplate">
-    <div>
-        <div v-for="(x,$index) in items" :key="Math.random()">
-            <label v-if="x.type==='页面间距'" class="layui-form-item flex flex-align-center">
+    <div class="design-setting-tpl">
+        <div v-for="(x,$index) in items" :key="x.unid">
+            <div v-if="x.type==='页面间距'" class="layui-form-item flex flex-align-center">
                 <span class="design-form-label">{{x.name || '页面间距'}}</span>
-                <input type="range" min="0" step="0.01" v-model="mstyle.vMarginTop" max="10">
-                <span class="layui-form-label text-left flex-1" style="width:auto">{{mstyle.vMarginTop}} vw</span>
-            </label>
-            <label v-if="x.type==='上下内距'" class="layui-form-item flex flex-align-center">
+                <label class="padding-top-5"><input type="range" min="0" max="10" step="0.01" v-model="mstyle.vMarginTop"></label>
+                <label class="padding-left-5"><input type="number" min="0" max="10" step="0.01" v-range v-model="mstyle.vMarginTop" class="layui-input"></label>
+                <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto">vw</span>
+            </div>
+            <div v-if="x.type==='上下内距'" class="layui-form-item flex flex-align-center">
                 <span class="design-form-label">{{x.name || '上下内距'}}</span>
-                <input type="range" min="0" step="0.01" v-model="mstyle.vPaddingTopBottom" max="10">
-                <span class="layui-form-label text-left flex-1" style="width:auto">{{mstyle.vPaddingTopBottom}} vw</span>
-            </label>
-            <label v-if="x.type==='左右内距'" class="layui-form-item flex flex-align-center">
+                <label class="padding-top-5"><input type="range" min="0" max="10" step="0.01" v-model="mstyle.vPaddingTopBottom"></label>
+                <label class="padding-left-5"><input type="number" min="0" max="10" step="0.01" v-range v-model="mstyle.vPaddingTopBottom" class="layui-input"></label>
+                <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto">vw</span>
+            </div>
+            <div v-if="x.type==='左右内距'" class="layui-form-item flex flex-align-center">
                 <span class="design-form-label">{{x.name || '左右内距'}}</span>
-                <input type="range" min="0" step="0.01" v-model="mstyle.vPaddingLeftRight" max="10">
-                <span class="layui-form-label text-left flex-1" style="width:auto">{{mstyle.vPaddingLeftRight}} vw</span>
-            </label>
-            <label v-if="x.type==='上下间距'" class="layui-form-item flex flex-align-center">
+                <label class="padding-top-5"><input type="range" min="0" max="10" step="0.01" v-model="mstyle.vPaddingLeftRight"></label>
+                <label class="padding-left-5"><input type="number" min="0" max="10" step="0.01" v-range v-model="mstyle.vPaddingLeftRight" class="layui-input"></label>
+                <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto">vw</span>
+            </div>
+            <div v-if="x.type==='上下间距'" class="layui-form-item flex flex-align-center">
                 <span class="design-form-label">{{x.name || '上下间距'}}</span>
-                <input type="range" min="0" step="0.01" v-model="mstyle.vMarginTopBottom" max="10">
-                <span class="layui-form-label text-left flex-1" style="width:auto">{{mstyle.vMarginTopBottom}} vw</span>
-            </label>
-            <label v-if="x.type==='左右间距'" class="layui-form-item flex flex-align-center">
+                <label class="padding-top-5"><input type="range" min="0" max="10" step="0.01" v-model="mstyle.vMarginTopBottom"></label>
+                <label class="padding-left-5"><input type="number" min="0" max="10" step="0.01" v-range v-model="mstyle.vMarginTopBottom" class="layui-input"></label>
+                <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto">vw</span>
+            </div>
+            <div v-if="x.type==='左右间距'" class="layui-form-item flex flex-align-center">
                 <span class="design-form-label">{{x.name || '左右间距'}}</span>
-                <input type="range" min="0" step="0.01" v-model="mstyle.vMarginLeftRight" max="10">
-                <span class="layui-form-label text-left flex-1" style="width:auto">{{mstyle.vMarginLeftRight}} vw</span>
-            </label>
+                <label class="padding-top-5"><input type="range" min="0" max="10" step="0.01" v-model="mstyle.vMarginLeftRight"></label>
+                <label class="padding-left-5"><input type="number" min="0" max="10" step="0.01" v-range v-model="mstyle.vMarginLeftRight" class="layui-input"></label>
+                <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto">vw</span>
+            </div>
             <div v-if="x.type==='边框位置'" class="layui-form-item flex flex-align-center">
                 <span class="design-form-label">{{x.name || '边框位置'}}</span>
                 <div class="flex-1">
@@ -54,31 +67,36 @@
                     <color-picker :mstyle="mstyle" mfield="borderColor"></color-picker>
                 </div>
             </div>
-            <label v-if="x.type==='边框宽度'" class="layui-form-item flex flex-align-center">
+            <div v-if="x.type==='边框宽度'" class="layui-form-item flex flex-align-center">
                 <span class="design-form-label">{{x.name || '边框宽度'}}</span>
-                <input type="range" min="0" step="0.01" v-model="mstyle.vBorderWidth" max="10">
-                <span class="layui-form-label text-left flex-1" style="width:auto">{{mstyle.vBorderWidth}} vw</span>
-            </label>
-            <label v-if="x.type==='边框圆角'" class="layui-form-item flex flex-align-center">
+                <label class="padding-top-5"><input type="range" min="0" max="10" step="0.01" v-model="mstyle.vBorderWidth"></label>
+                <label class="padding-left-5"><input type="number" min="0" max="10" step="0.01" v-range v-model="mstyle.vBorderWidth" class="layui-input"></label>
+                <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto">vw</span>
+            </div>
+            <div v-if="x.type==='边框圆角'" class="layui-form-item flex flex-align-center">
                 <span class="design-form-label">{{x.name || '边框圆角'}}</span>
-                <input type="range" step="0.01" min="0" max="50" v-model="mstyle.vBorderRadius">
-                <span class="layui-form-label text-left flex-1">{{mstyle.vBorderRadius}} vw</span>
-            </label>
-            <label v-if="x.type==='容器宽度'" class="layui-form-item flex flex-align-center">
+                <label class="padding-top-5"><input type="range" min="0" max="50" step="0.01" v-model="mstyle.vBorderRadius"></label>
+                <label class="padding-left-5"><input type="number" min="0" max="50" step="0.01" v-range v-model="mstyle.vBorderRadius" class="layui-input"></label>
+                <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto">vw</span>
+            </div>
+            <div v-if="x.type==='容器宽度'" class="layui-form-item flex flex-align-center">
                 <span class="design-form-label">{{x.name || '容器宽度'}}</span>
-                <input type="range" min="0.01" step="0.01" v-model="mstyle.vWidth" max="100">
-                <span class="layui-form-label text-left flex-1">{{mstyle.vWidth}} %</span>
-            </label>
-            <label v-if="x.type==='容器宽度2'" class="layui-form-item flex flex-align-center">
+                <label class="padding-top-5"><input type="range" min="0.01" max="100" step="0.01" v-model="mstyle.vWidth"></label>
+                <label class="padding-left-5"><input type="number" min="0.01" max="100" step="0.01" v-range v-model="mstyle.vWidth" class="layui-input"></label>
+                <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto">%</span>
+            </div>
+            <div v-if="x.type==='容器宽度2'" class="layui-form-item flex flex-align-center">
                 <span class="design-form-label">{{x.name || '容器宽度'}}</span>
-                <input type="range" min="0.01" step="0.01" v-model="mstyle.vWidth2" max="100">
-                <span class="layui-form-label text-left flex-1">{{mstyle.vWidth2}} vw</span>
-            </label>
-            <label v-if="x.type==='容器高度'" class="layui-form-item flex flex-align-center">
+                <label class="padding-top-5"><input type="range" min="0" max="100" step="0.01" v-model="mstyle.vWidth2"></label>
+                <label class="padding-left-5"><input type="number" min="0" max="100" step="0.01" v-range v-model="mstyle.vWidth2" class="layui-input"></label>
+                <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto">vw</span>
+            </div>
+            <div v-if="x.type==='容器高度'" class="layui-form-item flex flex-align-center">
                 <span class="design-form-label">{{x.name || '容器高度'}}</span>
-                <input type="range" min="0.01" step="0.01" v-model="mstyle.vHeight" max="100">
-                <span class="layui-form-label text-left flex-1" style="width:auto">{{mstyle.vHeight}} vw</span>
-            </label>
+                <label class="padding-top-5"><input type="range" min="0.01" max="100" step="0.01" v-model="mstyle.vHeight"></label>
+                <label class="padding-left-5"><input type="number" min="0.01" max="100" step="0.01" v-range v-model="mstyle.vHeight" class="layui-input"></label>
+                <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto">vw</span>
+            </div>
             <div v-if="x.type==='文字位置'" class="layui-form-item flex flex-align-center">
                 <span class="design-form-label">{{x.name || '文字位置'}}</span>
                 <div class="flex-1">
@@ -89,21 +107,24 @@
                     </div>
                 </div>
             </div>
-            <label v-if="x.type==='文字粗细'" class="layui-form-item flex flex-align-center">
+            <div v-if="x.type==='文字粗细'" class="layui-form-item flex flex-align-center">
                 <span class="design-form-label">{{x.name || '文字粗细'}}</span>
-                <input type="range" min="100" step="100" v-model="mstyle.fontWeight" max="900">
-                <span class="layui-form-label text-left flex-1" style="width:auto">{{mstyle.fontWeight}}</span>
-            </label>
-            <label v-if="x.type==='文字行高'" class="layui-form-item flex flex-align-center">
+                <label class="padding-top-5"><input type="range" min="100" max="900" step="100" v-model="mstyle.fontWeight"></label>
+                <label class="padding-left-5"><input type="number" min="100" max="900" step="100" v-range v-model="mstyle.fontWeight" class="layui-input"></label>
+                <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto"></span>
+            </div>
+            <div v-if="x.type==='文字行高'" class="layui-form-item flex flex-align-center">
                 <span class="design-form-label">{{x.name || '文字行高'}}</span>
-                <input type="range" min="0" step="0.01" v-model="mstyle.vLineHeight" max="50">
-                <span class="layui-form-label text-left flex-1" style="width:auto">{{mstyle.vLineHeight}} vw</span>
-            </label>
-            <label v-if="x.type==='文字大小'" class="layui-form-item flex flex-align-center">
+                <label class="padding-top-5"><input type="range" min="0.01" max="50" step="0.01" v-model="mstyle.vLineHeight"></label>
+                <label class="padding-left-5"><input type="number" min="0.01" max="50" step="0.01" v-range v-model="mstyle.vLineHeight" class="layui-input"></label>
+                <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto">vw</span>
+            </div>
+            <div v-if="x.type==='文字大小'" class="layui-form-item flex flex-align-center">
                 <span class="design-form-label">{{x.name || '文字大小'}}</span>
-                <input type="range" min="0.05" step="0.01" v-model="mstyle.vFontSize" max="10">
-                <span class="layui-form-label text-left flex-1" style="width:auto">{{mstyle.vFontSize}} vw</span>
-            </label>
+                <label class="padding-top-5"><input type="range" min="0.05" max="10" step="0.01" v-model="mstyle.vFontSize"></label>
+                <label class="padding-left-5"><input type="number" min="0.05" max="10" step="0.01" v-range v-model="mstyle.vFontSize" class="layui-input"></label>
+                <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto">vw</span>
+            </div>
             <div v-if="x.type==='文字颜色'" class="layui-form-item flex">
                 <span class="design-form-label">{{x.name || '文字颜色'}}</span>
                 <color-picker :mstyle="mstyle" mfield="color"></color-picker>
@@ -133,18 +154,14 @@
 <script>
     function initVueComponents(Vue) {
 
-        Vue.directive('range', (el) => {
-            let value = el.value;
-            let max = el.max || null, min = el.min || null;
-            if (max !== null) value = Math.min(value, max);
-            if (min !== null) value = Math.max(value, min);
-            el.value = value;
-            setTimeout(() => el.value = value, 50)
+        Vue.directive('range', el => {
+            if (typeof el.max !== 'undefined') el.value = Math.min(el.value, el.max);
+            if (typeof el.min !== 'undefined') el.value = Math.max(el.value, el.min);
         });
 
         Vue.mixin({
                 methods: {
-                    copy: (x) => JSON.parse(JSON.stringify(x)),
+                    copy: x => JSON.parse(JSON.stringify(x)),
                     guid: pre => Math.random().toString().replace('0.', (pre || '')).substring(-16),
                     showText: txt => txt.replace(/\n/g, '<br>'),
                     showBgimg: src => ({backgroundImage: "url('" + src + "')"}),
@@ -230,6 +247,7 @@
             }
         );
 
+        // 颜色选择器
         Vue.component('ColorPicker', {
             data: () => ({eid: '', value: ''}),
             props: {mstyle: {type: Object, required: true}, mfield: {type: String, required: true}},
@@ -250,6 +268,7 @@
             }
         });
 
+        // 图片上传组件
         Vue.component('UploadImage', {
             data: () => ({eid: '', value: '', mclass: 'layui-show'}),
             props: {mstyle: {type: Object, required: true}, mfield: {type: String, required: true}, showinput: {type: Boolean, default: true}},
@@ -272,6 +291,7 @@
             }
         });
 
+        // 布局配置插件
         Vue.component('LayoutSetting', {
             data: () => ({items: []}),
             props: {mstyle: Object, mtypes: {type: String, default: '页面间距,边框圆角,容器宽度,容器高度'}},
@@ -280,17 +300,16 @@
                 this.mtypes.split(',').forEach(v => {
                     if (!v && typeof v !== 'string') return;
                     let attr = v.split('#');
-                    this.items.push({type: attr[0], name: attr[1] || '', guid: this.guid('_')});
+                    this.items.push({type: attr[0], name: attr[1] || '', unid: this.guid('my')});
                 });
             }, methods: {
                 /**
-                 * @param {String} field
+                 * @param {String} key
                  * @param {String} char
                  */
-                char: function (field, char) {
-                    let value = this.mstyle[field] || '';
-                    this.$set(this.mstyle, field, value.indexOf(char) >= 0 ? value.replace(new RegExp(char, 'i'), '') : (value + char));
-                    //this.mstyle[field] = value.indexOf(char) >= 0 ? value.replace(new RegExp(char, 'i'), '') : (value + char);
+                char: function (key, char) {
+                    let value = this.mstyle[key] || '';
+                    this.$set(this.mstyle, key, value.indexOf(char) >= 0 ? value.replace(new RegExp(char, 'i'), '') : (value + char));
                 }
             }
         });
@@ -298,3 +317,4 @@
         return Vue;
     }
 </script>
+<!--{/literal}-->

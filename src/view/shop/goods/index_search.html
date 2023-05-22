@@ -62,9 +62,13 @@
             <select class="layui-select" name="level_upgrade">
                 <option value=''>-- 全部状态 --</option>
                 {foreach $upgrades as $upgrade}{if isset($vo.level_upgrade) and $vo.level_upgrade eq $upgrade.number}
-                <option selected value="{$upgrade.number|default=0}">[ {$upgrade.prefix|default='0'} ] {$upgrade.name|default=''}</option>
+                <option value="{$upgrade.number|default=0}" selected>
+                    [ {$upgrade.prefix|default='0'} ] {if $upgrade.number eq 0}入会普通礼包，不升级{elseif $upgrade.number>0}入会升级礼包，升级到【{$upgrade.name|default=''}】{else} {$upgrade.name|default=''} {/if}
+                </option>
                 {else}
-                <option value="{$upgrade.number|default=0}">[ {$upgrade.prefix|default='0'} ] {$upgrade.name|default=''}</option>
+                <option value="{$upgrade.number|default=0}">
+                    [ {$upgrade.prefix|default='0'} ] {if $upgrade.number eq 0}入会普通礼包，不升级{elseif $upgrade.number>0}入会升级礼包，升级到【{$upgrade.name|default=''}】{else} {$upgrade.name|default=''} {/if}
+                </option>
                 {/if}{/foreach}
             </select>
         </label>

@@ -3,7 +3,7 @@
     <transition-group>
         <div sv-element v-for="(x,$index) in items" :key="x.unid" :sv-drag="x.top?'forbid':''" :class="x.active?'active':''" @click="setItem($index)">
 
-            <div class="layui-tpl-btn shadow layui-anim layui-anim-fadein">
+            <div class="layui-tpl-btn layui-anim layui-anim-fadein">
                 <a @click="moveUp(items,$index,true)" v-if="!x.top"><i style="transform:rotate(090deg)" class="layui-icon inline-block">&#xe65c;</i></a>
                 <a @click="moveRm(items,$index,true)" v-if="!x.lock"><i class="layui-icon">&#xe640;</i></a>
                 <a @click="moveDn(items,$index,true)" v-if="!x.top"><i style="transform:rotate(270deg)" class="layui-icon inline-block">&#xe65c;</i></a>
@@ -30,202 +30,19 @@
                     </div>
                 </div>
 
-                <div v-else-if="x.type==='PageCates'">
-                    <div class="flex-align-center auto-center">
-                        <div v-for="xx in defaultCenterTypes" class="full-100 ">
-                            <img :src="xx.image" style="height:auto;width:100%">
-                        </div>
-                    </div>
-                </div>
-
-                <div v-else-if="x.type==='PageCenter'">
-                    <div class="auto-center" style="background:rgb(191, 13, 13);color:white;">
-                        <div class="flex flex-align-center padding-top-20 padding-bottom-20">
-                            <div class="headimg margin-left-30" style="width:60px;height:60px" data-lazy-src="__ROOT__/static/theme/img/headimg.png"></div>
-                            <div class="flex-5 margin-left-20">
-                                <div>用户昵称</div>
-                                <div>绑定手机号</div>
-                            </div>
-                            <div>
-                                <a style="position:absolute;margin-top:-40px;right:20px;color:#fff">
-                                    <i class="layui-icon layui-icon-set"></i>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="flex flex-align-center padding-top-20 padding-bottom-20">
-                            <div class="flex-1 flex flex-align-center flex-direction-column">
-                                <b class="font-s16">0.00</b><span>我的余额</span>
-                            </div>
-                            <div class="flex-1 flex flex-align-center flex-direction-column">
-                                <b class="font-s16">7895</b><span>当前积分</span>
-                            </div>
-                            <div class="flex-1 flex flex-align-center flex-direction-column">
-                                <b class="font-s16">1</b><span>会员等级</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="auto-center padding-20">
-                        <div style="border:1px solid rgba(0,0,0,0.2);border-radius:5px">
-                            <div class="padding-left-10 padding-right-10 padding-top-10" style="line-height:3em">
-                                <b class="font-s14"> 订单中心</b>
-                                <a class="pull-right">查看部分 <i class="layui-icon layui-icon-next font-s12"></i></a>
-                            </div>
-                            <hr style="margin:5px 0">
-                            <div class="flex flex-align-center">
-                                <div class="flex-1 padding-10 flex flex-align-center flex-direction-column">
-                                    <b class="font-s16">1</b><span>待付款</span>
-                                </div>
-                                <div class="flex-1 padding-10 flex flex-align-center flex-direction-column">
-                                    <b class="font-s16">2</b><span>待发货</span>
-                                </div>
-                                <div class="flex-1 padding-10 flex flex-align-center flex-direction-column">
-                                    <b class="font-s16">1</b><span>待收货</span>
-                                </div>
-                                <div class="flex-1 padding-10 flex flex-align-center flex-direction-column">
-                                    <b class="font-s16">0</b><span>待评论</span>
-                                </div>
-                                <div class="flex-1 padding-10 flex flex-align-center flex-direction-column">
-                                    <b class="font-s16">0</b><span>售后/退款</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="auto-center padding-left-20 padding-right-20 padding-bottom-20">
-                        <div style="border:1px solid rgba(0,0,0,0.2);border-radius:5px">
-                            <div class="padding-left-10 padding-right-10 padding-top-10" style="line-height:3em">
-                                <b class="font-s14"> 我的服务</b>
-                            </div>
-                            <hr style="margin:5px 0">
-                            <div class="flex flex-align-center">
-                                <div class="padding-10">我的推广</div>
-                            </div>
-                            <hr style="margin:5px 0">
-                            <div class="flex flex-align-center">
-                                <div class="padding-10">收货地址</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div v-else-if="x.type==='BaseGoods'" :style="showStyle(x.outerStyle)">
-                    <div v-if="x.inputStyle.vType===0" class="flex-align-center auto-center" :style="showStyle(x.interStyle||{})">
-                        <div class="flex flex-direction-column" v-for="xx in parseInt(x.inputStyle.vNumber)" style="padding:10px 0">
-                            <div class="uploadimage" style="width:100%;height:350px" data-lazy-src="__FULL__/static/theme/img/image.png"></div>
-                            <div class="flex-1 text-left margin-top-10">
-                                <div style="font-size:14px;line-height:1.4em" class="think-elips-2">
-                                    商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题
-                                </div>
-                                <div style="font-size:16px;color:orangered;margin-top:10px">￥199 <s style="font-size:12px;color:grey">￥200</s></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div v-if="x.inputStyle.vType===1" class="flex flex-wrap flex-align-center flex-justify-space-around auto-center" :style="showStyle(x.interStyle||{})">
-                        <div v-for="xx in parseInt(x.inputStyle.vNumber)" style="padding:10px 0;width:45%">
-                            <div class="uploadimage" style="width:100%;height:150px" data-lazy-src="__FULL__/static/theme/img/image.png"></div>
-                            <div class="flex-1 text-left margin-top-10">
-                                <div style="font-size:14px;line-height:1.4em" class="think-elips-2">
-                                    商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题
-                                </div>
-                                <div style="font-size:16px;color:orangered;margin-top:10px">￥199 <s style="font-size:12px;color:grey">￥200</s></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div v-if="x.inputStyle.vType===2" class="flex flex-wrap flex-align-center flex-justify-space-around auto-center" :style="showStyle(x.interStyle||{})">
-                        <div v-for="xx in parseInt(x.inputStyle.vNumber)" style="padding:10px 0;width:30%">
-                            <div class="uploadimage" style="width:100%;height:100px" data-lazy-src="__FULL__/static/theme/img/image.png"></div>
-                            <div class="flex-1 text-left margin-top-10">
-                                <div style="font-size:14px;line-height:1.4em" class="think-elips-2">
-                                    商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题
-                                </div>
-                                <div style="font-size:16px;color:orangered;">￥199 <s style="font-size:12px;color:grey">￥200</s></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div v-if="x.inputStyle.vType===3" class="flex-align-center auto-center" :style="showStyle(x.interStyle||{})">
-                        <div class="flex" v-for="xx in parseInt(x.inputStyle.vNumber)" style="padding:10px 0">
-                            <div style="width:90px;height:90px" class="uploadimage" data-lazy-src="__FULL__/static/theme/img/image.png"></div>
-                            <div class="flex-1 text-left padding-left-10">
-                                <div style="font-size:14px;line-height:1.4em" class="think-elips-2">
-                                    商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题
-                                </div>
-                                <s style="color:grey">￥200</s>
-                                <div style="font-size:15px;color:orangered">￥199</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div v-else-if="x.type==='BaseIcon'" :style="showStyle(x.outerStyle)">
-                    <div v-if="x.inputStyle.vType===0" class="auto-center flex overauto" :style="showStyle(x.interStyle||{})">
-                        <div v-for="xx in x.data" :key="xx.unid" class="flex-1 flex flex-direction-column flex-align-center">
-                            <div :style="showStyle(x.inputStyle||{},showBgimg(xx.image))" class="uploadimage shadow-none"></div>
-                            <div :style="showStyle(showStyle(x.inputStyle||{},{},'vWidth2'),x.fontStyle||{})" class="layui-elip">{{xx.name}}</div>
-                        </div>
-                    </div>
-                    <div v-if="x.inputStyle.vType===1" class="auto-center flex flex-wrap" :style="showStyle(x.interStyle||{})">
-                        <div v-for="xx in x.data" :key="xx.unid" class="flex flex-direction-column">
-                            <div :style="showStyle(x.inputStyle||{},showBgimg(xx.image))" class="uploadimage shadow-none"></div>
-                            <div :style="showStyle(showStyle(x.inputStyle||{},{},'vWidth2'),x.fontStyle||{})" class="layui-elip">{{xx.name}}</div>
-                        </div>
-                    </div>
-                </div>
-
                 <div v-else-if="x.type==='ToolWechat'" :style="showStyle(x.outerStyle)">
-                    <div class="auto-center flex flex-align-center flex-direction-column" :style="showStyle(x.interStyle||{})">
+                    <div class="flex auto-center flex-align-center flex-direction-column" :style="showStyle(x.interStyle||{})">
                         <div :style="showStyle(x.inputStyle||{},showBgimg(x.inputStyle.vImage||''))" class="uploadimage shadow-none"></div>
                         <div :style="showStyle(x.fontStyle||{})" class="layui-elip">{{x.inputStyle.vTitle}}</div>
                     </div>
                 </div>
 
-                <div v-else-if="x.type==='BaseImage'" :style="showStyle(x.outerStyle)">
-                    <div class="auto-center flex" :style="showStyle(x.interStyle||{})">
-                        <div v-if="x.inputStyle.vType===0" class="flex-1 flex">
-                            <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[0].image))" class="uploadimage border-radius-0 shadow-inset full-height flex-1"></div>
-                        </div>
-                        <div v-if="x.inputStyle.vType===1" class="flex-1 flex">
-                            <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[0].image))" class="uploadimage shadow-inset full-height flex-1"></div>
-                            <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[1].image))" class="uploadimage shadow-inset full-height flex-1"></div>
-                        </div>
-                        <div v-if="x.inputStyle.vType===2" class="flex-1 flex">
-                            <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[0].image))" class="uploadimage shadow-inset full-height flex-1"></div>
-                            <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[1].image))" class="uploadimage shadow-inset full-height flex-1"></div>
-                            <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[2].image))" class="uploadimage shadow-inset full-height flex-1"></div>
-                        </div>
-                        <div v-if="x.inputStyle.vType===3" class="flex-1 flex">
-                            <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[0].image))" class="uploadimage shadow-inset full-height flex-1"></div>
-                            <div class="flex-1 flex flex-direction-column">
-                                <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[1].image))" class="uploadimage shadow-inset full-100"></div>
-                                <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[2].image))" class="uploadimage shadow-inset full-100"></div>
-                            </div>
-                        </div>
-                        <div v-if="x.inputStyle.vType===4" class="flex-1 flex">
-                            <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[0].image))" class="uploadimage shadow-inset full-100"></div>
-                            <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[1].image))" class="uploadimage shadow-inset full-100"></div>
-                            <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[2].image))" class="uploadimage shadow-inset full-100"></div>
-                            <div :style="showStyle(x.inputStyle||{},showBgimg(x.data[3].image))" class="uploadimage shadow-inset full-100"></div>
-                        </div>
-                        <div v-if="x.inputStyle.vType===5" class="flex-1 flex flex-direction-column">
-                            <div class="flex flex-1 flex-direction-row">
-                                <div class="flex-1" :style="showStyle(x.inputStyle||{})">
-                                    <div :style="showBgimg(x.data[0].image)" class="uploadimage border-radius-0 shadow-inset full-100 flex-1"></div>
-                                </div>
-                                <div class="flex-1" :style="showStyle(x.inputStyle||{})">
-                                    <div :style="showBgimg(x.data[1].image)" class="uploadimage border-radius-0 shadow-inset full-100 flex-1"></div>
-                                </div>
-                            </div>
-                            <div class="flex flex-1 flex-direction-row">
-                                <div class="flex-1" :style="showStyle(x.inputStyle||{})">
-                                    <div :style="showBgimg(x.data[2].image)" class="uploadimage border-radius-0 shadow-inset full-100"></div>
-                                </div>
-                                <div class="flex-1" :style="showStyle(x.inputStyle||{})">
-                                    <div :style="showBgimg(x.data[3].image)" class="uploadimage border-radius-0 shadow-inset full-100"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {include file='base/design/index-view-icon'}
+                {include file='base/design/index-view-image'}
+                {include file='base/design/index-view-goods'}
+                {include file='base/design/index-view-page-cate'}
+                {include file='base/design/index-view-page-cart'}
+                {include file='base/design/index-view-page-center'}
 
                 <div v-else-if="x.type==='BaseSearch'" :style="showStyle(x.outerStyle)">
                     <div class="flex auto-center flex-align-center" :style="showStyle(x.interStyle||{})">
@@ -238,9 +55,7 @@
 
                 <div v-else-if="x.type==='ToolTitle'" :style="showStyle(x.outerStyle)">
                     <div class="auto-center" :style="showStyle(x.interStyle||{})">
-                        <div :style="showStyle(x.inputStyle||{})">
-                            {{x.inputStyle.vText || ''}}
-                        </div>
+                        <div :style="showStyle(x.inputStyle||{})">{{x.inputStyle.vText || ''}}</div>
                     </div>
                 </div>
 

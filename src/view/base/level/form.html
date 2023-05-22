@@ -1,9 +1,9 @@
 <style>
     [data-level-zero] {
         top: 0;
-        left: -10px;
-        right: -10px;
-        bottom: 3px;
+        left: 0;
+        right: 0;
+        bottom: 2px;
         color: #FFF;
         display: flex;
         position: absolute;
@@ -13,7 +13,7 @@
         border-radius: 3px;
         letter-spacing: 1px;
         justify-content: center;
-        background: rgba(0, 0, 0, 0.4);
+        background: rgba(0, 0, 0, 0.5);
         text-shadow: #666 1px 1px 3px;
     }
 
@@ -29,61 +29,68 @@
 <form action="{:sysuri()}" class="layui-form layui-card" data-auto="true" method="post">
     <div class="layui-card-body padding-left-40">
 
-        <fieldset class="layui-form-item layui-bg-gray">
-            <legend><span class="layui-badge layui-bg-cyan">用户等级</span></legend>
-            <div class="layui-form-item layui-row layui-col-space15">
-                <div class="layui-col-xs3 block relative">
-                    <span class="help-label label-required-prev"><b>等级序号</b>Serial</span>
-                    <select class="layui-select" name="number" lay-filter="number">
-                        {for start="0" end="$max" name="i"}{if isset($vo.number) and $vo.number eq $i}
-                        <option selected value="{$i}">当前 VIP {$vo.number} 等级</option>
-                        {else}
-                        <option value="{$i}">设置 VIP {$i} 等级</option>
-                        {/if}{/for}
-                    </select>
-                </div>
-                <div class="layui-col-xs9">
-                    <label class="block relative">
-                        <span class="help-label label-required-prev"><b>等级名称</b>Name</span>
-                        <input class="layui-input" name="name" placeholder="请输入等级名称" required value="{$vo.name|default=''}">
-                    </label>
-                </div>
+        <div class="layui-form-item flex">
+            <div class="flex-1">
+                <span class="help-label label-required-prev"><b>等级序号</b>Level Serial</span>
+                <select class="layui-select" name="number" lay-filter="number">
+                    {for start="0" end="$max" name="i"}{if isset($vo.number) and $vo.number eq $i}
+                    <option selected value="{$i}">当前 VIP {$vo.number} 等级</option>
+                    {else}
+                    <option value="{$i}">设置 VIP {$i} 等级</option>
+                    {/if}{/for}
+                </select>
             </div>
-        </fieldset>
+            <label class="flex-3 margin-left-15 relative">
+                <span class="help-label label-required-prev"><b>等级名称</b>Level Name</span>
+                <input class="layui-input" name="name" placeholder="请输入等级名称" required value="{$vo.name|default=''}">
+            </label>
+        </div>
 
-        <div class="layui-row layui-col-space15">
-            <div class="layui-col-xs6">
-                <fieldset class="layui-form-item layui-bg-gray">
-                    <legend><span class="layui-badge layui-bg-cyan">团队计数</span></legend>
-                    {empty name='vo.upgrade_team'}{assign name='vo.upgrade_team' value='1'}{/empty}
-                    <div class="layui-form-item">
-                        {foreach ['不参与团队计数','参与团队计数'] as $k => $v}
-                        {if isset($vo.upgrade_team) and $vo.upgrade_team eq $k}
-                        <input name="upgrade_team" type="radio" value="{$k}" title="{$v}" checked>
-                        {else}
-                        <input name="upgrade_team" type="radio" value="{$k}" title="{$v}">
-                        {/if}{/foreach}
-                    </div>
-                </fieldset>
-            </div>
-            <div class="layui-col-xs6">
-                <fieldset class="layui-form-item layui-bg-gray">
-                    <legend><span class="layui-badge layui-bg-cyan">升级规则</span></legend>
-                    <div class="layui-form-item notselect">
-                        {empty name='vo.upgrade_type'}{assign name='vo.upgrade_type' value='1'}{/empty}
-                        {foreach ['达成任意条件','达成全部条件'] as $k => $v}
-                        {if isset($vo.upgrade_type) and $vo.upgrade_type eq $k}
-                        <input name="upgrade_type" type="radio" value="{$k}" title="{$v}" checked>
-                        {else}
-                        <input name="upgrade_type" type="radio" value="{$k}" title="{$v}">
-                        {/if}{/foreach}
-                    </div>
-                </fieldset>
+        <div class="layui-form-item">
+            <span class="help-label"><b>等级图标</b>Level Cover</span>
+            <div class="relative block">
+                <input class="layui-input think-bg-gray" pattern="^https?://" name="cover" vali-name="等级图标" placeholder="请上传等级图标" value='{$vo.cover|default=""}'>
+                <a class="layui-icon layui-icon-upload input-right-icon" data-field="cover" data-file data-type="png,jpg,gif,jpeg"></a>
+                <script>$('[name="cover"]').uploadOneImage()</script>
             </div>
         </div>
 
-        <fieldset class="layui-form-item layui-bg-gray">
-            <legend><span class="layui-badge layui-bg-cyan">升级条件</span></legend>
+        <div class="layui-form-item flex">
+            <div class="flex-1">
+                <span class="help-label"><b>团队计数</b>Team Count</span>
+                {empty name='vo.upgrade_team'}{assign name='vo.upgrade_team' value='1'}{/empty}
+                <div class="layui-input help-checks">
+                    {foreach ['不参与团队计数','参与团队计数'] as $k => $v}
+                    <label class="think-radio">
+                        {if isset($vo.upgrade_team) and $vo.upgrade_team eq $k}
+                        <input name="upgrade_team" type="radio" value="{$k}" checked lay-ignore> {$v}
+                        {else}
+                        <input name="upgrade_team" type="radio" value="{$k}" lay-ignore> {$v}
+                        {/if}
+                    </label>
+                    {/foreach}
+                </div>
+            </div>
+            <div class="padding-left-15"></div>
+            <div class="flex-1">
+                <span class="help-label"><b>升级规则</b>Level Cover</span>
+                {empty name='vo.upgrade_type'}{assign name='vo.upgrade_type' value='1'}{/empty}
+                <div class="layui-input help-checks">
+                    {foreach ['达成任意条件','达成全部条件'] as $k => $v}
+                    <label class="think-radio">
+                        {if isset($vo.upgrade_type) and $vo.upgrade_type eq $k}
+                        <input name="upgrade_type" type="radio" value="{$k}" checked lay-ignore> {$v}
+                        {else}
+                        <input name="upgrade_type" type="radio" value="{$k}" lay-ignore> {$v}
+                        {/if}
+                    </label>
+                    {/foreach}
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-form-item layui-bg-gray">
+            <span class="help-label"><b>升级条件</b>Level Upgrade</span>
             <div class="font-s13 relative">
                 <div>
                     <label class="think-checkbox notselect">
@@ -145,7 +152,7 @@
                 </div>
                 <div data-level-zero class="layui-hide notselect">默认等级，无需配置升级规则</div>
             </div>
-        </fieldset>
+        </div>
 
         <fieldset class="layui-form-item layui-hide">
             <legend><span class="layui-badge layui-bg-cyan">等级描述</span></legend>

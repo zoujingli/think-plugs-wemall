@@ -16,7 +16,6 @@
 
 namespace plugin\wemall\model;
 
-use plugin\payment\service\Payment;
 use think\model\relation\HasMany;
 
 /**
@@ -37,23 +36,6 @@ class PluginWemallGoods extends Abs
             ->hasMany(PluginWemallGoodsItem::class, 'gcode', 'code')
             ->withoutField('id,status,create_time,update_time')
             ->where(['status' => 1]);
-    }
-
-    /**
-     * 支付参数处理
-     * @param mixed $value
-     * @return array
-     */
-    public function getPaymentAttr($value): array
-    {
-        $data = [];
-        if (empty($items = sysvar('PluginPaymentItems'))) {
-            $items = sysvar('PluginPaymentItems', Payment::items(true));
-        }
-        foreach (is_string($value) ? str2arr($value) : (array)$value as $key) {
-            if (isset($items[$key])) $data[$key] = $items[$key];
-        }
-        return $data;
     }
 
     /**
@@ -82,6 +64,11 @@ class PluginWemallGoods extends Abs
         $cateids = is_string($value) ? str2arr($value) : (array)$value;
         foreach ($cates as $cate) if (in_array($cate['id'], $cateids)) return $cate;
         return [];
+    }
+
+    public function getSliderAttr($value): array
+    {
+        return is_string($value) ? str2arr($value, '|') : [];
     }
 
     public function setSpecsAttr($value): string

@@ -6,7 +6,7 @@
 {/block}
 
 {block name="content"}
-{include file='shop/goods/formstyle'}
+{include file='shop/goods/form_style'}
 <form action="{:sysuri()}" method="post" data-auto="true" class="layui-form layui-card">
     <div class="layui-card-body">
 
@@ -27,21 +27,6 @@
         </div>
         <!--{/notempty}-->
 
-        <div class="layui-form-item">
-            <span class="help-label label-required-prev"><b>支付方式</b>Payment Channel</span>
-            <div class="layui-textarea help-checks">
-                {foreach $payments as $payment}
-                <label class="think-checkbox">
-                    {if isset($vo.payment) && is_array($vo.payment) && isset($vo.payment[$payment.code])}
-                    <input name="payment[]" type="checkbox" value="{$payment.code}" lay-ignore checked> {$payment.name}
-                    {else}
-                    <input name="payment[]" type="checkbox" value="{$payment.code}" lay-ignore> {$payment.name}
-                    {/if}
-                </label>
-                {/foreach}
-            </div>
-        </div>
-
         <!--{notempty name='cates'}-->
         <div class="layui-form-item block relative">
             <span class="help-label label-required-prev"><b>所属分类</b>Category Name</span>
@@ -54,17 +39,6 @@
             </select>
         </div>
         <!--{/notempty}-->
-
-        <div class="layui-form-item block relative">
-            <span class="help-label label-required-prev"><b>物流配送</b>Express Template</span>
-            <select class="layui-select" name="delivery_code" lay-search>
-                {foreach $deliverys as $delivery}{if isset($vo.delivery_code) and $vo.delivery_code eq $delivery.code}
-                <option selected value="{$delivery.code}">[ {$delivery.code} ] {$delivery.name|default=''}{notempty name='delivery.company'} ( {:join('、',$delivery.company)} ){/notempty}</option>
-                {else}
-                <option value="{$delivery.code}">[ {$delivery.code} ] {$delivery.name|default=''}{notempty name='delivery.company'} ( {:join('、',$delivery.company)} ){/notempty}</option>
-                {/if}{/foreach}
-            </select>
-        </div>
 
         <label class="layui-form-item block relative">
             <span class="help-label"><b>商品名称</b>Product Name</span>
@@ -97,20 +71,31 @@
             </table>
         </div>
 
+        <div class="layui-form-item block relative">
+            <span class="help-label label-required-prev"><b>物流配送</b>Express Template</span>
+            <select class="layui-select" name="delivery_code" lay-search>
+                {foreach $deliverys as $delivery}{if isset($vo.delivery_code) and $vo.delivery_code eq $delivery.code}
+                <option selected value="{$delivery.code}">[ {$delivery.code} ] {$delivery.name|default=''}{notempty name='delivery.company'} ( {:join('、',$delivery.company)} ){/notempty}</option>
+                {else}
+                <option value="{$delivery.code}">[ {$delivery.code} ] {$delivery.name|default=''}{notempty name='delivery.company'} ( {:join('、',$delivery.company)} ){/notempty}</option>
+                {/if}{/foreach}
+            </select>
+        </div>
+
         <div class="goods-item-box">
             <div class="flex flex-wrap">
-                <!--{notempty name='upgrades'}-->
-                <fieldset class="layui-bg-gray">
+                <!--{if isset($upgrades) and count($upgrades)>1}-->
+                <fieldset class="layui-bg-gray notselect">
                     <legend><span class="layui-badge think-bg-violet">入会礼包配置</span></legend>
                     <div class="notselect">
                         <select class="layui-select" name="level_upgrade">
                             {foreach $upgrades as $upgrade}{if isset($vo.level_upgrade) and $vo.level_upgrade eq $upgrade.number}
                             <option value="{$upgrade.number|default=0}" selected>
-                                [ {$upgrade.prefix|default='0'} ] {if $upgrade.number eq 0}是入会礼包，不升级{elseif $upgrade.number>0}是入会礼包，升级到【{$upgrade.name|default=''}】{else} {$upgrade.name|default=''} {/if}
+                                [ {$upgrade.prefix|default='0'} ] {if $upgrade.number eq 0}入会普通礼包，不升级{elseif $upgrade.number>0}入会升级礼包，升级到【{$upgrade.name|default=''}】{else} {$upgrade.name|default=''} {/if}
                             </option>
                             {else}
                             <option value="{$upgrade.number|default=0}">
-                                [ {$upgrade.prefix|default='0'} ] {if $upgrade.number eq 0}是入会礼包，不升级{elseif $upgrade.number>0}是入会礼包，升级到【{$upgrade.name|default=''}】{else} {$upgrade.name|default=''} {/if}
+                                [ {$upgrade.prefix|default='0'} ] {if $upgrade.number eq 0}入会普通礼包，不升级{elseif $upgrade.number>0}入会升级礼包，升级到【{$upgrade.name|default=''}】{else} {$upgrade.name|default=''} {/if}
                             </option>
                             {/if}{/foreach}
                         </select>
@@ -131,7 +116,10 @@
                     </div>
                     <span class="help-block">限制低于该等级的用户不能购买！</span>
                 </fieldset>
-                <!--{/notempty}-->
+                <!--{else}-->
+                <input type="hidden" name="limit_lowvip" value="0">
+                <input type="hidden" name="level_upgrade" value="-1">
+                <!--{/if}-->
                 <fieldset class="layui-bg-gray">
                     <legend><span class="layui-badge think-bg-violet">限制购买数量</span></legend>
                     <label>
@@ -139,7 +127,7 @@
                         <span class="help-block">限制每人购买数量，为 0 时不限制！</span>
                     </label>
                 </fieldset>
-                <!--{notempty name='discounts'}-->
+                <!--{if isset($discounts) and count($discounts)>1}-->
                 <fieldset class="layui-bg-gray">
                     <legend><span class="layui-badge think-bg-violet">会员折扣方案</span></legend>
                     <select class="layui-select" lay-search name="discount_id">
@@ -151,26 +139,29 @@
                     </select>
                     <span class="help-block">当用户等级达到指定等级后可享有折扣！</span>
                 </fieldset>
-                <!--{/notempty}-->
+                <!--{else}-->
+                <input type="hidden" name="discount_id" value="0">
+                <!--{/if}-->
                 <fieldset class="layui-bg-gray">
                     <legend><span class="layui-badge think-bg-violet">商品返利配置</span></legend>
                     <div class="nowrap">
                         <div class="padding-top-5 padding-bottom-5">
+                            {empty name='vo.rebate_type'}{assign name='vo.rebate_type' value='0'}{/empty}
                             {foreach ['非返利商品','是返利商品'] as $k => $v}
-                            {if (isset($vo.rebate_type) and $vo.rebate_type eq $k) or (empty($vo.rebate_type) and $k eq 0)}
+                            {if isset($vo.rebate_type) and $vo.rebate_type eq $k}
                             <input checked name="rebate_type" title="{$v}" type="radio" value="{$k}">
                             {else}
                             <input name="rebate_type" title="{$v}" type="radio" value="{$k}">
                             {/if}{/foreach}
                         </div>
-                        <div class="help-block">当用户购买后的代理是否可以获得返利。</div>
+                        <div class="help-block">代理获得该商品线上支付部分的返利比例！</div>
                     </div>
                 </fieldset>
             </div>
         </div>
 
         <div class="layui-form-item" id="GoodsSpecsEditor">
-            <span class="help-label label-required-prev"><b>商品规格及商品SKU绑定</b><span class="color-red font-s12">（规格填写后不允许再次修改）</span></span>
+            <span class="help-label label-required-prev"><b>商品规格</b><span class="color-red font-s12">（规格填写后不允许再次修改）</span></span>
             <div class="margin-bottom-10" ng-class="{true:'layui-show'}[mode==='add'&&specs.length>0]" ng-repeat="x in specs track by $index" style="display:none">
                 <div class="goods-spec-box" style="background:#ddd">
                     <span class="text-center goods-spec-name">分组</span>
@@ -184,7 +175,7 @@
                         <a class="layui-btn layui-btn-sm layui-btn-primary goods-spec-btn" ng-click="delSpecRow(specs,$index)" ng-if="specs.length>1">删除</a>
                     </div>
                 </div>
-                <div class="goods-spec-box" ng-if="x.list && x.list.length > 0">
+                <div class="goods-spec-box" ng-if="x.list && x.list.length>0">
                     <label class="label-required-null inline-block margin-right-10 margin-bottom-5 relative nowrap" ng-repeat="xx in x.list">
                         <input lay-ignore ng-click="xx.check=checkListChecked(x.list,$event.target.checked)" ng-model="xx.check" type="checkbox">
                         <input ng-blur="trimSpace(xx,'name')" ng-keyup="trimSpace(xx,'name')" ng-model="xx.name" vali-name="规格" placeholder="请输入规格" required type="text">
@@ -200,22 +191,26 @@
                 <thead>
                 <tr>
                     <th class="nowrap" ng-repeat="x in navas track by $index"><b ng-bind="x"></b></th>
-                    <th class="text-center nowrap pointer" data-tips-text="批量设置商品SKU" ng-click="batchSet('sku',null,'请输入商品SKU代码')" width="12%"><b>商品SKU</b> <i class="layui-icon font-s13">&#xe63c;</i></th>
-                    <th class="text-center nowrap pointer" data-tips-text="批量设置市场价格" ng-click="batchSet('market',2,'请输入商品市场价格')" width="10%"><b>市场价格</b> <i class="layui-icon font-s13">&#xe63c;</i></th>
-                    <th class="text-center nowrap pointer" data-tips-text="批量设置销售价格" ng-click="batchSet('selling',2,'请输入商品市销售价格')" width="10%"><b>销售价格</b> <i class="layui-icon font-s13">&#xe63c;</i></th>
-                    <th class="text-center nowrap pointer" data-tips-text="批量设置奖励余额" ng-click="batchSet('balance',2,'请输入赠送账户余额')" width="10%"><b>奖励余额</b> <i class="layui-icon font-s13">&#xe63c;</i></th>
-                    <th class="text-center nowrap pointer" data-tips-text="批量设置奖励积分" ng-click="batchSet('integral',2,'请输入赠送用户积分')" width="10%"><b>奖励积分</b> <i class="layui-icon font-s13">&#xe63c;</i></th>
-                    <th class="text-center nowrap pointer" data-tips-text="批量设置虚拟销量" ng-click="batchSet('virtual',0,'请输入虚拟销量数值')" width="10%"><b>虚拟销量</b> <i class="layui-icon font-s13">&#xe63c;</i></th>
-                    <th class="text-center nowrap pointer" data-tips-text="批量设置快递系数" ng-click="batchSet('express',0,'请输入快递计费系数')" width="10%"><b>快递系数</b> <i class="layui-icon font-s13">&#xe63c;</i></th>
-                    <th class="text-center nowrap pointer" width="08%"><b>销售状态</b></th>
+                    <th class="nowrap" data-tips-text="批量设置商品SKU" ng-click="batchSet('sku',null,'请输入商品SKU代码')" width="12%"><b>商品SKU</b> <i class="layui-icon">&#xe63c;</i></th>
+                    <th class="nowrap color-blue" data-tips-text="批量设置市场价格" ng-click="batchSet('market',2,'请输入商品市场价格')" width="10%"><b>市场价格</b><i class="layui-icon">&#xe63c;</i></th>
+                    <th class="nowrap color-blue" data-tips-text="批量设置销售价格" ng-click="batchSet('selling',2,'请输入商品市销售价格')" width="10%"><b>销售价格</b><i class="layui-icon">&#xe63c;</i></th>
+                    <th class="nowrap color-blue" data-tips-text="批量设置最大余额支付" ng-click="batchSet('allow_balance',2,'请输入最大余额支付')" width="10%"><b>最大余额支付</b><i class="layui-icon">&#xe63c;</i></th>
+                    <th class="nowrap color-blue" data-tips-text="批量设置最大积分抵扣" ng-click="batchSet('allow_integral',0,'请输入最大积分抵扣')" width="10%"><b>最大积分抵扣</b><i class="layui-icon">&#xe63c;</i></th>
+                    <th class="nowrap color-green" data-tips-text="批量设置奖励余额" ng-click="batchSet('balance',2,'请输入赠送账户余额')" width="10%"><b>奖励余额</b><i class="layui-icon">&#xe63c;</i></th>
+                    <th class="nowrap color-green" data-tips-text="批量设置奖励积分" ng-click="batchSet('integral',2,'请输入赠送用户积分')" width="10%"><b>奖励积分</b><i class="layui-icon">&#xe63c;</i></th>
+                    <th class="nowrap color-text" data-tips-text="批量设置虚拟销量" ng-click="batchSet('virtual',0,'请输入虚拟销量数值')" width="10%"><b>虚拟销量</b><i class="layui-icon">&#xe63c;</i></th>
+                    <th class="nowrap color-text" data-tips-text="批量设置快递系数" ng-click="batchSet('express',0,'请输入快递计费系数')" width="10%"><b>快递系数</b><i class="layui-icon">&#xe63c;</i></th>
+                    <th class="nowrap" width="08%"><b>销售状态</b></th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr ng-repeat="rows in items track by $index">
                     <td class="layui-bg-gray nowrap" ng-bind="td.name" ng-if="td.show" ng-repeat="td in rows"></td>
-                    <td><label><input class="layui-input" ng-blur="rows[0].sku=setValue(rows[0].key,'sku',$event.target.value)" ng-model="rows[0].sku"></label></td>
+                    <td><label><input class="layui-input font-code" ng-blur="rows[0].sku=setValue(rows[0].key,'sku',$event.target.value)" ng-model="rows[0].sku"></label></td>
                     <td><label><input class="layui-input" ng-blur="rows[0].market=setValue(rows[0].key,'market',$event.target.value,'(parseFloat(_)||0).toFixed(2)')" ng-model="rows[0].market"></label></td>
                     <td><label><input class="layui-input" ng-blur="rows[0].selling=setValue(rows[0].key,'selling',$event.target.value,'(parseFloat(_)||0).toFixed(2)')" ng-model="rows[0].selling"></label></td>
+                    <td><label><input class="layui-input" ng-blur="rows[0].allow_balance=setValue(rows[0].key,'allow_balance',$event.target.value,'(parseFloat(_)||0).toFixed(2)')" ng-model="rows[0].allow_balance"></label></td>
+                    <td><label><input class="layui-input" ng-blur="rows[0].allow_integral=setValue(rows[0].key,'allow_integral',$event.target.value,'(parseFloat(_)||0).toFixed(0)')" ng-model="rows[0].allow_integral"></label></td>
                     <td><label><input class="layui-input" ng-blur="rows[0].balance=setValue(rows[0].key,'balance',$event.target.value,'(parseFloat(_)||0).toFixed(2)')" ng-model="rows[0].balance"></label></td>
                     <td><label><input class="layui-input" ng-blur="rows[0].integral=setValue(rows[0].key,'integral',$event.target.value,'(parseFloat(_)||0).toFixed(2)')" ng-model="rows[0].integral"></label></td>
                     <td><label><input class="layui-input" ng-blur="rows[0].virtual=setValue(rows[0].key,'virtual',$event.target.value,'(parseInt(_)||0)')" ng-model="rows[0].virtual"></label></td>
@@ -224,7 +219,7 @@
                 </tr>
                 </tbody>
             </table>
-            <p class="color-desc">请注意商品的SKU尽量不要重复，也不能产生订单后再修改，否则会造成订单数据无法关联！</p>
+            <p class="color-desc">请注意商品的SKU在系统中仅作为显示之用，系统会根据规格名称生成哈希值作为商品唯一区别码！</p>
             <label class="layui-hide">
                 <textarea class="layui-textarea" name="specs">{{specs}}</textarea>
                 <textarea class="layui-textarea" name="items">{{items}}</textarea>
@@ -277,11 +272,13 @@
             $rootScope.mode = '{$mode|default="add"}', $rootScope.navas = [];
             $rootScope.cache = angular.fromJson(angular.element('#GoodsItems').val() || '[]') || {};
             $rootScope.items = angular.fromJson(angular.element('#GoodsItems').val() || '[]') || {};
-            $rootScope.specs = angular.fromJson(angular.element('#GoodsSpecs').val() || '[{"name":"默认分组","list":[{"name":"默认规格","check":true}]}]');
-
+            $rootScope.specs = angular.fromJson(angular.element('#GoodsSpecs').val() || '[]') || [];
+            if ($rootScope.specs.length < 1) {
+                $rootScope.specs.push({name: '默认分组', list: [{name: '默认规格', check: true}]});
+            }
             /*! 批量设置数值 */
             $rootScope.batchSet = function (name, fixed, title) {
-                let min = (1 / Math.pow(10, parseInt(fixed))).toFixed(fixed), max = (999999).toFixed(fixed);
+                let min = (0 / Math.pow(10, parseInt(fixed))).toFixed(fixed), max = (999999).toFixed(fixed);
                 layer.prompt({
                     title: title || (fixed === null ? '请输入内容' : '请输入数量【 取值范围：1 - 999999 】'),
                     formType: 0, value: fixed === null ? '' : min, success: function ($el) {
@@ -336,7 +333,7 @@
                 /*! 表格交叉 */
                 data.forEach(function (rows) {
                     let temp = [];
-                    table.forEach(line => rows.forEach(item => temp.push(line.concat(item))));
+                    table.forEach(r => rows.forEach(c => temp.push(r.concat(c))));
                     table = temp;
                 });
                 /*! 表格数据  */
@@ -352,6 +349,8 @@
                         item.market = $rootScope.getValue(item.key, 'market', '0.00');
                         item.balance = $rootScope.getValue(item.key, 'balance', '0.00');
                         item.selling = $rootScope.getValue(item.key, 'selling', '0.00');
+                        item.allow_balance = $rootScope.getValue(item.key, 'allow_balance', '0.00');
+                        item.allow_integral = $rootScope.getValue(item.key, 'allow_integral', '0');
                         item.integral = $rootScope.getValue(item.key, 'integral', '0');
                         item.express = $rootScope.getValue(item.key, 'express', '1');
                         item.virtual = $rootScope.getValue(item.key, 'virtual', '0');

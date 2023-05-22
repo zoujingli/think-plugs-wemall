@@ -39,9 +39,9 @@
 
         <div class='design-layout-view'>
             <div class="design-layout-view-head">
-                <div>
+                <div class="notselect">
                     <div class="design-layout-view-head-image"></div>
-                    <div :class="idx===-1?'active':''" sv-element :style="showStyle(page.head.style)">
+                    <div sv-element :class="idx===-1?'active':''" :style="showStyle(page.head.style)">
                         <div sv-handle class="think-elips-1 pointer font-s14" @click="setPage(pdx,true)">{{page.head.name || ''}}</div>
                     </div>
                 </div>

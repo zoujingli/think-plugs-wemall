@@ -1,5 +1,5 @@
 <!--{literal}-->
-<div v-if="idx>-1" class="layui-tab layui-tab-brief" :key="item.unid||Math.random()">
+<div v-if="idx>-1" class="layui-tab layui-tab-brief" :key="item.unid">
     <ul class="layui-tab-title notselect">
         <li class="layui-this">{{item.name}}</li>
         <li v-if="item.interStyle || (item.inputStyle && item.inputStyle.vTypes)">容器样式</li>
@@ -56,7 +56,7 @@
                         <draggable v-model="item.data" v-bind="{group:'BaseImageData',animation:200}" @start="drag=true" @end="drag=false">
                             <transition-group>
                                 <div class="layui-form-item"
-                                     v-for="(xx,$index) in item.data" :key="xx.unid||Math.random()"
+                                     v-for="(xx,$index) in item.data" :key="xx.unid"
                                      v-show="['0','01','012','012','0123','0123'][item.inputStyle.vType].indexOf($index)>-1"
                                 >
                                     <div class="flex">
@@ -129,7 +129,7 @@
                     <div class="layui-colla-content layui-show">
                         <draggable v-model="item.data" v-bind="{group:'BaseIcon',animation:200}" @start="drag=true" @end="drag=false">
                             <transition-group>
-                                <div class="layui-form-item" v-for="(xx,$index) in item.data" :key="xx.unid||Math.random()">
+                                <div class="layui-form-item" v-for="(xx,$index) in item.data" :key="xx.unid">
                                     <div class="flex">
                                         <div style="padding-top:3px">
                                             <upload-image :mstyle="xx" mfield="image" :showinput="false"></upload-image>
@@ -176,7 +176,7 @@
             <div v-if="item.type==='BaseSlider'">
                 <draggable v-model="item.data" v-bind="{group:'BaseImageSlider',animation:200}" @start="drag=true" @end="drag=false">
                     <transition-group>
-                        <div class="layui-form-item margin-bottom-10" v-for="(xx,$index) in item.data" :key="xx.unid||Math.random()">
+                        <div class="layui-form-item margin-bottom-10" v-for="(xx,$index) in item.data" :key="xx.unid">
                             <div class="flex">
                                 <div style="padding-top:3px">
                                     <upload-image :mstyle="xx" mfield="image" :showinput="false"></upload-image>
@@ -235,19 +235,19 @@
         </div>
         <div class="layui-tab-item" v-if="item.interStyle || (item.inputStyle && item.inputStyle.vTypes)">
             <div class="layui-colla-item colla-form-group" v-if="item.fontStyle && item.fontStyle.vTypes">
-                <div class="layui-colla-title ">文字设置</div>
+                <div class="layui-colla-title">{{item.fontStyle.vName || '文字设置'}}</div>
                 <div class="layui-colla-content layui-show">
                     <layout-setting :key="item.unid" :mstyle="item.fontStyle" :mtypes="item.fontStyle.vTypes||''"></layout-setting>
                 </div>
             </div>
             <div class="layui-colla-item colla-form-group" v-if="item.inputStyle && item.inputStyle.vTypes">
-                <div class="layui-colla-title ">内容设置</div>
+                <div class="layui-colla-title">{{item.inputStyle.vName || '内容设置'}}</div>
                 <div class="layui-colla-content layui-show">
                     <layout-setting :key="item.unid" :mstyle="item.inputStyle" :mtypes="item.inputStyle.vTypes||''"></layout-setting>
                 </div>
             </div>
             <div class="layui-colla-item colla-form-group" v-if="item.interStyle">
-                <div class="layui-colla-title ">容器设置</div>
+                <div class="layui-colla-title">{{item.interStyle.vName || '容器设置'}}</div>
                 <div class="layui-colla-content layui-show">
                     <layout-setting :key="item.unid" :mstyle="item.interStyle" :mtypes="item.interStyle.vTypes||''"></layout-setting>
                 </div>

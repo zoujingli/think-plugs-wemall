@@ -17,7 +17,7 @@
 namespace plugin\wemall\controller\base;
 
 use plugin\wemall\model\PluginWemallConfigDiscount;
-use plugin\wemall\model\PluginWemallConfigUpgrade;
+use plugin\wemall\model\PluginWemallConfigLevel;
 use think\admin\Controller;
 use think\admin\helper\QueryHelper;
 
@@ -78,7 +78,7 @@ class Discount extends Controller
             }
             $vo['items'] = json_encode($rule, JSON_UNESCAPED_UNICODE);
         } else {
-            $this->levels = PluginWemallConfigUpgrade::items();
+            $this->levels = PluginWemallConfigLevel::items();
             if (empty($this->levels)) $this->error('未配置用户等级！');
             foreach ($vo['items'] ?? [] as $item) {
                 $vo["_level_{$item['level']}"] = $item['discount'];

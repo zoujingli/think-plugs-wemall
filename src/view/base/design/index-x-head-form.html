@@ -12,13 +12,13 @@
             <div class="layui-form-item flex">
                 <span class="design-form-label">文字颜色</span>
                 <div class="flex-1">
-                    <color-picker :mstyle="page.head.style" :key="Math.random()" mfield="color"></color-picker>
+                    <color-picker :mstyle="page.head.style" mfield="color"></color-picker>
                 </div>
             </div>
-            <layout-setting :mstyle="page.head.style" :key="Math.random()" mtypes="背景颜色,背景图片,背景样式"></layout-setting>
+            <layout-setting :mstyle="page.head.style" mtypes="背景颜色,背景图片,背景样式"></layout-setting>
         </div>
         <div class="layui-tab-item">
-            <layout-setting :mstyle="page.style" :key="Math.random()" mtypes="背景颜色,背景图片,背景样式"></layout-setting>
+            <layout-setting :mstyle="page.style" mtypes="背景颜色,背景图片,背景样式"></layout-setting>
         </div>
     </div>
 </div>

@@ -17,7 +17,7 @@
 namespace plugin\wemall\controller\api\auth;
 
 use plugin\wemall\controller\api\Auth;
-use plugin\wemall\model\PluginWemallConfigUpgrade;
+use plugin\wemall\model\PluginWemallConfigLevel;
 use plugin\wemall\model\PluginWemallUserRebate;
 use plugin\wemall\service\UserRebateService;
 
@@ -52,12 +52,12 @@ class Rebate extends Auth
      */
     public function prize()
     {
-        [$map, $data] = [['number' => $this->relation['levelCode']], []];
+        [$map, $data] = [['number' => $this->levelCode], []];
         $prizes = PluginWemallUserRebate::mk()->group('name')->column('name');
-        $rebate = PluginWemallConfigUpgrade::mk()->where($map)->value('rebate_rule', '');
+        $rebate = PluginWemallConfigLevel::mk()->where($map)->value('rebate_rule', '');
         $codemap = array_merge($prizes, str2arr($rebate));
-        foreach (UserRebateService::prizes as $prize) {
-            if (in_array($prize['code'], $codemap)) $data[] = $prize;
+        foreach (UserRebateService::prizes as $code => $prize) {
+            if (in_array($code, $codemap)) $data[$code] = $prize;
         }
         $this->success('获取我的奖励', $data);
     }

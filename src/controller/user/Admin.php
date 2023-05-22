@@ -17,7 +17,7 @@
 namespace plugin\wemall\controller\user;
 
 use plugin\account\model\PluginAccountUser;
-use plugin\wemall\model\PluginWemallConfigUpgrade;
+use plugin\wemall\model\PluginWemallConfigLevel;
 use plugin\wemall\model\PluginWemallUserRelation;
 use think\admin\Controller;
 use think\admin\helper\QueryHelper;
@@ -42,7 +42,7 @@ class Admin extends Controller
         $this->type = $this->get['type'] ?? 'index';
         PluginWemallUserRelation::mQuery()->layTable(function () {
             $this->title = '普通用户管理';
-            $this->upgrades = PluginWemallConfigUpgrade::items();
+            $this->upgrades = PluginWemallConfigLevel::items();
         }, function (QueryHelper $query) {
             $query->with(['user'])->equal('level_code');
             // 用户内容查询

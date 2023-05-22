@@ -124,6 +124,7 @@ class OrderService extends Service
      * 根据订单更新用户等级
      * @param string $orderNo
      * @return array|null [USER, ORDER, ENTRY]
+     * @throws \think\admin\Exception
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\DbException
      * @throws \think\db\exception\ModelNotFoundException

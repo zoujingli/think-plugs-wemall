@@ -17,7 +17,7 @@
 namespace plugin\wemall\controller\user;
 
 use plugin\account\model\PluginAccountUser;
-use plugin\wemall\model\PluginWemallConfigUpgrade;
+use plugin\wemall\model\PluginWemallConfigLevel;
 use plugin\wemall\model\PluginWemallOrderItem;
 use plugin\wemall\model\PluginWemallUserRebate;
 use plugin\wemall\service\UserRebateService;
@@ -94,7 +94,7 @@ class Rebate extends Controller
         $this->title = '用户返利配置';
         if ($this->request->isGet()) {
             $this->data = sysdata($this->skey);
-            $this->levels = PluginWemallConfigUpgrade::items();
+            $this->levels = PluginWemallConfigLevel::items();
             $this->fetch();
         } else {
             sysdata($this->skey, $this->request->post());

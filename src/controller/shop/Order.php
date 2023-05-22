@@ -70,8 +70,8 @@ class Order extends Controller
 
             $query->with(['user', 'items', 'address']);
 
-            $query->like('order_no');
-            $query->equal('status')->dateBetween('create_time,payment_time,cancel_time,delivery_time,delivery_express_time');
+            $query->equal('status')->like('order_no');
+            $query->dateBetween('create_time,payment_time,cancel_time,delivery_type');
 
             // 发货信息搜索
             $db = PluginWemallOrderSend::mQuery()->dateBetween('express_time')

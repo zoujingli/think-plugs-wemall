@@ -18,7 +18,7 @@ namespace plugin\wemall\service;
 
 use plugin\account\model\PluginAccountUser;
 use plugin\wemall\model\PluginWemallConfigDiscount;
-use plugin\wemall\model\PluginWemallConfigUpgrade;
+use plugin\wemall\model\PluginWemallConfigLevel;
 use plugin\wemall\model\PluginWemallOrder;
 use plugin\wemall\model\PluginWemallOrderItem;
 use plugin\wemall\model\PluginWemallUserRebate;
@@ -303,7 +303,7 @@ class UserRebateService extends Service
         $puids = array_reverse(str2arr(self::$user['path'], '-'));
         if (empty($puids) || self::$order['amount_total'] <= 0) return false;
         // 获取可以参与奖励的代理
-        $vips = PluginWemallConfigUpgrade::mk()->whereLike('rebate_rule', '%,' . self::prize_05 . ',%')->column('number');
+        $vips = PluginWemallConfigLevel::mk()->whereLike('rebate_rule', '%,' . self::prize_05 . ',%')->column('number');
         $users = PluginAccountUser::mk()->whereIn('level_code', $vips)->whereIn('id', $puids)->orderField('id', $puids)->select()->toArray();
         if (empty($vips) || empty($users)) return true;
         // 查询需要计算奖励的商品
@@ -344,7 +344,7 @@ class UserRebateService extends Service
         // 记录用户原始等级
         $prevLevel = self::$user['level_code'];
         // 获取参与奖励的代理
-        $vips = PluginWemallConfigUpgrade::mk()->whereLike('rebate_rule', '%,' . self::prize_06 . ',%')->column('number');
+        $vips = PluginWemallConfigLevel::mk()->whereLike('rebate_rule', '%,' . self::prize_06 . ',%')->column('number');
         foreach (PluginAccountUser::mk()->whereIn('level_code', $vips)->whereIn('id', $puids)->orderField('id', $puids)->cursor() as $user) {
             if ($user['level_code'] > $prevLevel) {
                 if (($amount = self::_prize06amount($prevLevel + 1, $user['level_code'])) > 0.00) {

@@ -5,16 +5,6 @@
 <button class='layui-btn layui-btn-sm layui-btn-primary' data-open='{:url("add")}'>添加商品</button>
 <!--{/if}-->
 
-{if isset($type) and $type eq 'index'}
-<!--{if auth("remove")}-->
-<button class='layui-btn layui-btn-sm layui-btn-primary' data-action='{:url("remove")}' data-rule="code#{code};deleted#1">删除商品</button>
-<!--{/if}-->
-{else}
-<!--{if auth("remove")}-->
-<button class='layui-btn layui-btn-sm layui-btn-primary' data-action='{:url("remove")}' data-confirm="确定要恢复这些数据吗？" data-rule="code#{code};deleted#0">恢复商品</button>
-<!--{/if}-->
-{/if}
-
 <!--{if auth("shop.goods.cate/index")}-->
 <button class='layui-btn layui-btn-sm layui-btn-primary' data-modal='{:url("shop.goods.cate/index")}' data-title="分类管理" data-width="920px">分类管理</button>
 <!--{/if}-->
@@ -46,28 +36,41 @@
     $(function () {
         $('#GoodsTable').layTable({
             even: true, height: 'full', page: false,
-            sort: {field: 'sort desc,id', type: 'asc'},
+            sort: {field: 'sort desc,id', type: 'desc'},
             cols: [[
-                {checkbox: true},
+                // {checkbox: true},
+                {field: 'id', hide: true},
                 {field: 'sort', title: '排序权重', width: 100, align: 'center', sort: true, templet: '#SortInputTpl'},
                 {field: 'cover', title: '商品封面', width: 80, align: 'center', templet: '<div>{{-showTableImage(d.cover,false,"sm")}}</div>'},
-                {field: 'name', title: '商品名称', minWidth: 228, templet: "<div>商品名称：{{d.name}}<br>商品编号：<b class='color-blue'>{{d.code}}</b></div>"},
-                {field: '', title: '库存统计', templet: "<div>累计库存：{{d.stock_total}}<br>销售库存：{{d.stock_sales}}</div>"},
+                {field: 'name', title: '商品名称', width: '15%', templet: "<div>商品名称：{{d.name}}<br>商品编号：<b class='color-blue'>{{d.code}}</b></div>"},
                 {
-                    field: '', title: '标签分类', minWidth: 228, templet: function (d) {
+                    field: '', title: '数据统计', width: '25%', templet: function (d) {
+                        let tpls = [];
+                        if (d.level_upgrade > 0) d.level_type = '入会升级';
+                        if (d.level_upgrade === 0) d.level_type = '入会礼包';
+                        if (d.level_upgrade === -1) d.level_type = '非入会礼包';
+                        d.rebate_name = d.rebate_type ? '参与返利' : '不参与返利';
+                        d.limit_buyname = d.limit_maxnum ? '限购 ' + d.limit_maxnum + ' 件' : '不限购';
+                        tpls.push('{{d.level_type}}，{{d.rebate_name}}，累计库存 <b>{{d.stock_total}}</b> 件，已销售 <b>{{d.stock_sales}}</b> 件，可售库存 <b>{{d.stock_total-d.stock_sales}}</b> 件');
+                        tpls.push('{{d.limit_buyname}}，最低售价 <b>{{Math.round(d.price_selling)}}</b> 元 ( 最大可使用余额 <b>{{Math.round(d.allow_balance)}}</b> 元支付和 <b>{{Math.round(d.allow_integral)}}</b> 积分抵扣 )');
+                        return laytpl('<div class="sub-strong-blue">' + tpls.join('<br>') + '</div>').render(d);
+                    }
+                },
+                {
+                    field: '', title: '标签分类', width: '10%', templet: function (d) {
                         let tpls = '标签：' + (d.marks.length > 0 ? d.marks.join('、') : '-');
                         return tpls + '<br>分类：' + ((d.cates || {}).names || ['-']).join(' ＞ ');
                     }
                 },
-                {field: 'status', title: '商品状态', minWidth: 120, align: 'center', templet: '#StatusSwitchTpl'},
-                {field: 'create_time', title: '创建时间', minWidth: 170, templet: "<div>更新时间：{{d.update_time}}<br>创建时间：{{d.create_time}}</div>"},
+                {field: 'status', title: '商品状态', minWidth: 110, align: 'center', templet: '#StatusSwitchTpl'},
+                {field: 'create_time', title: '创建时间', width: '15%', templet: "<div>更新：{{d.update_time}}<br>创建：{{d.create_time}}</div>"},
                 {toolbar: '#toolbar', title: '操作面板', minWidth: 150, align: 'center', fixed: 'right'},
             ]]
         });
 
         // 数据状态切换操作
         layui.form.on('switch(StatusSwitch)', function (obj) {
-            var data = {code: obj.value, status: obj.elem.checked > 0 ? 1 : 0};
+            let data = {code: obj.value, status: obj.elem.checked > 0 ? 1 : 0};
             $.form.load("{:url('state')}", data, 'post', function (ret) {
                 if (ret.code < 1) $.msg.error(ret.info, 3, function () {
                     $('#GoodsTable').trigger('reload');
