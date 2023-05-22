@@ -145,7 +145,7 @@ class Goods extends Controller
             $data['delivery_code'] = $data['delivery_code'] ?? 'FREE';
             $data['specs'] = json_encode($data['specs'] ?? [], 64 | 256);
             $data['items'] = PluginWemallGoodsItem::itemsJson($data['code']);
-            $data['slider'] = is_array($data['slider']) ? join('|', $data['slider']) : '';
+            $data['slider'] = is_array($data['slider'] ?? []) ? join('|', $data['slider'] ?? []) : '';
         } elseif ($this->request->isPost()) try {
             if (empty($data['cover'])) $this->error('商品图片不能为空！');
             if (empty($data['slider'])) $this->error('轮播图片不能为空！');
