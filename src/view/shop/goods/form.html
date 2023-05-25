@@ -161,25 +161,27 @@
         </div>
 
         <div class="layui-form-item" id="GoodsSpecsEditor">
-            <span class="help-label label-required-prev"><b>商品规格</b><span class="color-red font-s12">（规格填写后不允许再次增删操作）</span></span>
+            <span class="help-label label-required-prev"><b>商品规格</b><span class="color-red font-s12">（规格填写后不允许再次增加规格分组）</span></span>
             <div class="margin-bottom-10" ng-repeat="x in specs track by $index">
                 <div class="goods-spec-box" style="background:#ddd">
                     <span class="text-center goods-spec-name">分组</span>
                     <label class="label-required-null inline-block">
                         <input ng-blur="trimSpace(x,'name')" ng-model="x.name" vali-name="分组" placeholder="请输入分组名称" required>
                     </label>
-                    <div class="pull-right" style="display:none" ng-class="{true:'layui-show'}[mode==='add' && specs.length>0]">
+                    <div class="pull-right flex">
                         <a class="layui-btn layui-btn-sm layui-btn-primary goods-spec-btn" ng-click="addSpecVal(x.list)">增加</a>
                         <a class="layui-btn layui-btn-sm layui-btn-primary goods-spec-btn" ng-click="upSpecRow(specs,$index)" ng-class="{false:'layui-btn-disabled'}[$index>0]">上移</a>
                         <a class="layui-btn layui-btn-sm layui-btn-primary goods-spec-btn" ng-click="dnSpecRow(specs,$index)" ng-class="{false:'layui-btn-disabled'}[$index<specs.length-1]">下移</a>
-                        <a class="layui-btn layui-btn-sm layui-btn-primary goods-spec-btn" ng-click="delSpecRow(specs,$index)" ng-if="specs.length>1">删除</a>
+                        <div class="inline-block" style="display:none" ng-class="{true:'layui-show'}[mode==='add' && specs.length>0]">
+                            <a class="layui-btn layui-btn-sm layui-btn-primary goods-spec-btn" ng-click="delSpecRow(specs,$index)" ng-if="specs.length>1">删除</a>
+                        </div>
                     </div>
                 </div>
                 <div class="goods-spec-box" ng-if="x.list && x.list.length>0">
                     <label class="label-required-null inline-block margin-right-10 margin-bottom-5 relative nowrap" ng-repeat="xx in x.list">
                         <span class="text-center goods-spec-name">规格</span>
                         <input ng-blur="trimSpace(xx,'name')" ng-keyup="trimSpace(xx,'name')" ng-model="xx.name" vali-name="规格" placeholder="请输入规格" required type="text">
-                        <a class="layui-icon layui-icon-close font-s12 goods-spec-close" ng-click="delSpecVal(x.list,$index)" ng-if="x.list.length>1 && mode==='add'"></a>
+                        <a class="layui-icon layui-icon-close font-s12 goods-spec-close" ng-click="delSpecVal(x.list,$index)" ng-if="x.list.length>1"></a>
                     </label>
                 </div>
             </div>
@@ -305,8 +307,8 @@
             $rootScope.getValue = function (hash, name, value) {
                 let cache = $rootScope.cache[hash] || {};
                 if (typeof cache[name] === 'undefined') {
-                    cache = $rootScope.cache[hash] || {};
                     $rootScope.setValue(hash, name, value, '_')
+                    cache = $rootScope.cache[hash] || {};
                 }
                 return cache[name];
             };
@@ -342,9 +344,9 @@
                     (rows.forEach(function (item) {
                         unids.push(item.unid);
                         keys.push(item.group + '::' + item.name);
-                    }) && false) || rows.every(function (item) {
+                    }) && false) || rows.forEach(function (item) {
                         item.spec = keys.join(';;');
-                        item.hash = md5.hash("{$vo.code}#" + unids.join(';'));
+                        item.hash = md5.hash("{$vo.code}#" + unids.sort().join(';'));
                         item.gsku = $rootScope.getValue(item.hash, 'gsku', RandNumber(14, 'S'));
                         item.status = !!$rootScope.getValue(item.hash, 'status', 1);
                         item.market = $rootScope.getValue(item.hash, 'market', '0.00');
@@ -355,7 +357,6 @@
                         item.integral = $rootScope.getValue(item.hash, 'integral', '0');
                         item.express = $rootScope.getValue(item.hash, 'express', '1');
                         item.virtual = $rootScope.getValue(item.hash, 'virtual', '0');
-                        return false;
                     });
                 });
                 $rootScope.items = data;
