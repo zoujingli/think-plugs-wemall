@@ -172,7 +172,7 @@
                         <a class="layui-btn layui-btn-sm layui-btn-primary goods-spec-btn" ng-click="addSpecVal(x.list)">增加</a>
                         <a class="layui-btn layui-btn-sm layui-btn-primary goods-spec-btn" ng-click="upSpecRow(specs,$index)" ng-class="{false:'layui-btn-disabled'}[$index>0]">上移</a>
                         <a class="layui-btn layui-btn-sm layui-btn-primary goods-spec-btn" ng-click="dnSpecRow(specs,$index)" ng-class="{false:'layui-btn-disabled'}[$index<specs.length-1]">下移</a>
-                        <div class="inline-block" style="display:none" ng-class="{true:'layui-show'}[mode==='add' && specs.length>0]">
+                        <div style="display:none" ng-class="{true:'layui-show'}[mode==='add' && specs.length>0]">
                             <a class="layui-btn layui-btn-sm layui-btn-primary goods-spec-btn" ng-click="delSpecRow(specs,$index)" ng-if="specs.length>1">删除</a>
                         </div>
                     </div>
