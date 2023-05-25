@@ -31,7 +31,6 @@ class InstallWemall extends Migrator
     {
         $this->_create_plugin_wemall_config_discount();
         $this->_create_plugin_wemall_config_level();
-        $this->_create_plugin_wemall_config_upgrade();
         $this->_create_plugin_wemall_express_company();
         $this->_create_plugin_wemall_express_template();
         $this->_create_plugin_wemall_goods();
@@ -127,53 +126,6 @@ class InstallWemall extends Migrator
             ->addIndex('number', ['name' => 'idx_plugin_wemall_config_level_number'])
             ->addIndex('utime', ['name' => 'idx_plugin_wemall_config_level_utime'])
             ->addIndex('create_time', ['name' => 'idx_plugin_wemall_config_level_create_time'])
-            ->create();
-
-        // 修改主键长度
-        $this->table($table)->changeColumn('id', 'integer', ['limit' => 11, 'identity' => true]);
-    }
-
-    /**
-     * 创建数据对象
-     * @class PluginWemallConfigUpgrade
-     * @table plugin_wemall_config_upgrade
-     * @return void
-     */
-    private function _create_plugin_wemall_config_upgrade()
-    {
-
-        // 当前数据表
-        $table = 'plugin_wemall_config_upgrade';
-
-        // 存在则跳过
-        if ($this->hasTable($table)) return;
-
-        // 创建数据表
-        $this->table($table, [
-            'engine' => 'InnoDB', 'collation' => 'utf8mb4_general_ci', 'comment' => '商城-配置-等级',
-        ])
-            ->addColumn('name', 'string', ['limit' => 180, 'default' => '', 'null' => true, 'comment' => '用户级别名称'])
-            ->addColumn('number', 'integer', ['limit' => 2, 'default' => 0, 'null' => true, 'comment' => '用户级别序号'])
-            ->addColumn('upgrade_type', 'integer', ['limit' => 1, 'default' => 0, 'null' => true, 'comment' => '会员升级规则(0单个,1同时)'])
-            ->addColumn('upgrade_team', 'integer', ['limit' => 1, 'default' => 1, 'null' => true, 'comment' => '团队人数统计(0不计,1累计)'])
-            ->addColumn('enter_vip_status', 'integer', ['limit' => 1, 'default' => 0, 'null' => true, 'comment' => '入会礼包状态'])
-            ->addColumn('order_amount_status', 'integer', ['limit' => 1, 'default' => 0, 'null' => true, 'comment' => '订单金额状态'])
-            ->addColumn('order_amount_number', 'decimal', ['precision' => 20, 'scale' => 2, 'default' => '0.00', 'null' => true, 'comment' => '订单金额累计'])
-            ->addColumn('teams_users_status', 'integer', ['limit' => 1, 'default' => 0, 'null' => true, 'comment' => '团队人数状态'])
-            ->addColumn('teams_users_number', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '团队人数累计'])
-            ->addColumn('teams_direct_status', 'integer', ['limit' => 1, 'default' => 0, 'null' => true, 'comment' => '直推人数状态'])
-            ->addColumn('teams_direct_number', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '直推人数累计'])
-            ->addColumn('teams_indirect_status', 'integer', ['limit' => 1, 'default' => 0, 'null' => true, 'comment' => '间推人数状态'])
-            ->addColumn('teams_indirect_number', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '间推人数累计'])
-            ->addColumn('remark', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '用户级别描述'])
-            ->addColumn('utime', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '等级更新时间'])
-            ->addColumn('status', 'integer', ['limit' => 1, 'default' => 1, 'null' => true, 'comment' => '用户等级状态(1使用,0禁用)'])
-            ->addColumn('create_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '创建时间'])
-            ->addColumn('update_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '更新时间'])
-            ->addIndex('status', ['name' => 'idx_plugin_wemall_config_upgrade_status'])
-            ->addIndex('number', ['name' => 'idx_plugin_wemall_config_upgrade_number'])
-            ->addIndex('utime', ['name' => 'idx_plugin_wemall_config_upgrade_utime'])
-            ->addIndex('create_time', ['name' => 'idx_plugin_wemall_config_upgrade_create_time'])
             ->create();
 
         // 修改主键长度
@@ -379,7 +331,7 @@ class InstallWemall extends Migrator
             'engine' => 'InnoDB', 'collation' => 'utf8mb4_general_ci', 'comment' => '商城-商品-规格',
         ])
             ->addColumn('gsku', 'string', ['limit' => 20, 'default' => '', 'null' => true, 'comment' => '商品SKU'])
-            ->addColumn('ghash', 'string', ['limit' => 32, 'default' => '', 'null' => true, 'comment' => '规格哈希'])
+            ->addColumn('ghash', 'string', ['limit' => 32, 'default' => '', 'null' => true, 'comment' => '商品哈希'])
             ->addColumn('gcode', 'string', ['limit' => 20, 'default' => '', 'null' => true, 'comment' => '商品编号'])
             ->addColumn('gspec', 'string', ['limit' => 180, 'default' => '', 'null' => true, 'comment' => '商品规格'])
             ->addColumn('gimage', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '商品图片'])

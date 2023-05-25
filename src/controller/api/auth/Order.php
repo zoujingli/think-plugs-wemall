@@ -3,6 +3,8 @@
 namespace plugin\wemall\controller\api\auth;
 
 use plugin\payment\model\PluginPaymentAddress;
+use plugin\payment\service\Balance;
+use plugin\payment\service\Integral;
 use plugin\payment\service\Payment;
 use plugin\wemall\controller\api\Auth;
 use plugin\wemall\model\PluginWemallOrder;
@@ -139,7 +141,7 @@ class Order extends Auth
             $this->app->event->trigger('PluginWemallOrderCreate', $order);
             // 无需发货且无需支付，直接完成支付流程
             if ($order['status'] === 2 && empty($order['amount_real'])) {
-                Payment::mk(Payment::NULLPAY)->create($this->account, $order['order_no'], $order['amount_real'], $order['amount_real'], '商城订单支付', '');
+                Payment::emptyPayment($this->account, $order['order_no']);
                 $this->success('下单成功', PluginWemallOrder::mk()->where(['order_no' => $order['order_no']])->findOrEmpty()->toArray());
             }
             // 返回处理成功数据
@@ -260,8 +262,7 @@ class Order extends Auth
             $this->app->event->trigger('PluginWemallOrderPerfect', $order->refresh()->toArray());
             // 订单无需支付，直接完成支付流程
             if (empty($update['amount_real'])) {
-                Payment::mk(Payment::NULLPAY)->create($this->account, $data['order_no'], $order->getAttr('amount_real'), '商城订单支付', '');
-                $order->refresh();
+                Payment::emptyPayment($this->account, $data['order_no']) && $order->refresh();
             }
             // 返回处理成功数据
             $this->success('订单确认成功', $order->toArray());
@@ -291,22 +292,41 @@ class Order extends Auth
             'integral.default'      => '0',
             'order_no.require'      => '单号不能为空',
             'order_ps.default'      => '',
-            'payment_code.require'  => '支付不能为空',
+            'channel_code.require'  => '支付不能为空',
             'payment_back.default'  => '', # 支付回跳地址
             'payment_image.default' => '', # 支付凭证图片
         ]);
-        $order = $this->getOrderModel();
-        if ($order->getAttr('status') !== 2) $this->error('不能发起支付');
-        if ($order->getAttr('payment_status') > 0) $this->error('已经完成支付');
-        // 更新订单备注
-        if (!empty($data['order_ps'])) {
-            $order->save(['order_ps' => $data['order_ps']]);
-        }
         try {
+            $order = $this->getOrderModel();
+            if ($order->getAttr('status') !== 2) $this->error('不能发起支付');
+            if ($order->getAttr('payment_status') > 0) $this->error('已经完成支付');
+            empty($data['order_ps']) || $order->save(['order_ps' => $data['order_ps']]);
             // 返回订单数据及支付发起参数
-            $type = $order->getAttr('amount_real') <= 0 ? Payment::NULLPAY : $data['payment_code'];
-            $amount = $order->getAttr('amount_real');
-            $param = Payment::mk($type)->create($this->account, $data['order_no'], $amount, $amount, '商城订单支付', '', $data['payment_back'], $data['payment_image']);
+            if (empty($orderAmount = $order->getAttr('amount_real'))) {
+                $this->success('订单支付成功', Payment::emptyPayment($this->account, $data['order_no']));
+            }
+            $payAmount = Payment::leaveAmount($data['order_no']);
+            if ($payAmount <= 0) $this->success('该订单已经完成支付！');
+
+            if ($data['balance'] > 0) {
+                if ($data['balance'] > $order->getAttr('allow_balance')) {
+                    $this->error("最大余额不得超过 {$order->getAttr('balance')} 元");
+                }
+                $balance = Balance::recount($this->unid);
+                if ($data['balance'] > $balance['balance_usable']) $this->error('账号余额不足！');
+                $param = Payment::mk(Payment::BALANCE)->create($this->account, $data['order_no'], '账号余额支付', $orderAmount, $data['balance'], '');
+            }
+            if ($data['integral'] > 0) {
+                if ($data['integral'] > $order->getAttr('allow_integral')) {
+                    $this->error("最大抵扣不得超过 {$order->getAttr('balance')} 积分");
+                }
+                $integral = Integral::recount($this->unid);
+                if ($data['integral'] > $integral['integral_usable']) $this->error('账号积分不足！');
+                $param = Payment::mk(payment::INTEGRAL)->create($this->account, $data['order_no'], '账号积分抵扣', $orderAmount, $data['integral'], '');
+            }
+            $payAmount = Payment::leaveAmount($data['order_no']);
+
+            $param = Payment::mk($data['channel_code'])->create($this->account, $data['order_no'], $orderAmount, $payAmount, '商城订单支付', '', $data['payment_back'], $data['payment_image']);
             $this->success('订单支付参数', $param);
         } catch (HttpResponseException $exception) {
             throw $exception;

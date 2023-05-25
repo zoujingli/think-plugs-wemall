@@ -41,10 +41,10 @@ class PluginWemallGoodsItem extends Abs
     public static function itemsArray(string $code): array
     {
         return self::mk()->where(['gcode' => $code])->column([
-            'gsku'            => 'sku',
-            'ghash'           => 'ghash',
+            'gsku'            => 'gsku',
+            'ghash'           => 'hash',
+            'gspec'           => 'spec',
             'gcode'           => 'gcode',
-            'gspec'           => 'key',
             'status'          => 'status',
             'price_market'    => 'market',
             'price_selling'   => 'selling',
@@ -54,6 +54,6 @@ class PluginWemallGoodsItem extends Abs
             'number_express'  => 'express',
             'reward_balance'  => 'balance',
             'reward_integral' => 'integral',
-        ], 'gspec');
+        ], 'ghash');
     }
 }

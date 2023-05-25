@@ -11,11 +11,17 @@
             </label>
             <div class="layui-form-item flex">
                 <span class="design-form-label">文字颜色</span>
-                <div class="flex-1">
-                    <color-picker :mstyle="page.head.style" mfield="color"></color-picker>
+                <div class="flex-1 relative flex">
+                    <label class="flex-1">
+                        <input :value="page.head.style.color" placeholder="请选择颜色" class="layui-input layui-bg-gray font-code text-center" readonly>
+                    </label>
+                    <button type="button" v-for="(xx,xid) in ['#FFFFFF','#000000']" @click="$set(page.head.style,'color',xx)" :style="showBgcolor(xx)" class="layui-btn margin-left-10"></button>
                 </div>
             </div>
-            <layout-setting :mstyle="page.head.style" mtypes="背景颜色,背景图片,背景样式"></layout-setting>
+            <div class="layui-form-item flex">
+                <span class="design-form-label">背景颜色</span>
+                <color-picker :mstyle="page.head.style" mfield="backgroundColor" mtype="hex"></color-picker>
+            </div>
         </div>
         <div class="layui-tab-item">
             <layout-setting :mstyle="page.style" mtypes="背景颜色,背景图片,背景样式"></layout-setting>

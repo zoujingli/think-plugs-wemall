@@ -2,12 +2,23 @@
 <div v-else-if="x.type==='PageCart'">
     <div class="flex-align-center auto-center">
         <div :style="FullHeightStyle()">
-            <div class="absolute flex" style="bottom:0;left:0;right:0;height:50px;border-top:3px solid red">
+            <div class=" padding-20">
+                <div class="flex" v-for="xx in 3" style="padding:10px;overflow:auto">
+                    <div style="width:60px;height:60px" class="uploadimage" data-lazy-src="__FULL__/static/theme/img/image.png"></div>
+                    <div class="flex-1 text-left padding-left-10">
+                        <div style="font-size:14px;line-height:1.4em" class="think-elips-2">
+                            商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题
+                        </div>
+                        <div style="font-size:15px;color:orangered"><s style="color:grey;font-size: 12px">￥200</s> ￥199</div>
+                    </div>
+                </div>
+            </div>
+            <div class="absolute flex" style="bottom:0;left:0;right:0;height:50px;border-top:1px solid red">
                 <div class="flex-1" style="font-size:14px;line-height:50px;padding:0 20px">
-                    已选中 <b>3</b> 件商品，共需支付 <b>130</b> 元
+                    已选中 <b>3</b> 件商品，需支付 <b>130</b> 元
                 </div>
                 <div style="font-size:16px;font-weight:bold;background:red;line-height:50px;color:white;padding:0 20px">
-                    确定下单
+                    去 结 算
                 </div>
             </div>
         </div>

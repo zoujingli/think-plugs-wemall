@@ -161,24 +161,21 @@ class Goods extends Controller
             $this->app->db->transaction(function () use ($data, $items) {
                 PluginWemallGoods::mk()->where(['code' => $data['code']])->findOrEmpty()->save($data);
                 PluginWemallGoodsItem::mk()->where(['gcode' => $data['code']])->update(['status' => 0]);
-                foreach ($items as $item) {
-                    $gmap = ['ghash' => md5($data['code'] . $item['key'])];
-                    PluginWemallGoodsItem::mk()->where($gmap)->findOrEmpty()->save([
-                        'gsku'            => $item['sku'],
-                        'ghash'           => $gmap['ghash'],
-                        'gspec'           => $item['key'],
-                        'gcode'           => $data['code'],
-                        'price_market'    => $item['market'],
-                        'price_selling'   => $item['selling'],
-                        'allow_balance'   => $item['allow_balance'],
-                        'allow_integral'  => $item['allow_integral'],
-                        'number_virtual'  => $item['virtual'],
-                        'number_express'  => $item['express'],
-                        'reward_balance'  => $item['balance'],
-                        'reward_integral' => $item['integral'],
-                        'status'          => $item['status'] ? 1 : 0,
-                    ]);
-                }
+                foreach ($items as $item) PluginWemallGoodsItem::mk()->where(['ghash' => $item['hash']])->findOrEmpty()->save([
+                    'gsku'            => $item['gsku'],
+                    'ghash'           => $item['hash'],
+                    'gcode'           => $data['code'],
+                    'gspec'           => $item['spec'],
+                    'price_market'    => $item['market'],
+                    'price_selling'   => $item['selling'],
+                    'allow_balance'   => $item['allow_balance'],
+                    'allow_integral'  => $item['allow_integral'],
+                    'number_virtual'  => $item['virtual'],
+                    'number_express'  => $item['express'],
+                    'reward_balance'  => $item['balance'],
+                    'reward_integral' => $item['integral'],
+                    'status'          => $item['status'] ? 1 : 0,
+                ]);
             });
             // 刷新产品库存
             GoodsService::stock($data['code']);
@@ -209,10 +206,11 @@ class Goods extends Controller
             [$data, $post, $batch] = [[], $this->request->post(), CodeExtend::uniqidDate(12, 'B')];
             if (isset($post['gcode']) && is_array($post['gcode'])) {
                 foreach (array_keys($post['gcode']) as $key) if ($post['gstock'][$key] > 0) $data[] = [
-                    'gcode'  => $post['gcode'][$key], 'batch_no' => $batch,
-                    'ghash'  => md5($post['gcode'][$key] . $post['gspec'][$key]),
-                    'gspec'  => $post['gspec'][$key],
-                    'gstock' => $post['gstock'][$key],
+                    'batch_no' => $batch,
+                    'ghash'    => $post['ghash'][$key],
+                    'gcode'    => $post['gcode'][$key],
+                    'gspec'    => $post['gspec'][$key],
+                    'gstock'   => $post['gstock'][$key],
                 ];
                 if (!empty($data)) {
                     PluginWemallGoodsStock::mk()->saveAll($data);

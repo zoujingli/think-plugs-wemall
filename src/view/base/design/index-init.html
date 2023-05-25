@@ -166,6 +166,7 @@
                     showText: txt => txt.replace(/\n/g, '<br>'),
                     showBgimg: src => ({backgroundImage: "url('" + src + "')"}),
                     showColor: clr => ({color: clr}),
+                    showBgcolor: clr => ({backgroundColor: clr}),
                     showError: tips => ($.msg.notify('操作异常提示：', tips, 2000, {width: '350px', type: 'error'}), this),
                     showStyle: function (data, extra, allow) {
                         let width = 400, style = Object.assign({}, JSON.parse(JSON.stringify(data)), extra || {});
@@ -203,7 +204,9 @@
                                     }
                                 }
                             }
-                            if (key === 'vBackgroundImage') style.backgroundImage = "url('" + value + "')";
+                            if (key === 'vBackgroundImage') {
+                                style.backgroundImage = "url('" + value + "')";
+                            }
                             if (key === 'vPaddingTopBottom') {
                                 style.boxSizing = 'border-box';
                                 style.paddingTop = style.paddingBottom = realpx;
@@ -250,10 +253,10 @@
         // 颜色选择器
         Vue.component('ColorPicker', {
             data: () => ({eid: '', value: ''}),
-            props: {mstyle: {type: Object, required: true}, mfield: {type: String, required: true}},
+            props: {mstyle: {type: Object, required: true}, mfield: {type: String, required: true}, mtype: {type: String, default: 'rgba'}},
             template: '<div class="relative">' +
                 '   <label class="layui-input-inline" style="width:230px">' +
-                '       <input :value="value" placeholder="请选择颜色" class="layui-input layui-bg-gray text-center" readonly>' +
+                '       <input :value="value" placeholder="请选择颜色" class="layui-input layui-bg-gray font-code text-center" readonly>' +
                 '   </label>' +
                 '   <div class="layui-inline absolute"><div :id="eid" class="margin-0">eid</div></div>' +
                 '</div>',
@@ -263,8 +266,14 @@
                 this.value = this.mstyle[this.mfield] || '';
             },
             mounted: function () {
+                let conf = {};
+                if (this.mtype === 'hex') conf = {format: 'hex', predefine: true};
+                if (this.mtype === 'rgb') conf = {format: 'rgb', predefine: true};
+                if (this.mtype === 'rgba') conf = {format: 'rgb', predefine: true, alpha: true};
                 let done = color => this.$set(this.mstyle, this.mfield, this.value = color) && this.$forceUpdate();
-                this.$nextTick(() => layui.colorpicker.render({elem: '#' + this.eid, color: this.value, predefine: true, alpha: true, format: 'rgb', done: done, change: done}));
+                this.$nextTick(() => layui.colorpicker.render(Object.assign({}, {
+                    elem: '#' + this.eid, color: this.value, done: done, change: done
+                }, conf)));
             }
         });
 
