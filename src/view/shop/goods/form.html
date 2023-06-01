@@ -163,7 +163,7 @@
         <div class="layui-form-item" id="GoodsSpecsEditor">
             <span class="help-label label-required-prev"><b>商品规格</b><span class="color-red font-s12">（规格填写后不允许再次增加规格分组）</span></span>
             <div class="margin-bottom-10" ng-repeat="x in specs track by $index">
-                <div class="goods-spec-box" style="background:#ddd">
+                <div class="goods-spec-box padding-right-10" style="background:#ddd">
                     <span class="text-center goods-spec-name">分组</span>
                     <label class="label-required-null inline-block">
                         <input ng-blur="trimSpace(x,'name')" ng-model="x.name" vali-name="分组" placeholder="请输入分组名称" required>
@@ -178,10 +178,11 @@
                     </div>
                 </div>
                 <div class="goods-spec-box" ng-if="x.list && x.list.length>0">
-                    <label class="label-required-null inline-block margin-right-10 margin-bottom-5 relative nowrap" ng-repeat="xx in x.list">
-                        <span class="text-center goods-spec-name">规格</span>
+                    <label class="label-required-null nowrap" ng-repeat="xx in x.list">
+                        <input lay-ignore ng-click="xx.check=checkListChecked(x.list,$event.target.checked)" ng-model="xx.check" type="checkbox">
+                        <!-- <span class="text-center goods-spec-name">规格</span> -->
                         <input ng-blur="trimSpace(xx,'name')" ng-keyup="trimSpace(xx,'name')" ng-model="xx.name" vali-name="规格" placeholder="请输入规格" required type="text">
-                        <a class="layui-icon layui-icon-close font-s12 goods-spec-close" ng-click="delSpecVal(x.list,$index)" ng-if="x.list.length>1"></a>
+                        <a class="layui-icon layui-icon-close goods-spec-close" ng-click="delSpecVal(x.list,$index)" ng-if="x.list.length>1"></a>
                     </label>
                 </div>
             </div>
@@ -207,7 +208,7 @@
                 </thead>
                 <tbody>
                 <tr ng-repeat="rows in items track by $index">
-                    <td class="layui-bg-gray nowrap" ng-bind="td.name" ng-if="td.show" ng-repeat="td in rows"></td>
+                    <td class="layui-bg-gray nowrap text-center" ng-bind="td.name" ng-if="td.show" ng-repeat="td in rows"></td>
                     <td><label><input class="layui-input font-code" ng-blur="rows[0].gsku=setValue(rows[0].key,'gsku',$event.target.value)" ng-model="rows[0].gsku"></label></td>
                     <td><label><input class="layui-input" ng-blur="rows[0].market=setValue(rows[0].key,'market',$event.target.value,'(parseFloat(_)||0).toFixed(2)')" ng-model="rows[0].market"></label></td>
                     <td><label><input class="layui-input" ng-blur="rows[0].selling=setValue(rows[0].key,'selling',$event.target.value,'(parseFloat(_)||0).toFixed(2)')" ng-model="rows[0].selling"></label></td>
@@ -318,13 +319,19 @@
                 return x[i] = (x[i] || '').replace(/[\s,;'"]+/ig, '');
             };
 
+            /*! 判断规则选择 */
+            $rootScope.checkListChecked = function (data, check) {
+                for (let i in data) if (data[i].check) return check;
+                return true;
+            };
+
             /*! 重新计算规格列表 */
             $rootScope.$watch('specs', function () {
                 let data = [], navs = [], table = [[]];
                 $rootScope.specs.forEach(function (spec) {
                     let temp = [];
                     spec.list.forEach(function (item) {
-                        if (item.name.length > 0 && (item.show = true)) {
+                        if (item.check && item.name.length > 0 && (item.show = true)) {
                             (item.group = spec.name) && temp.push(item);
                         }
                     });
@@ -400,7 +407,7 @@
 
         // 创建规格
         function addSpecVal(data) {
-            data.push({name: '规格属性' + (data.length || ''), unid: RandNumber(16)});
+            data.push({name: '规格属性' + (data.length || ''), unid: RandNumber(16), check: true});
             return data;
         }
     });

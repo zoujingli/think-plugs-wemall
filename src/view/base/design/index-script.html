@@ -1,7 +1,12 @@
+<label class="layui-form-label">
+    <textarea id="EditorData">{$data|json_encode}</textarea>
+</label>
+
 <script>
     // require(['https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js', 'validate', 'vue.sortable'], function (Vue, Validate, Sortable) {
     require(['vue', 'validate', 'vue.sortable'], function (Vue, Validate, Sortable) {
         initVueComponents(Vue).component('vuedraggable', Sortable);
+        let EditorData = JSON.parse($('#EditorData').val());
         // 定制基础颜色
         let D = {
             image: '__FULL__/static/theme/img/login/bg2.jpg',
@@ -61,18 +66,18 @@
             el: '#TemplateApp', components: {draggable: Sortable},
             data: function () {
                 return {
-                    heigth: 0,
+                    edit: {item: {}, unid: ''}, heigth: 0,
                     defaultCatesTypes: [{name: '默认样式', image: 'https://storage.thinkadmin.top/d/temps/a1/25cb427262b32c9eb678ad376b3501.png'}],
                     defaultCenterTypes: [{name: '默认样式', image: 'https://storage.thinkadmin.top/d/temps/a1/25cb427262b32c9eb678ad376b3501.png'}],
                     idx: -9, pdx: 0, item: {}, items: [], page: {head: {style: {}}, style: {}},
-                    toolbar: {style: {vActiveColor: '#bf0d0d', vNormalColor: '#666666'}},
+                    navbar: {style: {vActiveColor: '#bf0d0d', vNormalColor: '#666666'}},
                     pages: [CreateNewPage('商城首页'), CreateNewPage('商品分类'), CreateNewPage('购物车'), CreateNewPage('个人中心')],
                     tools: [
                         {
                             name: '基础组件', items: [
                                 {
                                     name: '轮播图', icon: 'layui-icon-carousel', type: 'BaseSlider',
-                                    data: [{image: D.image, link: '', unid: this.guid('img')}],
+                                    data: [{image: D.image, title: '', link: '', unid: this.guid('img')}],
                                     interStyle: {}, outerStyle: {
                                         vTypes: '页面间距,容器宽度,容器高度,上下内距,左右内距,边框位置,边框样式,边框颜色,边框宽度,边框圆角,背景颜色,背景图片,背景样式',
                                         vHeight: 50
@@ -92,19 +97,23 @@
                                 },
                                 {
                                     name: '导航栏', icon: 'layui-icon-prev-circle', type: 'BaseIcon',
-                                    data: [{unid: this.guid('img'), image: D.image}],
+                                    data: ((items) => {
+                                        for (let i = 0; i < 25; i++) items.push({unid: this.guid('img'), title: '标题', image: D.image});
+                                        return items;
+                                    })([]),
                                     fontStyle: {
                                         vTypes: '文字大小,文字粗细,文字行高,文字位置,文字颜色',
-                                        vFontSize: 3, vLineHeight: 10, fontWeight: 400, textAlign: 'center', color: D.normalColor
+                                        vFontSize: 3, vLineHeight: 8, fontWeight: 400, textAlign: 'center', color: D.normalColor
                                     },
                                     inputStyle: {
-                                        vName: '图片设置', vType: 1, vTypes: '容器高度,容器宽度2,左右间距,上下间距,边框圆角,边框宽度,边框颜色',
-                                        vWidth2: 15, vHeight: 15, vMarginTopBottom: 1, vMarginLeftRight: 1,
+                                        vName: '图片设置', vType: 1, vTypes: '页面间距#上 边 距,容器高度,容器宽度2,边框圆角,边框宽度,边框颜色',
+                                        vWidth2: 15, vHeight: 15, vMarginTop: 2,
                                         vBorderType: 'trbl', vBorderRadius: 1, vBorderWidth: 0, borderStyle: 'solid', borderColor: D.borderColor
                                     },
                                     interStyle: {
-                                        vTypes: '容器宽度,上下内距,左右内距,边框位置,边框样式,边框颜色,边框宽度,边框圆角,背景颜色,背景图片,背景样式',
-                                        vWidth: 100, vPaddingTopBottom: 1, vPaddingLeftRight: 1
+                                        vName: '内容器设置',
+                                        vTypes: '页面间距#上 边 距,容器宽度,上下内距,左右内距,边框位置,边框样式,边框颜色,边框宽度,边框圆角,背景颜色,背景图片,背景样式',
+                                        vRow: 1, vCol: 4, vWidth: 100, vPaddingTopBottom: 2, vPaddingLeftRight: 1, vMarginTop: 1,
                                     },
                                     outerStyle: {},
                                 },
@@ -128,7 +137,7 @@
                                         {unid: this.guid('img'), image: D.image}, {unid: this.guid('img'), image: D.image}
                                     ],
                                     inputStyle: {
-                                        vType: 5, vTypes: '边框圆角,边框宽度,边框颜色,左右间距,上下间距',
+                                        vName: '图片设置', vType: 5, vTypes: '左右间距,上下间距,边框圆角,边框宽度,边框颜色',
                                         vMarginTopBottom: 1, vMarginLeftRight: 1,
                                         vBorderType: 'trbl', vBorderRadius: 0, vBorderWidth: 0, borderStyle: 'solid', borderColor: D.borderColor
                                     },
@@ -208,14 +217,23 @@
             },
             watch: {
                 items: {deep: true, handler: v => app.pages[app.pdx].items = v},
-                pages: {deep: true, handler: v => layui.data('design', {key: 'pages', value: JSON.stringify(v)})},
-                toolbar: {deep: true, handler: v => layui.data('design', {key: 'toolbar', value: JSON.stringify(v)})}
+                // pages: {deep: true, handler: v => layui.data('design', {key: 'pages', value: JSON.stringify(v)})},
+                // navbar: {deep: true, handler: v => layui.data('design', {key: 'navbar', value: JSON.stringify(v)})}
             },
             created: function () {
                 // 加载缓存数据
-                let data = layui.data('design') || null;
-                if (data.pages) this.pages = JSON.parse(data.pages);
-                if (data.toolbar) this.toolbar = JSON.parse(data.toolbar);
+                // let data = layui.data('design') || null;
+                // if (data.pages) this.pages = JSON.parse(data.pages);
+                // if (data.navbar) this.navbar = JSON.parse(data.navbar);
+
+                if (EditorData.pages) {
+                    this.pages = EditorData.pages;
+                }
+
+                if (EditorData.navbar) {
+                    this.navbar = EditorData.navbar;
+                }
+
                 // 初始化页面数据
                 this.pages.forEach(v => v.unid = v.unid || this.guid('pg'));
                 this.tools.forEach(v => {

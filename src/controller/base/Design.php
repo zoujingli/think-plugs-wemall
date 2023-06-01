@@ -38,4 +38,23 @@ class Design extends Controller
         $this->data = sysdata('plugin.wemall.design');
         $this->fetch();
     }
+
+    /**
+     * 保存页面布局
+     * @auth true
+     * @return void
+     * @throws \think\admin\Exception
+     */
+    public function save()
+    {
+        $input = $this->_vali([
+            'pages.require'  => '页面配置不能为空！',
+            'navbar.require' => '菜单导航配置不能为空！'
+        ]);
+        sysdata('plugin.wemall.design', [
+            'pages'  => json_decode($input['pages'], true),
+            'navbar' => json_decode($input['navbar'], true)
+        ]);
+        $this->success('保存成功！');
+    }
 }

@@ -7,11 +7,12 @@
     </ul>
     <div class="layui-tab-content padding-right-30">
         <div class="layui-tab-item layui-show notselect">
+
             <div v-if="item.type==='BaseSearch'">
                 <div class="layui-form-item flex">
                     <span class="design-form-label">设置图片</span>
                     <div class="flex-1">
-                        <upload-image :mstyle="item.interStyle" :showinput="false" mfield="vLogo"></upload-image>
+                        <upload-image :mstyle="item.interStyle" mfield="vLogo" v-model="item.interStyle.vLogo" :showinput="false"></upload-image>
                     </div>
                 </div>
                 <div class="layui-form-item flex">
@@ -61,7 +62,7 @@
                                 >
                                     <div class="flex">
                                         <div style="padding-top:3px">
-                                            <upload-image :mstyle="xx" mfield="image" :showinput="false"></upload-image>
+                                            <upload-image :mstyle="xx" mfield="image" v-model="xx.image" :showinput="false"></upload-image>
                                         </div>
                                         <div class="flex-1">
                                             <label class="flex relative">
@@ -112,50 +113,43 @@
                     <input type="range" min="1" step="1" v-model="item.inputStyle.vNumber" max="20">
                     <span class="layui-form-label text-left flex-1" style="width:auto">{{item.inputStyle.vNumber}} 个</span>
                 </label>
-
             </div>
 
             <div v-if="item.type==='BaseIcon'">
                 <div class="layui-colla-item colla-form-group">
                     <div class="layui-colla-title">展示样式</div>
                     <div class="layui-colla-content layui-show text-center">
-                        <button v-for="(v,k) in ['x5','x6']" :key="v" @click="$set(item.inputStyle,'vType',k)"
-                                class="layui-btn layui-btn-sm" :class="item.inputStyle.vType===k?'layui-btn-normal':'layui-btn-primary'"
-                                type="button"><i class="iconfont" :class="'iconfont-'+v"></i></button>
+                        <layout-setting :mstyle="item.interStyle" mtypes="表格行数,表格列数"></layout-setting>
+                        <div class="layui-form-item">
+                            <div class="color-desc">请点击图片修改对应的内容</div>
+                            <draggable v-model="item.data" v-bind="{group:'BaseImageSlider',animation:200}" @start="drag=true" @end="drag=false">
+                                <transition-group class="flex flex-wrap">
+                                    <div v-for="(x,i) in item.data" v-if="i<item.interStyle.vCol*item.interStyle.vRow" :key="x.unid" style="padding:5px 2px;margin:0;box-sizing:border-box" :style="{width:(100/item.interStyle.vCol)+'%'}">
+                                        <button @click="$set(edit,'item',x) && $set(edit,'unid',item.unid)" class="layui-btn uploadimage" :class="x===edit.item?'active':''" style="width:50px;height:50px" :style="showBgimg(x.image)" type="button"></button>
+                                    </div>
+                                </transition-group>
+                            </draggable>
+                        </div>
                     </div>
                 </div>
-                <div class="layui-colla-item colla-form-group">
-                    <div class="layui-colla-title">图片内容</div>
+                <div class="layui-colla-item colla-form-group" v-if="edit.item && edit.unid===item.unid">
+                    <div class="layui-colla-title">图片设置</div>
                     <div class="layui-colla-content layui-show">
-                        <draggable v-model="item.data" v-bind="{group:'BaseIcon',animation:200}" @start="drag=true" @end="drag=false">
-                            <transition-group>
-                                <div class="layui-form-item" v-for="(xx,$index) in item.data" :key="xx.unid">
-                                    <div class="flex">
-                                        <div style="padding-top:3px">
-                                            <upload-image :mstyle="xx" mfield="image" :showinput="false"></upload-image>
-                                        </div>
-                                        <div class="flex-1">
-                                            <label class="flex relative">
-                                                <span class="layui-form-label" style="width:3em">标 题</span>
-                                                <input placeholder="选项，请输入标题" v-model="xx.name" class="flex-1 layui-input ">
-                                            </label>
-                                            <label class="flex relative margin-top-5">
-                                                <span class="layui-form-label" style="width:3em">链 接</span>
-                                                <input placeholder="必选，请选择链接" vali-name="链接" v-model="xx.link" class="flex-1 layui-input">
-                                            </label>
-                                        </div>
-                                        <div>
-                                            <a @click="moveUp(item.data,$index)" style="margin:0 0 0 5px" class="block layui-btn layui-btn-primary layui-btn-xs"><i style="transform:rotate(090deg)" class="layui-icon inline-block">&#xe65c;</i></a>
-                                            <a v-if="item.data.length>1" @click="moveRm(item.data,$index)" style="margin:7px 0 0 5px" class="block layui-btn layui-btn-primary layui-btn-xs layui-border-red"><i class="layui-icon layui-icon-close"></i></a>
-                                            <a v-else style="margin:7px 0 0 5px" class="block layui-btn layui-btn-primary layui-btn-xs layui-border-red layui-disabled"><i class="layui-icon layui-icon-close"></i></a>
-                                            <a @click="moveDn(item.data,$index)" style="margin:7px 0 0 5px" class="block layui-btn layui-btn-primary layui-btn-xs"><i style="transform:rotate(270deg)" class="layui-icon inline-block">&#xe65c;</i></a>
-                                        </div>
-                                    </div>
-                                    <hr>
-                                </div>
-                            </transition-group>
-                        </draggable>
-                        <a @click="addData(item.data)">添加图片</a>
+                        <div class="flex">
+                            <div style="padding-top:3px">
+                                <upload-image :mstyle="edit.item" mfield="image" v-model="edit.item.image" :showinput="false"></upload-image>
+                            </div>
+                            <div class="flex-1">
+                                <label class="flex relative">
+                                    <span class="layui-form-label" style="width:3em">标 题</span>
+                                    <input placeholder="选项，请输入标题" v-model="edit.item.title" class="flex-1 layui-input ">
+                                </label>
+                                <label class="flex relative margin-top-5">
+                                    <span class="layui-form-label" style="width:3em">链 接</span>
+                                    <input placeholder="必选，请选择链接" vali-name="链接" v-model="edit.item.link" class="flex-1 layui-input">
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -164,7 +158,7 @@
                 <div class="layui-form-item flex">
                     <span class="design-form-label">设置图片</span>
                     <div class="flex-1">
-                        <upload-image :mstyle="item.inputStyle" :showinput="false" mfield="vImage"></upload-image>
+                        <upload-image :mstyle="item.inputStyle" mfield="vImage" v-model="item.inputStyle.vImage" :showinput="false"></upload-image>
                     </div>
                 </div>
                 <label class="layui-form-item flex">
@@ -179,12 +173,12 @@
                         <div class="layui-form-item margin-bottom-10" v-for="(xx,$index) in item.data" :key="xx.unid">
                             <div class="flex">
                                 <div style="padding-top:3px">
-                                    <upload-image :mstyle="xx" mfield="image" :showinput="false"></upload-image>
+                                    <upload-image :mstyle="xx" mfield="image" v-model="xx.image" :showinput="false"></upload-image>
                                 </div>
                                 <div class="flex-1">
                                     <label class="flex relative">
                                         <span class="layui-form-label" style="width:3em">标 题</span>
-                                        <input placeholder="选项，请输入标题" v-model="xx.name" class="flex-1 layui-input ">
+                                        <input placeholder="选项，请输入标题" v-model="xx.title" class="flex-1 layui-input ">
                                     </label>
                                     <label class="flex relative margin-top-5">
                                         <span class="layui-form-label" style="width:3em">链 接</span>

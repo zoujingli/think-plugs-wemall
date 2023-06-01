@@ -9,7 +9,7 @@
 
 {block name="content"}
 {include file="base/design/index-style"}
-<form id="DesignForm" class="padding-20 layui-anim layui-anim-fadein">
+<form id="DesignForm" method="post" data-auto action="{:url('save')}" class="padding-20 layui-anim layui-anim-fadein">
     <div class="design-layout" id="TemplateApp">
         <div class="design-layout-menu shadow-mini">
             <div class="layui-tab layui-tab-brief">
@@ -55,11 +55,11 @@
             <div class="design-layout-view-foot">
                 <div sv-element :class="idx===-2?'active':''">
                     <div class="notselect">
-                        <div sv-handle class="flex pointer not-after" @click="setPage(pdx,false,true)" :style="toolbar.style">
+                        <div sv-handle class="flex pointer not-after" @click="setPage(pdx,false,true)" :style="navbar.style">
                             <a v-for="(x,$index) in pages" v-if="x.show" :key="x.unid" :class="x.active?'active':''" @click="setPage($index,false,true)">
                                 <span class="headimg headimg-ss block auto-center" v-if="x.active && x.foot.icon.active" :style="showBgimg(x.foot.icon.active)"></span>
                                 <span class="headimg headimg-ss block auto-center" v-if="!x.active && x.foot.icon.normal" :style="showBgimg(x.foot.icon.normal)"></span>
-                                <span :style="showColor(x.active?(toolbar.style.vActiveColor||''):(toolbar.style.vNormalColor||''))">{{x.foot.name}}</span>
+                                <span :style="showColor(x.active?(navbar.style.vActiveColor||''):(navbar.style.vNormalColor||''))">{{x.foot.name}}</span>
                             </a>
                         </div>
                     </div>
@@ -70,8 +70,13 @@
         <div class='design-layout-form shadow-mini'>
             {include file='base/design/index-x-head-form'}
             {include file='base/design/index-x-normal-form'}
-            {include file='base/design/index-x-toolbar-form'}
+            {include file='base/design/index-x-navbar-form'}
         </div>
+
+        <label class="layui-hide layui-form-label">
+            <textarea name="pages">{{JSON.stringify(pages)}}</textarea>
+            <textarea name="navbar">{{JSON.stringify(navbar)}}</textarea>
+        </label>
 
     </div>
 </form>

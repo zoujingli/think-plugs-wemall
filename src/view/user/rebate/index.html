@@ -7,8 +7,8 @@
 {/block}
 
 {block name="content"}
-<div class="think-box-notify">
-    <b>返利统计：</b>累计已产生返利 <b>{$rebate.0+$rebate.2}</b> 元 ( 含未到账 <b>{$rebate.2|default='0.00'}</b> 元 )，累计已提现 <b>{$total.1|default=0.00}</b> 元。
+<div class="think-box-notify sub-strong-blue">
+    <strong>返利统计：</strong>累计已产生返利 <b>{$rebate.0+$rebate.2}</b> 元 ( 含未到账 <b>{$rebate.2|default='0.00'}</b> 元 )，累计已提现 <b>{$total.1|default=0.00}</b> 元。
 </div>
 <div class="think-box-shadow margin-top-10">
     {include file='user/rebate/index_search'}

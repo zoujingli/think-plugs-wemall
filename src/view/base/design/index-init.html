@@ -9,37 +9,49 @@
 <script class="layui-hide" type="text/html" id="LayoutSettingFormTemplate">
     <div class="design-setting-tpl">
         <div v-for="(x,$index) in items" :key="x.unid">
-            <div v-if="x.type==='页面间距'" class="layui-form-item flex flex-align-center">
+            <div v-if="x.type==='表格行数'" class="layui-form-item flex-x-center">
+                <span class="design-form-label">{{x.name || '表格行数'}}</span>
+                <label class="padding-top-5"><input type="range" min="1" max="5" step="1" v-model.number="mstyle.vRow"></label>
+                <label class="padding-left-5"><input type="number" min="1" max="5" step="1" v-range v-model.number="mstyle.vRow" class="layui-input"></label>
+                <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto">行</span>
+            </div>
+            <div v-if="x.type==='表格列数'" class="layui-form-item flex-x-center">
+                <span class="design-form-label">{{x.name || '表格列数'}}</span>
+                <label class="padding-top-5"><input type="range" min="1" max="5" step="1" v-model.number="mstyle.vCol"></label>
+                <label class="padding-left-5"><input type="number" min="1" max="5" step="1" v-range v-model.number="mstyle.vCol" class="layui-input"></label>
+                <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto">列</span>
+            </div>
+            <div v-if="x.type==='页面间距'" class="layui-form-item flex-x-center">
                 <span class="design-form-label">{{x.name || '页面间距'}}</span>
                 <label class="padding-top-5"><input type="range" min="0" max="10" step="0.01" v-model="mstyle.vMarginTop"></label>
                 <label class="padding-left-5"><input type="number" min="0" max="10" step="0.01" v-range v-model="mstyle.vMarginTop" class="layui-input"></label>
                 <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto">vw</span>
             </div>
-            <div v-if="x.type==='上下内距'" class="layui-form-item flex flex-align-center">
+            <div v-if="x.type==='上下内距'" class="layui-form-item flex-x-center">
                 <span class="design-form-label">{{x.name || '上下内距'}}</span>
                 <label class="padding-top-5"><input type="range" min="0" max="10" step="0.01" v-model="mstyle.vPaddingTopBottom"></label>
                 <label class="padding-left-5"><input type="number" min="0" max="10" step="0.01" v-range v-model="mstyle.vPaddingTopBottom" class="layui-input"></label>
                 <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto">vw</span>
             </div>
-            <div v-if="x.type==='左右内距'" class="layui-form-item flex flex-align-center">
+            <div v-if="x.type==='左右内距'" class="layui-form-item flex-x-center">
                 <span class="design-form-label">{{x.name || '左右内距'}}</span>
                 <label class="padding-top-5"><input type="range" min="0" max="10" step="0.01" v-model="mstyle.vPaddingLeftRight"></label>
                 <label class="padding-left-5"><input type="number" min="0" max="10" step="0.01" v-range v-model="mstyle.vPaddingLeftRight" class="layui-input"></label>
                 <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto">vw</span>
             </div>
-            <div v-if="x.type==='上下间距'" class="layui-form-item flex flex-align-center">
+            <div v-if="x.type==='上下间距'" class="layui-form-item flex-x-center">
                 <span class="design-form-label">{{x.name || '上下间距'}}</span>
                 <label class="padding-top-5"><input type="range" min="0" max="10" step="0.01" v-model="mstyle.vMarginTopBottom"></label>
                 <label class="padding-left-5"><input type="number" min="0" max="10" step="0.01" v-range v-model="mstyle.vMarginTopBottom" class="layui-input"></label>
                 <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto">vw</span>
             </div>
-            <div v-if="x.type==='左右间距'" class="layui-form-item flex flex-align-center">
+            <div v-if="x.type==='左右间距'" class="layui-form-item flex-x-center">
                 <span class="design-form-label">{{x.name || '左右间距'}}</span>
                 <label class="padding-top-5"><input type="range" min="0" max="10" step="0.01" v-model="mstyle.vMarginLeftRight"></label>
                 <label class="padding-left-5"><input type="number" min="0" max="10" step="0.01" v-range v-model="mstyle.vMarginLeftRight" class="layui-input"></label>
                 <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto">vw</span>
             </div>
-            <div v-if="x.type==='边框位置'" class="layui-form-item flex flex-align-center">
+            <div v-if="x.type==='边框位置'" class="layui-form-item flex-x-center">
                 <span class="design-form-label">{{x.name || '边框位置'}}</span>
                 <div class="flex-1">
                     <div class="layui-btn-group">
@@ -51,7 +63,7 @@
                     </div>
                 </div>
             </div>
-            <div v-if="x.type==='边框样式'" class="layui-form-item flex flex-align-center">
+            <div v-if="x.type==='边框样式'" class="layui-form-item flex-x-center">
                 <span class="design-form-label">{{x.name || '边框样式'}}</span>
                 <div class="flex-1">
                     <div class="layui-btn-group">
@@ -61,43 +73,43 @@
                     </div>
                 </div>
             </div>
-            <div v-if="x.type==='边框颜色'" class="layui-form-item flex flex-align-center">
+            <div v-if="x.type==='边框颜色'" class="layui-form-item flex-x-center">
                 <span class="design-form-label">{{x.name || '边框颜色'}}</span>
                 <div class="flex-1">
                     <color-picker :mstyle="mstyle" mfield="borderColor"></color-picker>
                 </div>
             </div>
-            <div v-if="x.type==='边框宽度'" class="layui-form-item flex flex-align-center">
+            <div v-if="x.type==='边框宽度'" class="layui-form-item flex-x-center">
                 <span class="design-form-label">{{x.name || '边框宽度'}}</span>
                 <label class="padding-top-5"><input type="range" min="0" max="10" step="0.01" v-model="mstyle.vBorderWidth"></label>
                 <label class="padding-left-5"><input type="number" min="0" max="10" step="0.01" v-range v-model="mstyle.vBorderWidth" class="layui-input"></label>
                 <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto">vw</span>
             </div>
-            <div v-if="x.type==='边框圆角'" class="layui-form-item flex flex-align-center">
+            <div v-if="x.type==='边框圆角'" class="layui-form-item flex-x-center">
                 <span class="design-form-label">{{x.name || '边框圆角'}}</span>
                 <label class="padding-top-5"><input type="range" min="0" max="50" step="0.01" v-model="mstyle.vBorderRadius"></label>
                 <label class="padding-left-5"><input type="number" min="0" max="50" step="0.01" v-range v-model="mstyle.vBorderRadius" class="layui-input"></label>
                 <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto">vw</span>
             </div>
-            <div v-if="x.type==='容器宽度'" class="layui-form-item flex flex-align-center">
+            <div v-if="x.type==='容器宽度'" class="layui-form-item flex-x-center">
                 <span class="design-form-label">{{x.name || '容器宽度'}}</span>
                 <label class="padding-top-5"><input type="range" min="0.01" max="100" step="0.01" v-model="mstyle.vWidth"></label>
                 <label class="padding-left-5"><input type="number" min="0.01" max="100" step="0.01" v-range v-model="mstyle.vWidth" class="layui-input"></label>
                 <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto">%</span>
             </div>
-            <div v-if="x.type==='容器宽度2'" class="layui-form-item flex flex-align-center">
+            <div v-if="x.type==='容器宽度2'" class="layui-form-item flex-x-center">
                 <span class="design-form-label">{{x.name || '容器宽度'}}</span>
                 <label class="padding-top-5"><input type="range" min="0" max="100" step="0.01" v-model="mstyle.vWidth2"></label>
                 <label class="padding-left-5"><input type="number" min="0" max="100" step="0.01" v-range v-model="mstyle.vWidth2" class="layui-input"></label>
                 <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto">vw</span>
             </div>
-            <div v-if="x.type==='容器高度'" class="layui-form-item flex flex-align-center">
+            <div v-if="x.type==='容器高度'" class="layui-form-item flex-x-center">
                 <span class="design-form-label">{{x.name || '容器高度'}}</span>
                 <label class="padding-top-5"><input type="range" min="0.01" max="100" step="0.01" v-model="mstyle.vHeight"></label>
                 <label class="padding-left-5"><input type="number" min="0.01" max="100" step="0.01" v-range v-model="mstyle.vHeight" class="layui-input"></label>
                 <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto">vw</span>
             </div>
-            <div v-if="x.type==='文字位置'" class="layui-form-item flex flex-align-center">
+            <div v-if="x.type==='文字位置'" class="layui-form-item flex-x-center">
                 <span class="design-form-label">{{x.name || '文字位置'}}</span>
                 <div class="flex-1">
                     <div class="layui-btn-group">
@@ -107,19 +119,19 @@
                     </div>
                 </div>
             </div>
-            <div v-if="x.type==='文字粗细'" class="layui-form-item flex flex-align-center">
+            <div v-if="x.type==='文字粗细'" class="layui-form-item flex-x-center">
                 <span class="design-form-label">{{x.name || '文字粗细'}}</span>
                 <label class="padding-top-5"><input type="range" min="100" max="900" step="100" v-model="mstyle.fontWeight"></label>
                 <label class="padding-left-5"><input type="number" min="100" max="900" step="100" v-range v-model="mstyle.fontWeight" class="layui-input"></label>
                 <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto"></span>
             </div>
-            <div v-if="x.type==='文字行高'" class="layui-form-item flex flex-align-center">
+            <div v-if="x.type==='文字行高'" class="layui-form-item flex-x-center">
                 <span class="design-form-label">{{x.name || '文字行高'}}</span>
                 <label class="padding-top-5"><input type="range" min="0.01" max="50" step="0.01" v-model="mstyle.vLineHeight"></label>
                 <label class="padding-left-5"><input type="number" min="0.01" max="50" step="0.01" v-range v-model="mstyle.vLineHeight" class="layui-input"></label>
                 <span class="layui-form-label padding-left-5 text-left flex-1" style="width:auto">vw</span>
             </div>
-            <div v-if="x.type==='文字大小'" class="layui-form-item flex flex-align-center">
+            <div v-if="x.type==='文字大小'" class="layui-form-item flex-x-center">
                 <span class="design-form-label">{{x.name || '文字大小'}}</span>
                 <label class="padding-top-5"><input type="range" min="0.05" max="10" step="0.01" v-model="mstyle.vFontSize"></label>
                 <label class="padding-left-5"><input type="number" min="0.05" max="10" step="0.01" v-range v-model="mstyle.vFontSize" class="layui-input"></label>
@@ -136,10 +148,10 @@
             <div v-if="x.type==='背景图片'" class="layui-form-item flex">
                 <span class="design-form-label">{{x.name || '背景图片'}}</span>
                 <div class="flex-1">
-                    <upload-image :mstyle="mstyle" :showinput="false" mfield="vBackgroundImage"></upload-image>
+                    <upload-image :mstyle="mstyle" mfield="vBackgroundImage" v-model="mstyle.vBackgroundImage" :showinput="false"></upload-image>
                 </div>
             </div>
-            <div v-if="x.type==='背景样式' && !!mstyle.vBackgroundImage" class="layui-form-item flex flex-align-center">
+            <div v-if="x.type==='背景样式' && !!mstyle.vBackgroundImage" class="layui-form-item flex-x-center">
                 <span class="design-form-label">{{x.name || '背景样式'}}</span>
                 <div class="flex-1">
                     <label class="think-radio" v-for="(xx,$ii) in ['重复平铺','横向平铺','垂直平铺','全屏拉伸','居中裁剪']">
@@ -168,6 +180,12 @@
                     showColor: clr => ({color: clr}),
                     showBgcolor: clr => ({backgroundColor: clr}),
                     showError: tips => ($.msg.notify('操作异常提示：', tips, 2000, {width: '350px', type: 'error'}), this),
+                    arrSplit: function (data, length) {
+                        let sps = [];
+                        while (data.length > length) sps.push(data.splice(0, length));
+                        if (data.length > 0) sps.push(data);
+                        return sps;
+                    },
                     showStyle: function (data, extra, allow) {
                         let width = 400, style = Object.assign({}, JSON.parse(JSON.stringify(data)), extra || {});
                         let allows = allow ? ',' + allow + ',' : false;
@@ -277,12 +295,30 @@
             }
         });
 
+        // 显示背景图片
+        Vue.component('BgImage', {
+            template: '<div class="uploadimage full-width full-height" :style="[bgStyle]"></div>',
+            props: {bgimg: {type: String, required: true}, mstyle: {type: Object, default: () => ({})}},
+            data() {
+                return {bgStyle: {}};
+            },
+            created() {
+                Object.assign(this.bgStyle, this.mstyle || {}, {backgroundImage: 'url(' + this.bgimg + ')'});
+            }
+        });
+
         // 图片上传组件
         Vue.component('UploadImage', {
-            data: () => ({eid: '', value: '', mclass: 'layui-show'}),
-            props: {mstyle: {type: Object, required: true}, mfield: {type: String, required: true}, showinput: {type: Boolean, default: true}},
+            data: () => ({eid: '', mclass: 'layui-show'}),
+            model: {prop: 'mvalue', event: 'change'},
+            props: {
+                mstyle: {type: Object, required: true},
+                mfield: {type: String, required: true},
+                mvalue: {type: String, default: ''},
+                showinput: {type: Boolean, default: true}
+            },
             template: '<div class="relative">' +
-                '   <input class="layui-input layui-bg-gray" :class="mclass" v-model="value" readonly :id="eid" placeholder="请上传图片">' +
+                '   <input class="layui-input layui-bg-gray" :class="mclass" v-model="mvalue" readonly :id="eid" placeholder="请上传图片">' +
                 '   <a class="input-right-icon" :class="mclass" data-type="jpg,png,gif" :data-upbtn="eid"><i class="layui-icon layui-icon-upload"></i></a>' +
                 '</div>',
             created: function () {
@@ -290,9 +326,15 @@
                 let key = '_' + this.mfield.replace(/([A-Z])/g, '_$1').toLowerCase();
                 this.eid = this.mstyle[key] || Math.random().toString().replace('0.', 'uploadimage-');
             },
+            watch: {
+                mvalue(a) {
+                    this.$nextTick(() => $('#' + this.eid).trigger('change'));
+                }
+            },
             mounted: function () {
-                this.value = this.mstyle[this.mfield] || '';
-                let done = e => this.$set(this.mstyle, this.mfield, e.target.value);
+                this.mvalue = this.mstyle[this.mfield] || '';
+                let done = e => this.$emit('change', e.target.value);
+                // let done = e => this.$set(this.mstyle, this.mfield, e.target.value);
                 this.$nextTick(() => {
                     let $ele = $('#' + this.eid).uploadOneImage().on('change', done);
                     $('[data-upbtn=' + this.eid + ']').uploadFile(src => $ele.val(src).trigger('change'));

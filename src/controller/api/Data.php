@@ -23,6 +23,20 @@ class Data extends Controller
     }
 
     /**
+     * 获取页面布局
+     * @return void
+     * @throws \think\admin\Exception
+     */
+    public function layout()
+    {
+        // 临时方案，后面会走模板记录
+        $data = [
+            'layout' => sysdata('plugin.wemall.design')
+        ];
+        $this->success('获取页面配置', $data);
+    }
+
+    /**
      * 图片内容数据
      * @throws \think\admin\Exception
      */

@@ -11,7 +11,7 @@
             <draggable v-model="pages" v-bind="{group:'pages',animation:200}" @start="drag=true" @end="drag=false">
                 <transition-group>
                     <div v-for="(x,$index) in pages" :key="x.unid">
-                        <div class="flex flex-align-center">
+                        <div class="flex-x">
                             <div class="flex-1"><a @click="setPage($index)">编辑页面</a></div>
                             <div class="flex-2">类型：<span class="color-green">{{x.type}}</span></div>
                             <label class="flex-2 think-checkbox text-right" style="margin:0 0 4px">
@@ -20,10 +20,10 @@
                         </div>
                         <div class="flex">
                             <div style="padding-top:3px">
-                                <upload-image :mstyle="x.foot.icon" mfield="normal" :showinput="false"></upload-image>
+                                <upload-image :mstyle="x.foot.icon" mfield="normal" v-model="x.foot.icon.normal" :showinput="false"></upload-image>
                             </div>
                             <div style="padding:3px 0 0 10px">
-                                <upload-image :mstyle="x.foot.icon" mfield="active" :showinput="false"></upload-image>
+                                <upload-image :mstyle="x.foot.icon" mfield="active" v-model="x.foot.icon.active" :showinput="false"></upload-image>
                             </div>
                             <div class="flex-1">
                                 <label class="relative flex">
@@ -50,16 +50,16 @@
             <div class="layui-form-item flex">
                 <span class="design-form-label">默认文字</span>
                 <div class="flex-1">
-                    <color-picker :mstyle="toolbar.style" mfield="vNormalColor" mtype="hex"></color-picker>
+                    <color-picker :mstyle="navbar.style" mfield="vNormalColor" mtype="hex"></color-picker>
                 </div>
             </div>
             <div class="layui-form-item flex">
                 <span class="design-form-label">选中文字</span>
                 <div class="flex-1">
-                    <color-picker :mstyle="toolbar.style" mfield="vActiveColor" mtype="hex"></color-picker>
+                    <color-picker :mstyle="navbar.style" mfield="vActiveColor" mtype="hex"></color-picker>
                 </div>
             </div>
-            <layout-setting :mstyle="toolbar.style" mtypes="背景颜色,背景图片,背景样式"></layout-setting>
+            <layout-setting :mstyle="navbar.style" mtypes="背景颜色,背景图片,背景样式"></layout-setting>
         </div>
     </div>
 </div>

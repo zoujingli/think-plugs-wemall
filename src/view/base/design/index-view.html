@@ -11,8 +11,8 @@
 
             <div sv-handle class="layui-tpl-item layui-anim layui-anim-fadein">
 
-                <div v-if="x.type==='BaseSlider'" :style="showStyle(x.outerStyle)">
-                    <div class="overhide auto-center relative flex-align-center full-100" :style="showStyle(x.interStyle||{})">
+                <div v-if="x.type==='BaseSlider'" :style="showStyle(x.outerStyle)" class="flex-center">
+                    <div class="overhide relative flex-x-center" :style="showStyle(x.interStyle||{})">
                         <div v-if="x.data.length>0" class="uploadimage shadow-none border-radius-0 full-100" :style="showBgimg(x.data[0].image)"></div>
                         <div v-if="x.data.length>0" class="text-center absolute" style="bottom:10px;left:0;right:0;">
                             <div class="inline-block" style="background:rgba(0,0,0,0.5);padding:0 2px;border-radius:10px;line-height:12px;height:15px">
@@ -22,16 +22,16 @@
                     </div>
                 </div>
 
-                <div v-else-if="x.type==='BaseCates'" :style="showStyle(x.outerStyle)">
-                    <div class="flex-align-center auto-center relative" :style="showStyle(x.interStyle||{})">
+                <div v-else-if="x.type==='BaseCates'" :style="showStyle(x.outerStyle)" class="flex-center">
+                    <div class="flex-x-center relative" :style="showStyle(x.interStyle||{})">
                         <a :style="showStyle(x.fontStyle||{})">商品分类1</a>
                         <a :style="showStyle(x.fontStyle||{})">商品分类2</a>
                         <a :style="showStyle(x.fontStyle||{})">商品分类3</a>
                     </div>
                 </div>
 
-                <div v-else-if="x.type==='ToolWechat'" :style="showStyle(x.outerStyle)">
-                    <div class="flex auto-center flex-align-center flex-direction-column" :style="showStyle(x.interStyle||{})">
+                <div v-else-if="x.type==='ToolWechat'" :style="showStyle(x.outerStyle)" class="flex-center">
+                    <div class="flex-x-center flex-y" :style="showStyle(x.interStyle||{})">
                         <div :style="showStyle(x.inputStyle||{},showBgimg(x.inputStyle.vImage||''))" class="uploadimage shadow-none"></div>
                         <div :style="showStyle(x.fontStyle||{})" class="layui-elip">{{x.inputStyle.vTitle}}</div>
                     </div>
@@ -44,37 +44,37 @@
                 {include file='base/design/index-view-page-cart'}
                 {include file='base/design/index-view-page-center'}
 
-                <div v-else-if="x.type==='BaseSearch'" :style="showStyle(x.outerStyle)">
-                    <div class="flex auto-center flex-align-center" :style="showStyle(x.interStyle||{})">
+                <div v-else-if="x.type==='BaseSearch'" :style="showStyle(x.outerStyle)" class="flex-center">
+                    <div class="flex-x-center" :style="showStyle(x.interStyle||{})">
                         <div class="headimg shadow-none" v-if="x.interStyle.vLogo" :style="showBgimg(x.interStyle.vLogo)" data-lazy-src="__ROOT__/static/theme/img/headimg.png"></div>
-                        <label class="flex-1">
-                            <input class="layui-input border-0" :placeholder="x.inputStyle.vPlaceholder" :style="showStyle(x.inputStyle||{})">
-                        </label>
+                        <label class="flex-1"><input class="layui-input border-0" :placeholder="x.inputStyle.vPlaceholder" :style="showStyle(x.inputStyle||{})"></label>
                     </div>
                 </div>
 
-                <div v-else-if="x.type==='ToolTitle'" :style="showStyle(x.outerStyle)">
-                    <div class="auto-center" :style="showStyle(x.interStyle||{})">
+                <div v-else-if="x.type==='ToolTitle'" :style="showStyle(x.outerStyle)" class="flex-center">
+                    <div :style="showStyle(x.interStyle||{})">
                         <div :style="showStyle(x.inputStyle||{})">{{x.inputStyle.vText || ''}}</div>
                     </div>
                 </div>
 
-                <div v-else-if="x.type==='ToolText'" :style="showStyle(x.outerStyle)">
-                    <div class="auto-center" :style="showStyle(x.interStyle||{})">
+                <div v-else-if="x.type==='ToolText'" :style="showStyle(x.outerStyle)" class="flex-center">
+                    <div :style="showStyle(x.interStyle||{})">
                         <div :style="showStyle(x.inputStyle||{})" v-html="showText(x.inputStyle.vText || '')"></div>
                     </div>
                 </div>
 
-                <div v-else-if="x.type==='ToolBorder'" :style="showStyle(x.outerStyle)">
-                    <div class="auto-center only-bottom-line" :style="showStyle(x.inputStyle||{})"></div>
+                <div v-else-if="x.type==='ToolBorder'" :style="showStyle(x.outerStyle)" class="flex-center">
+                    <div class="flex-y" :style="showStyle(x.inputStyle||{})">
+                        <div style="height:0;opacity:0;overflow:hidden;">.</div>
+                    </div>
                 </div>
 
-                <div v-else-if="x.type==='ToolBlank'" :style="showStyle(x.outerStyle)">
-                    <div class="auto-center" :style="showStyle(x.inputStyle||{})"></div>
+                <div v-else-if="x.type==='ToolBlank'" :style="showStyle(x.outerStyle)" class="flex-center">
+                    <div :style="showStyle(x.inputStyle||{})"></div>
                 </div>
 
-                <div v-else class="think-bg-white" :style="showStyle(x.outerStyle)">
-                    <div class="auto-center" :style="showStyle(x.interStyle||{})">
+                <div v-else class="think-bg-white flex-center" :style="showStyle(x.outerStyle)">
+                    <div :style="showStyle(x.interStyle||{})">
                         <span class="font-code">{{x.type}}</span> - {{x.name}} - 2
                     </div>
                 </div>
