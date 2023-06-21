@@ -62,8 +62,8 @@ class UserUpgradeService extends Service
 
     /**
      * 尝试绑定上级代理
-     * @param integer $unid 用户UID
-     * @param integer $puid 代理UID
+     * @param integer $unid 用户 UNID
+     * @param integer $puid 代理 UNID
      * @param integer $mode 操作类型（0临时绑定, 1永久绑定, 2强行绑定）
      * @return array
      * @throws \think\admin\Exception

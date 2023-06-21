@@ -179,7 +179,7 @@
                                 },
                                 {
                                     name: '辅助空白', icon: 'layui-icon-screen-full', type: 'ToolBlank', data: [], outerStyle: {}, interStyle: false,
-                                    inputStyle: {vHeight: 10, vBorderType: 'trbl', vBorderRadius: 0, vBorderWidth: 0, borderStyle: 'solid', borderColor: D.borderColor},
+                                    inputStyle: {vHeight: 10, vWidth: 100, vBorderType: 'trbl', vBorderRadius: 0, vBorderWidth: 0, borderStyle: 'solid', borderColor: D.borderColor},
                                 },
                                 {
                                     name: '辅助线', icon: 'layui-icon-slider', type: 'ToolBorder', data: [],
@@ -269,6 +269,11 @@
                 addData: function (data, form, prefix) {
                     data.push(Object.assign({}, form || {}, {unid: this.guid(prefix || 'IMG')}));
                 },
+                // 增加复制组件
+                addCopy: function (tool) {
+                    this.addItem(this.copy(tool, true));
+                },
+                // 增加指定组件
                 addItem: function (tool) {
                     // 检查初始表单验证
                     $('.design-layout-form .layui-tab li:first').trigger('click')
@@ -287,8 +292,21 @@
                     } else {
                         this.items.some((v, i) => v.top ? false : (this.idx < i) && (this.idx = i - 1) || true);
                     }
-                    this.items.splice(this.idx + 1, 0, this.copy(tool));
+                    this.items.splice(this.idx + 1, 0, this.copy(tool, true));
                     this.setItem(this.items.length > 1 ? this.idx + 1 : 0).autoScroll();
+                },
+                /*! 切换组件 ( 操作索引，强制更新 ) */
+                setItem: function (idx, force) {
+                    // 检查初始表单验证
+                    if (!force && idx !== this.idx) {
+                        $('.design-layout-form .layui-tab li:first').trigger('click')
+                        if (!vali.checkAllInput()) return this.showError('请完成表单输入');
+                    }
+                    let head = (this.idx = idx) < 0;
+                    this.item = head ? this.page.head : this.items[idx] || {};
+                    this.item.unid = this.item.unid || this.guid('UN');
+                    this.items.forEach((v, i) => v.active = head ? false : i === idx);
+                    return this;
                 },
                 /*! 切换页面 （ 页面编号，选中标题，菜单切换 ）*/
                 setPage: function (pdx, isInit, isMenu) {
@@ -309,19 +327,6 @@
                             if (v.active) return !!this.setItem(i).autoScroll('instant')
                         })) || !!this.setItem(-1).autoScroll('instant');
                     }
-                },
-                /*! 切换组件 ( 操作索引，强制更新 ) */
-                setItem: function (idx, force) {
-                    // 检查初始表单验证
-                    if (!force && idx !== this.idx) {
-                        $('.design-layout-form .layui-tab li:first').trigger('click')
-                        if (!vali.checkAllInput()) return this.showError('请完成表单输入');
-                    }
-                    let head = (this.idx = idx) < 0;
-                    this.item = head ? this.page.head : this.items[idx] || {};
-                    this.item.unid = this.item.unid || this.guid('UN');
-                    this.items.forEach((v, i) => v.active = head ? false : i === idx);
-                    return this;
                 },
                 /*! 移除组件 ( 对象列表，操作索引，是否组件 ) */
                 moveRm: function (is, ix, co) {

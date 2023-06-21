@@ -7,7 +7,7 @@
 [![PHP Version](https://doc.thinkadmin.top/static/icon/php-7.1.svg)](https://thinkadmin.top)
 [![License](https://doc.thinkadmin.top/static/icon/license-vip.svg)](https://thinkadmin.top/vip-introduce)
 
-**注意：** 该插件测试版有数据库结构变化，未生成补丁，需要全新安装！]
+**注意：** 该插件测试版有数据库结构变化，未生成升级补丁，每次更新需要全新安装！
 
 多终端微商城系统，此插件为[会员尊享插件](https://thinkadmin.top/vip-introduce)，未授权不可商用。
 
@@ -41,5 +41,11 @@ composer require zoujingli/think-plugs-wemall dev-master --optimize-autoloader
 ```shell
 composer remove zoujingli/think-plugs-wemall
 ```
+
+### 插件数据
+
+本插件涉及数据表有：--
+
+### 版权说明
 
 **ThinkPlugsWemall** 为 **ThinkAdmin** 会员插件，未授权不可商用，了解商用授权请阅读 [《会员尊享介绍》](https://thinkadmin.top/vip-introduce)。

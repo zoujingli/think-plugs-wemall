@@ -1,21 +1,26 @@
 <?php
 
 // +----------------------------------------------------------------------
-// | Shop-Demo for ThinkAdmin
+// | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 Anyon <zoujingli@qq.com>
+// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
 // | 免责声明 ( https://thinkadmin.top/disclaimer )
 // | 会员免费 ( https://thinkadmin.top/vip-introduce )
 // +----------------------------------------------------------------------
-// | gitee 代码仓库：https://gitee.com/zoujingli/ThinkAdmin
-// | github 代码仓库：https://github.com/zoujingli/ThinkAdmin
+// | gitee 代码仓库：https://gitee.com/zoujingli/think-plugs-wemall
+// | github 代码仓库：https://github.com/zoujingli/think-plugs-wemall
 // +----------------------------------------------------------------------
+
+declare (strict_types=1);
 
 namespace plugin\wemall\command;
 
+use app\wechat\service\WechatService;
+use plugin\account\service\Account;
+use plugin\wemall\model\PluginWemallUserRelation;
 use plugin\wemall\model\PluginWemallUserTransfer;
 use plugin\wemall\service\UserRebateService;
 use think\admin\Command;
@@ -43,7 +48,6 @@ class Transfer extends Command
      * 执行微信提现操作
      * @param Input $input
      * @param Output $output
-     * @return void
      * @throws \think\admin\Exception
      * @throws \think\db\exception\DbException
      */
@@ -77,11 +81,7 @@ class Transfer extends Command
                 }
             } elseif ($vo['status'] === 4) {
                 $this->queue->message($total, $count, "刷新提现订单 {$vo['code']} 状态", 1);
-                if ($vo['type'] === 'wechat_banks') {
-                    $this->queryTransferBank($vo);
-                } else {
-                    $this->queryTransferWallet($vo);
-                }
+                $vo['type'] === 'wechat_banks' ? $this->queryTransferBank($vo) : $this->queryTransferWallet($vo);
             }
         } catch (\Exception $exception) {
             $error++;
@@ -104,7 +104,7 @@ class Transfer extends Command
      */
     private function createTransferBank(array $item): array
     {
-        $config = $this->getConfig($item['uuid']);
+        $config = $this->getConfig($item['unid']);
         return [$config, TransfersBank::instance($config)->create([
             'partner_trade_no' => $item['code'],
             'enc_bank_no'      => $item['bank_code'],
@@ -117,11 +117,11 @@ class Transfer extends Command
 
     /**
      * 获取微信提现参数
-     * @param int $uuid
+     * @param int $unid
      * @return array
      * @throws \think\admin\Exception
      */
-    private function getConfig(int $uuid): array
+    private function getConfig(int $unid): array
     {
         $data = sysdata('plugin.wemall.transfer.wxpay');
         if (empty($data)) throw new Exception('未配置微信提现商户');
@@ -134,11 +134,10 @@ class Transfer extends Command
             $local->set($file2, $data['wechat_mch_cert_text'], true);
         }
         // 获取用户支付信息
-        $result = $this->getWechatInfo($uuid, $data['wechat_type']);
-        if (empty($result)) throw new Exception('无法读取打款数据');
+        [$appid, $openid] = $this->withAppidAndOpenid($unid, $data['wechat_type']);
         return [
-            'appid'      => $result[0],
-            'openid'     => $result[1],
+            'appid'      => $appid,
+            'openid'     => $openid,
             'mch_id'     => $data['wechat_mch_id'],
             'mch_key'    => $data['wechat_mch_key'],
             'ssl_key'    => $local->path($file1, true),
@@ -149,32 +148,29 @@ class Transfer extends Command
 
     /**
      * 根据配置获取用户OPENID
-     * @param int $uuid
-     * @param string $type
-     * @return mixed|null
+     * @param integer $unid 用户编号
+     * @param string $type 授权类型 (normal|wxapp|wechat)
+     * @return array|null
      * @throws \think\admin\Exception
      */
-    private function getWechatInfo(int $uuid, string $type): ?array
+    private function withAppidAndOpenid(int $unid, string $type = 'normal'): ?array
     {
-        $user = DataUser::mk()->where(['id' => $uuid])->find();
-        if (empty($user)) return null;
-        $appid1 = sysconf('data.wxapp_appid');
-        if (strtolower(sysconf('wechat.type')) === 'api') {
-            $appid2 = sysconf('wechat.appid');
+        // 获取用户 Openid
+        $map = [['unid', '=', $unid]];
+        if (in_array($type, [Account::WXAPP, Account::WECHAT])) {
+            $map[] = ['type', '=', $type];
         } else {
-            $appid2 = sysconf('wechat.thr_appid');
+            $map[] = ['openid', '<>', ''];
         }
-        if ($type === 'normal') {
-            if (!empty($user['openid1'])) return [$appid1, $user['openid1']];
-            if (!empty($user['openid2'])) return [$appid2, $user['openid2']];
-        }
-        if ($type === 'wxapp' && !empty($user['openid1'])) {
-            return [$appid1, $user['openid1']];
-        }
-        if ($type === 'wechat' && !empty($user['openid2'])) {
-            return [$appid2, $user['openid2']];
-        }
-        return null;
+        $openid = PluginWemallUserRelation::mk()->where($map)->value('openid');
+        if (empty($openid)) throw new Exception("无法读取打款数据");
+
+        // 获取公众号 Appid
+        $appid1 = WechatService::getAppid();
+        $appid2 = sysconf('data.wxapp_appid');
+        if ($type === Account::WXAPP) return [$appid2, $openid];
+        if ($type === Account::WECHAT) return [$appid1, $openid];
+        return [$appid1, $openid];
     }
 
     /**
@@ -187,7 +183,7 @@ class Transfer extends Command
      */
     private function createTransferWallet(array $item): array
     {
-        $config = $this->getConfig($item['uuid']);
+        $config = $this->getConfig($item['unid']);
         return [$config, Transfers::instance($config)->create([
             'openid'           => $config['openid'],
             'amount'           => intval($item['amount'] - $item['charge_amount']) * 100,
@@ -207,7 +203,7 @@ class Transfer extends Command
      */
     private function queryTransferBank(array $item)
     {
-        $config = $this->getConfig($item['uuid']);
+        $config = $this->getConfig($item['unid']);
         [$config['appid'], $config['openid']] = [$item['appid'], $item['openid']];
         $result = TransfersBank::instance($config)->query($item['trade_no']);
         if ($result['return_code'] === 'SUCCESS' && $result['result_code'] === 'SUCCESS') {
@@ -228,7 +224,7 @@ class Transfer extends Command
                     'change_desc' => '微信提现打款失败',
                 ]);
                 // 刷新用户可提现余额
-                UserRebateService::amount($item['uuid']);
+                UserRebateService::amount($item['unid']);
             }
         }
     }
@@ -242,7 +238,7 @@ class Transfer extends Command
      */
     private function queryTransferWallet(array $item)
     {
-        $config = $this->getConfig($item['uuid']);
+        $config = $this->getConfig($item['unid']);
         [$config['appid'], $config['openid']] = [$item['appid'], $item['openid']];
         $result = Transfers::instance($config)->query($item['trade_no']);
         if ($result['return_code'] === 'SUCCESS' && $result['result_code'] === 'SUCCESS') {

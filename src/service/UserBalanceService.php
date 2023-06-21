@@ -63,7 +63,7 @@ class UserBalanceService extends Service
     {
         if ($unid > 0) {
             $data = Balance::recount($unid);
-            return [$data['balance_total'], $data['balance_used']];
+            return [$data['total'], $data['used']];
         } else {
             $total = abs(PluginPaymentBalance::mk()->whereRaw("amount > 0 and deleted = 0")->sum('amount'));
             $count = abs(PluginPaymentBalance::mk()->whereRaw("amount < 0 and deleted = 0")->sum('amount'));

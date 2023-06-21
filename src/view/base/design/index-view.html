@@ -4,9 +4,10 @@
         <div sv-element v-for="(x,$index) in items" :key="x.unid" :sv-drag="x.top?'forbid':''" :class="x.active?'active':''" @click="setItem($index)">
 
             <div class="layui-tpl-btn layui-anim layui-anim-fadein">
-                <a @click="moveUp(items,$index,true)" v-if="!x.top"><i style="transform:rotate(090deg)" class="layui-icon inline-block">&#xe65c;</i></a>
-                <a @click="moveRm(items,$index,true)" v-if="!x.lock"><i class="layui-icon">&#xe640;</i></a>
-                <a @click="moveDn(items,$index,true)" v-if="!x.top"><i style="transform:rotate(270deg)" class="layui-icon inline-block">&#xe65c;</i></a>
+                <a @click.stop="moveUp(items,$index,true)" v-if="!x.top"><i style="transform:rotate(090deg)" class="layui-icon inline-block layui-icon-return"></i></a>
+                <a @click.stop="moveRm(items,$index,true)" v-if="!x.lock"><i class="layui-icon layui-icon-delete"></i></a>
+                <a @click.stop="addCopy(x)" v-if="!x.lock"><i class="layui-icon layui-icon-list"></i></a>
+                <a @click.stop="moveDn(items,$index,true)" v-if="!x.top"><i style="transform:rotate(270deg)" class="layui-icon inline-block layui-icon-return"></i></a>
             </div>
 
             <div sv-handle class="layui-tpl-item layui-anim layui-anim-fadein">
@@ -46,8 +47,10 @@
 
                 <div v-else-if="x.type==='BaseSearch'" :style="showStyle(x.outerStyle)" class="flex-center">
                     <div class="flex-x-center" :style="showStyle(x.interStyle||{})">
-                        <div class="headimg shadow-none" v-if="x.interStyle.vLogo" :style="showBgimg(x.interStyle.vLogo)" data-lazy-src="__ROOT__/static/theme/img/headimg.png"></div>
-                        <label class="flex-1"><input class="layui-input border-0" :placeholder="x.inputStyle.vPlaceholder" :style="showStyle(x.inputStyle||{})"></label>
+                        <label class="flex-1 BaseSearchInput">
+                            <span v-if="x.interStyle.vLogo" :style="showBgimg(x.interStyle.vLogo)" data-lazy-src="__ROOT__/static/theme/img/headimg.png" class="headimg shadow-none"></span>
+                            <input class="layui-input border-0" :placeholder="x.inputStyle.vPlaceholder" :style="showStyle(x.inputStyle||{})">
+                        </label>
                     </div>
                 </div>
 

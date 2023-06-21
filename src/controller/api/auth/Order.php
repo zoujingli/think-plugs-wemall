@@ -308,23 +308,26 @@ class Order extends Auth
             $payAmount = Payment::leaveAmount($data['order_no']);
             if ($payAmount <= 0) $this->success('该订单已经完成支付！');
 
-            if ($data['balance'] > 0) {
-                if ($data['balance'] > $order->getAttr('allow_balance')) {
-                    $this->error("最大余额不得超过 {$order->getAttr('balance')} 元");
-                }
-                $balance = Balance::recount($this->unid);
-                if ($data['balance'] > $balance['balance_usable']) $this->error('账号余额不足！');
-                $param = Payment::mk(Payment::BALANCE)->create($this->account, $data['order_no'], '账号余额支付', $orderAmount, $data['balance'], '');
-            }
             if ($data['integral'] > 0) {
                 if ($data['integral'] > $order->getAttr('allow_integral')) {
-                    $this->error("最大抵扣不得超过 {$order->getAttr('balance')} 积分");
+                    $this->error("抵扣不得超过 {$order->getAttr('balance')} 积分");
                 }
                 $integral = Integral::recount($this->unid);
-                if ($data['integral'] > $integral['integral_usable']) $this->error('账号积分不足！');
+                if ($data['integral'] > $integral['usable']) $this->error('账号积分不足！');
                 $param = Payment::mk(payment::INTEGRAL)->create($this->account, $data['order_no'], '账号积分抵扣', $orderAmount, $data['integral'], '');
             }
+
+            if ($data['balance'] > 0) {
+                if ($data['balance'] > $order->getAttr('allow_balance')) {
+                    $this->error("余额不得超过 {$order->getAttr('balance')} 元");
+                }
+                $balance = Balance::recount($this->unid);
+                if ($data['balance'] > $balance['usable']) $this->error('账号余额不足！');
+                $param = Payment::mk(Payment::BALANCE)->create($this->account, $data['order_no'], '账号余额支付', $orderAmount, $data['balance'], '');
+            }
+
             $payAmount = Payment::leaveAmount($data['order_no']);
+            if ($payAmount <= 0) $this->success('已经完成支付', $param ?? []);
 
             $param = Payment::mk($data['channel_code'])->create($this->account, $data['order_no'], $orderAmount, $payAmount, '商城订单支付', '', $data['payment_back'], $data['payment_image']);
             $this->success('订单支付参数', $param);

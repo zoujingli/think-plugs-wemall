@@ -56,10 +56,8 @@
                     <div class="layui-colla-content layui-show">
                         <draggable v-model="item.data" v-bind="{group:'BaseImageData',animation:200}" @start="drag=true" @end="drag=false">
                             <transition-group>
-                                <div class="layui-form-item"
-                                     v-for="(xx,$index) in item.data" :key="xx.unid"
-                                     v-show="['0','01','012','012','0123','0123'][item.inputStyle.vType].indexOf($index)>-1"
-                                >
+                                <div class="layui-form-item" v-for="(xx,$index) in item.data" :key="xx.unid"
+                                     v-show="['0','01','012','012','0123','0123'][item.inputStyle.vType].indexOf($index)>-1">
                                     <div class="flex">
                                         <div style="padding-top:3px">
                                             <upload-image :mstyle="xx" mfield="image" v-model="xx.image" :showinput="false"></upload-image>
@@ -224,8 +222,9 @@
             </div>
 
             <div v-if="item.type==='ToolBlank'">
-                <layout-setting :mstyle="item.inputStyle" mtypes="边框宽度,边框圆角,容器高度,边框位置,边框样式,边框颜色,背景颜色,背景图片,背景样式"></layout-setting>
+                <layout-setting :mstyle="item.inputStyle" mtypes="容器宽度,容器高度,边框宽度,边框圆角,边框位置,边框样式,边框颜色,背景颜色,背景图片,背景样式"></layout-setting>
             </div>
+
         </div>
         <div class="layui-tab-item" v-if="item.interStyle || (item.inputStyle && item.inputStyle.vTypes)">
             <div class="layui-colla-item colla-form-group" v-if="item.fontStyle && item.fontStyle.vTypes">

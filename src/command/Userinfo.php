@@ -1,5 +1,21 @@
 <?php
 
+// +----------------------------------------------------------------------
+// | WeMall Plugin for ThinkAdmin
+// +----------------------------------------------------------------------
+// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// +----------------------------------------------------------------------
+// | 官方网站: https://thinkadmin.top
+// +----------------------------------------------------------------------
+// | 免责声明 ( https://thinkadmin.top/disclaimer )
+// | 会员免费 ( https://thinkadmin.top/vip-introduce )
+// +----------------------------------------------------------------------
+// | gitee 代码仓库：https://gitee.com/zoujingli/think-plugs-wemall
+// | github 代码仓库：https://github.com/zoujingli/think-plugs-wemall
+// +----------------------------------------------------------------------
+
+declare (strict_types=1);
+
 namespace plugin\wemall\command;
 
 use plugin\account\model\PluginAccountUser;
@@ -11,6 +27,11 @@ use think\admin\Command;
 use think\console\Input;
 use think\console\Output;
 
+/**
+ * 同步计算用户信息
+ * @class Userinfo
+ * @package plugin\wemall\command
+ */
 class Userinfo extends Command
 {
 

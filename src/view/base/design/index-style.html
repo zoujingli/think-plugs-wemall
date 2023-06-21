@@ -190,18 +190,19 @@
     [sv-element] .layui-tpl-btn {
         top: 0;
         right: -60px;
-        width: 2em;
         z-index: 3;
         display: none;
         padding: 0 3px;
         position: absolute;
         text-align: center;
+        line-height: 1.5em;
         border-radius: 4px;
         background: rgba(0, 0, 0, 0.6);
         transition: all 0.2s linear;
         -o-transition: all 0.2s linear;
         -moz-transition: all 0.2s linear;
         -webkit-transition: all 0.2s linear;
+        flex-direction: column;
     }
 
     [sv-element] .layui-tpl-btn:hover {
@@ -218,7 +219,7 @@
     }
 
     [sv-element].active .layui-tpl-btn {
-        display: block;
+        display: flex;
     }
 
     [sv-element] [sv-handle] {
@@ -352,4 +353,14 @@
         border: 3px solid rgba(50, 250, 50, 0.5);
     }
 
+    .design-layout .BaseSearchInput span.headimg {
+        width: 28px;
+        height: 28px;
+        margin: 5px 6px;
+        position: absolute;
+    }
+
+    .design-layout .BaseSearchInput span.headimg + input {
+        padding-left: 40px !important;
+    }
 </style>

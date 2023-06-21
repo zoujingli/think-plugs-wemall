@@ -46,7 +46,7 @@
         </label>
 
         <div class="layui-form-item">
-            <span class="help-label label-required-prev"><b>商品封面及轮播图片</b>Cover and Carousel Pictures</span>
+            <span class="help-label label-required-prev"><b>商品封面及轮播图片</b>Cover and Pictures</span>
             <table class="layui-table">
                 <thead>
                 <tr>
@@ -209,15 +209,15 @@
                 <tbody>
                 <tr ng-repeat="rows in items track by $index">
                     <td class="layui-bg-gray nowrap text-center" ng-bind="td.name" ng-if="td.show" ng-repeat="td in rows"></td>
-                    <td><label><input class="layui-input font-code" ng-blur="rows[0].gsku=setValue(rows[0].key,'gsku',$event.target.value)" ng-model="rows[0].gsku"></label></td>
-                    <td><label><input class="layui-input" ng-blur="rows[0].market=setValue(rows[0].key,'market',$event.target.value,'(parseFloat(_)||0).toFixed(2)')" ng-model="rows[0].market"></label></td>
-                    <td><label><input class="layui-input" ng-blur="rows[0].selling=setValue(rows[0].key,'selling',$event.target.value,'(parseFloat(_)||0).toFixed(2)')" ng-model="rows[0].selling"></label></td>
-                    <td><label><input class="layui-input" ng-blur="rows[0].allow_balance=setValue(rows[0].key,'allow_balance',$event.target.value,'(parseFloat(_)||0).toFixed(2)')" ng-model="rows[0].allow_balance"></label></td>
-                    <td><label><input class="layui-input" ng-blur="rows[0].allow_integral=setValue(rows[0].key,'allow_integral',$event.target.value,'(parseFloat(_)||0).toFixed(0)')" ng-model="rows[0].allow_integral"></label></td>
-                    <td><label><input class="layui-input" ng-blur="rows[0].balance=setValue(rows[0].key,'balance',$event.target.value,'(parseFloat(_)||0).toFixed(2)')" ng-model="rows[0].balance"></label></td>
-                    <td><label><input class="layui-input" ng-blur="rows[0].integral=setValue(rows[0].key,'integral',$event.target.value,'(parseFloat(_)||0).toFixed(2)')" ng-model="rows[0].integral"></label></td>
-                    <td><label><input class="layui-input" ng-blur="rows[0].virtual=setValue(rows[0].key,'virtual',$event.target.value,'(parseInt(_)||0)')" ng-model="rows[0].virtual"></label></td>
-                    <td><label><input class="layui-input" ng-blur="rows[0].express=setValue(rows[0].key,'express',$event.target.value,'(parseInt(_)||0)')" ng-model="rows[0].express"></label></td>
+                    <td><label><input class="layui-input font-code" ng-blur="rows[0].gsku=setValue(rows[0].hash,'gsku',$event.target.value)" ng-model="rows[0].gsku"></label></td>
+                    <td><label><input class="layui-input" ng-blur="rows[0].market=setValue(rows[0].hash,'market',$event.target.value,'(parseFloat(_)||0).toFixed(2)')" ng-model="rows[0].market"></label></td>
+                    <td><label><input class="layui-input" ng-blur="rows[0].selling=setValue(rows[0].hash,'selling',$event.target.value,'(parseFloat(_)||0).toFixed(2)')" ng-model="rows[0].selling"></label></td>
+                    <td><label><input class="layui-input" ng-blur="rows[0].allow_balance=setValue(rows[0].hash,'allow_balance',$event.target.value,'(parseFloat(_)||0).toFixed(2)')" ng-model="rows[0].allow_balance"></label></td>
+                    <td><label><input class="layui-input" ng-blur="rows[0].allow_integral=setValue(rows[0].hash,'allow_integral',$event.target.value,'(parseFloat(_)||0).toFixed(0)')" ng-model="rows[0].allow_integral"></label></td>
+                    <td><label><input class="layui-input" ng-blur="rows[0].balance=setValue(rows[0].hash,'balance',$event.target.value,'(parseFloat(_)||0).toFixed(2)')" ng-model="rows[0].balance"></label></td>
+                    <td><label><input class="layui-input" ng-blur="rows[0].integral=setValue(rows[0].hash,'integral',$event.target.value,'(parseFloat(_)||0).toFixed(2)')" ng-model="rows[0].integral"></label></td>
+                    <td><label><input class="layui-input" ng-blur="rows[0].virtual=setValue(rows[0].hash,'virtual',$event.target.value,'(parseInt(_)||0)')" ng-model="rows[0].virtual"></label></td>
+                    <td><label><input class="layui-input" ng-blur="rows[0].express=setValue(rows[0].hash,'express',$event.target.value,'(parseInt(_)||0)')" ng-model="rows[0].express"></label></td>
                     <td class="layui-bg-gray"><label class="think-checkbox"><input lay-ignore ng-model="rows[0].status" type="checkbox"></label></td>
                 </tr>
                 </tbody>
@@ -262,14 +262,6 @@
         window.createEditor('[name=content]', {height: 500});
         let app = angular.module('GoodsSpecsEditor', []).run(callback);
         angular.bootstrap(document.getElementById(app.name), [app.name]);
-
-        function RandNumber(length, prefix) {
-            return (function (time, code) {
-                code += parseInt(time.substring(0, 1)) + parseInt(time.substring(1, 2)) + time.substring(2);
-                while (code.length < length) code += (Math.random() * 10).toString();
-                return code.substring(0, length);
-            })(Date.now().toString(), prefix || '' + '')
-        }
 
         function callback($rootScope) {
             $rootScope.mode = '{$mode|default="add"}', $rootScope.navas = [];
@@ -327,34 +319,27 @@
 
             /*! 重新计算规格列表 */
             $rootScope.$watch('specs', function () {
-                let data = [], navs = [], table = [[]];
+                let data = [], navas = [], items = [[]];
                 $rootScope.specs.forEach(function (spec) {
                     let temp = [];
-                    spec.list.forEach(function (item) {
-                        if (item.check && item.name.length > 0 && (item.show = true)) {
-                            (item.group = spec.name) && temp.push(item);
-                        }
-                    });
-                    data.push(temp) && navs.push(spec.name);
+                    (spec.list.forEach(function (item) {
+                        item.check && temp.push(Object.assign(item, {show: true, group: spec.name}));
+                    }) && 0) || (data.push(temp) && navas.push(spec.name));
                 });
-                $rootScope.navas = navs;
-                /*! 表格交叉 */
-                data.forEach(function (rows) {
+                /*! 规格交叉数据生成 */
+                (data.forEach(function (rows) {
                     let temp = [];
-                    table.forEach(r => rows.forEach(c => temp.push(r.concat(c))));
-                    table = temp;
-                });
-                /*! 表格数据  */
-                data = angular.fromJson(angular.toJson(table));
-                data.forEach(function (rows) {
+                    items.forEach(r => rows.forEach(c => temp.push(r.concat(c))));
+                    items = temp;
+                }) && 0) || items.forEach(function (rows) {
                     let keys = [], unids = [];
                     (rows.forEach(function (item) {
                         unids.push(item.unid);
                         keys.push(item.group + '::' + item.name);
-                    }) && false) || rows.forEach(function (item) {
+                    }) && 0) || rows.forEach(function (item) {
                         item.spec = keys.join(';;');
                         item.hash = md5.hash("{$vo.code}#" + unids.sort().join(';'));
-                        item.gsku = $rootScope.getValue(item.hash, 'gsku', RandNumber(14, 'S'));
+                        item.gsku = $rootScope.getValue(item.hash, 'gsku', withRandString(14, 'S'));
                         item.status = !!$rootScope.getValue(item.hash, 'status', 1);
                         item.market = $rootScope.getValue(item.hash, 'market', '0.00');
                         item.balance = $rootScope.getValue(item.hash, 'balance', '0.00');
@@ -366,7 +351,8 @@
                         item.virtual = $rootScope.getValue(item.hash, 'virtual', '0');
                     });
                 });
-                $rootScope.items = data;
+                $rootScope.navas = navas;
+                $rootScope.items = items;
             }, true);
 
             /*! 下移整行规格分组 */
@@ -407,8 +393,17 @@
 
         // 创建规格
         function addSpecVal(data) {
-            data.push({name: '规格属性' + (data.length || ''), unid: RandNumber(16), check: true});
+            data.push({name: '规格属性' + (data.length || ''), unid: withRandString(16), check: true});
             return data;
+        }
+
+        // 随机字符串
+        function withRandString(length, prefix) {
+            return (function (time, code) {
+                code += parseInt(time.substring(0, 1)) + parseInt(time.substring(1, 2)) + time.substring(2);
+                while (code.length < length) code += (Math.random() * 10).toString();
+                return code.substring(0, length);
+            })(Date.now().toString(), prefix || '' + '')
         }
     });
 </script>

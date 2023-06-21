@@ -171,10 +171,18 @@
             if (typeof el.min !== 'undefined') el.value = Math.max(el.value, el.min);
         });
 
+        function guid(pre) {
+            return Math.random().toString().replace('0.', (pre || '')).substring(-16)
+        }
+
         Vue.mixin({
                 methods: {
-                    copy: x => JSON.parse(JSON.stringify(x)),
-                    guid: pre => Math.random().toString().replace('0.', (pre || '')).substring(-16),
+                    copy: (x, u) => {
+                        let item = JSON.parse(JSON.stringify(x))
+                        if (u) item.unid = guid('U');
+                        return item;
+                    },
+                    guid: pre => guid(pre),
                     showText: txt => txt.replace(/\n/g, '<br>'),
                     showBgimg: src => ({backgroundImage: "url('" + src + "')"}),
                     showColor: clr => ({color: clr}),
@@ -297,13 +305,21 @@
 
         // 显示背景图片
         Vue.component('BgImage', {
-            template: '<div class="uploadimage full-width full-height" :style="[bgStyle]"></div>',
-            props: {bgimg: {type: String, required: true}, mstyle: {type: Object, default: () => ({})}},
+            template: '<div class="transition" :style="bgStyle"></div>',
+            model: {prop: 'bgimg'}, props: {bgimg: {type: String, required: true}},
             data() {
-                return {bgStyle: {}};
+                return {
+                    bgStyle: {
+                        width: '100%', height: '100%',
+                        background: 'none no-repeat center center',
+                        backgroundSize: 'cover', backgroundImage: 'url(' + this.bgimg + ')',
+                    }
+                };
             },
-            created() {
-                Object.assign(this.bgStyle, this.mstyle || {}, {backgroundImage: 'url(' + this.bgimg + ')'});
+            watch: {
+                bgimg(value) {
+                    this.bgStyle.backgroundImage = 'url(' + value + ')';
+                }
             }
         });
 
@@ -327,7 +343,7 @@
                 this.eid = this.mstyle[key] || Math.random().toString().replace('0.', 'uploadimage-');
             },
             watch: {
-                mvalue(a) {
+                mvalue() {
                     this.$nextTick(() => $('#' + this.eid).trigger('change'));
                 }
             },
