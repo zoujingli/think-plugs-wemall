@@ -18,15 +18,54 @@ namespace plugin\wemall\model;
 
 use think\admin\Model;
 
+/**
+ * 基于抽象类模型
+ * @class Abs
+ * @package plugin\wemall\model
+ */
 abstract class Abs extends Model
 {
+    /**
+     * 时间读取格式处理
+     * @param mixed $value
+     * @return string
+     */
     public function getCreateTimeAttr($value): string
     {
         return format_datetime($value);
     }
 
+    /**
+     * 时间写入格式处理
+     * @param mixed $value
+     * @return array|string|string[]
+     */
+    public function setCreateTimeAttr($value)
+    {
+        if (is_string($value)) {
+            return str_replace(['年', '月', '日'], ['-', '-', ''], $value);
+        } else {
+            return $value;
+        }
+    }
+
+    /**
+     * 时间读取格式处理
+     * @param mixed $value
+     * @return string
+     */
     public function getUpdateTimeAttr($value): string
     {
-        return format_datetime($value);
+        return $this->getCreateTimeAttr($value);
+    }
+
+    /**
+     * 时间写入格式处理
+     * @param mixed $value
+     * @return array|string|string[]
+     */
+    public function setUpdateTimeAttr($value)
+    {
+        return $this->setCreateTimeAttr($value);
     }
 }

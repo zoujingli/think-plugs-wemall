@@ -14,44 +14,28 @@
 // | github 代码仓库：https://github.com/zoujingli/think-plugs-wemall
 // +----------------------------------------------------------------------
 
-namespace plugin\wemall\controller\api;
+namespace plugin\wemall\controller\api\auth;
 
-use plugin\account\controller\api\Auth as AccountAuth;
+use plugin\wemall\controller\api\Auth;
 use plugin\wemall\model\PluginWemallUserRelation;
+use think\admin\helper\QueryHelper;
 
 /**
- * 基础授权控制器
- * @class Auth
- * @package plugin\wemall\controller\api
+ * 推广用户管理
+ * @class Spread
+ * @package plugin\wemall\controller\api\auth
  */
-abstract class Auth extends AccountAuth
+class Spread extends Auth
 {
-    protected $relation = [];
-    protected $levelCode;
-    protected $levelName;
-
     /**
-     * 控制器初始化
+     * 获取我推广的用户
      * @return void
      */
-    protected function initialize()
+    public function get()
     {
-        parent::initialize();
-        $this->checkUserStatus();
-        $this->withUserRelation();
-    }
-
-    /**
-     * 初始化当前用户
-     * @return static
-     */
-    protected function withUserRelation(): Auth
-    {
-        $where = ['unid' => $this->unid];
-        $relation = PluginWemallUserRelation::mk()->where($where)->findOrEmpty();
-        $this->relation = $relation->toArray();
-        $this->levelCode = intval($relation->getAttr('level_code'));
-        $this->levelName = $relation->getAttr('level_name') ?: '普通用户';
-        return $this;
+        PluginWemallUserRelation::mQuery(null, function (QueryHelper $query) {
+            $query->with(['user'])->where(['puid0' => $this->unid])->order('id desc');
+            $this->success('获取数据成功！', $query->page(intval(input('page', 1)), false, false, 10));
+        });
     }
 }

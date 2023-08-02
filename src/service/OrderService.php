@@ -16,16 +16,19 @@
 
 namespace plugin\wemall\service;
 
+use plugin\payment\model\PluginPaymentAddress;
+use plugin\payment\model\PluginPaymentRecord;
+use plugin\payment\service\Balance;
+use plugin\payment\service\Integral;
+use plugin\payment\service\Payment;
 use plugin\wemall\model\PluginWemallConfigDiscount;
-use plugin\wemall\model\PluginWemallGoods;
-use plugin\wemall\model\PluginWemallGoodsItem;
 use plugin\wemall\model\PluginWemallOrder;
-use plugin\wemall\model\PluginWemallOrderCart;
 use plugin\wemall\model\PluginWemallOrderItem;
+use plugin\wemall\model\PluginWemallOrderSend;
 use plugin\wemall\model\PluginWemallUserRelation;
 use think\admin\Exception;
+use think\admin\Library;
 use think\admin\Service;
-use think\Model;
 
 /**
  * 商城订单数据服务
@@ -41,67 +44,6 @@ class OrderService extends Service
     public static function reduct(): float
     {
         return rand(1, 100) / 100;
-    }
-
-    /**
-     * 解析商品数据
-     * @param integer $unid 用户编号
-     * @param string $rules 直接下单
-     * @param string $carts 购物车下单
-     * @return array
-     * @throws \think\admin\Exception
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
-     */
-    public static function parse(int $unid, string $rules, string $carts): array
-    {
-        // 读取商品数据
-        [$lines, $carts] = [[], str2arr($carts)];
-        if (!empty($carts)) {
-            $where = [['unid', '=', $unid], ['id', 'in', $carts]];
-            $field = ['ghash' => 'ghash', 'gcode' => 'gcode', 'gspec' => 'gspec', 'number' => 'count'];
-            PluginWemallOrderCart::mk()->field($field)->where($where)->with([
-                'goods' => function ($query) {
-                    $query->where(['status' => 1, 'deleted' => 0]);
-                    $query->withoutField(['specs', 'content', 'status', 'deleted', 'create_time', 'update_time']);
-                },
-                'specs' => function ($query) {
-                    $query->where(['status' => 1]);
-                    $query->withoutField(['status', 'create_time', 'update_time']);
-                }
-            ])->select()->each(function (Model $model) use (&$lines) {
-                if (isset($lines[$ghash = $model->getAttr('ghash')])) {
-                    $lines[$ghash]['count'] += $model->getAttr('count');
-                } else {
-                    $lines[$ghash] = $model->toArray();
-                }
-            });
-        } elseif (!empty($rules)) {
-            foreach (explode(';', $rules) as $rule) {
-                [$ghash, $count] = explode(':', "{$rule}:1");
-                if (isset($lines[$ghash])) {
-                    $lines[$ghash]['count'] += $count;
-                } else {
-                    $lines[$ghash] = ['ghash' => $ghash, 'gcode' => '', 'gspec' => '', 'count' => $count];
-                }
-            }
-            // 读取规格数据
-            $map1 = [['status', '=', 1], ['ghash', 'in', array_column($lines, 'ghash')]];
-            foreach (PluginWemallGoodsItem::mk()->where($map1)->select()->toArray() as $item) {
-                foreach ($lines as &$line) if ($line['ghash'] === $item['ghash']) {
-                    [$line['gcode'], $line['gspec'], $line['specs']] = [$item['gcode'], $item['gspec'], $item];
-                }
-            }
-            // 读取商品数据
-            $map2 = [['status', '=', 1], ['deleted', '=', 0], ['code', 'in', array_unique(array_column($lines, 'gcode'))]];
-            foreach (PluginWemallGoods::mk()->where($map2)->withoutField(['specs', 'content'])->select()->toArray() as $goods) {
-                foreach ($lines as &$line) if ($line['gcode'] === $goods['code']) $line['goods'] = $goods;
-            }
-        } else {
-            throw new Exception('无效参数数据！');
-        }
-        return array_values($lines);
     }
 
     /**
@@ -191,5 +133,130 @@ class OrderService extends Service
             }
         }
         return [$disId, $disRate];
+    }
+
+    /**
+     * 更新订单收货地址
+     * @param \plugin\wemall\model\PluginWemallOrder $order
+     * @param \plugin\payment\model\PluginPaymentAddress $address
+     * @return boolean
+     * @throws \think\admin\Exception
+     */
+    public static function perfect(PluginWemallOrder $order, PluginPaymentAddress $address): bool
+    {
+        $unid = $order->getAttr('unid');
+        $orderNo = $order->getAttr('order_no');
+        // 根据地址计算运费
+        $map1 = ['order_no' => $orderNo, 'status' => 1, 'deleted' => 0];
+        $map2 = ['order_no' => $order->getAttr('order_no'), 'unid' => $unid];
+        [$amount, $tCount, $tCode, $remark] = ExpressService::amount(
+            PluginWemallOrderItem::mk()->where($map1)->column('delivery_code'),
+            $address->getAttr('region_prov'), $address->getAttr('region_city'),
+            PluginWemallOrderItem::mk()->where($map2)->sum('delivery_count')
+        );
+        // 创建订单发货信息
+        $extra = [
+            'delivery_code'   => $tCode, 'delivery_count' => $tCount, 'unid' => $unid,
+            'delivery_remark' => $remark, 'delivery_amount' => $amount, 'status' => 1,
+        ];
+        $extra['order_no'] = $orderNo;
+        $extra['address_id'] = $address->getAttr('id');
+        // 收货人信息
+        $extra['user_name'] = $address->getAttr('user_name');
+        $extra['user_phone'] = $address->getAttr('user_phone');
+        $extra['user_idcode'] = $address->getAttr('idcode');
+        $extra['user_idimg1'] = $address->getAttr('idimg1');
+        $extra['user_idimg2'] = $address->getAttr('idimg2');
+        // 收货地址信息
+        $extra['region_prov'] = $address->getAttr('region_prov');
+        $extra['region_city'] = $address->getAttr('region_city');
+        $extra['region_area'] = $address->getAttr('region_area');
+        $extra['region_addr'] = $address->getAttr('region_addr');
+        $extra['extra'] = $extra;
+        PluginWemallOrderSend::mk()->where(['order_no' => $orderNo])->findOrEmpty()->save($extra);
+        // 组装更新订单数据
+        $update = ['status' => 2, 'amount_express' => $extra['delivery_amount']];
+        // 重新计算订单金额
+        $update['amount_real'] = $order->getAttr('amount_discount') + $amount - $order->getAttr('amount_reduct');
+        $update['amount_total'] = $order->getAttr('amount_goods') + $amount;
+        // 支付金额不能为零
+        if ($update['amount_real'] <= 0) $update['amount_real'] = 0.00;
+        if ($update['amount_total'] <= 0) $update['amount_total'] = 0.00;
+        // 更新用户订单数据
+        if ($order->save($update)) {
+            // 触发订单确认事件
+            Library::$sapp->event->trigger('PluginWemallOrderPerfect', $order->refresh()->toArray());
+            // 返回处理成功数据
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 更新订单支付状态
+     * @param PluginWemallOrder $order 订单模型
+     * @param array $data 支付行为记录
+     * @remark 订单状态(0已取消,1预订单,2待支付,3待审核,4待发货,5已发货,6已收货,7已评论)
+     */
+    public static function payment(PluginWemallOrder $order, array $data)
+    {
+        // 订单已经完成支付，无需要处理
+        if ($order->getAttr('status') > 3) return;
+        // 订单达到完成支付条件，标志已完成
+        $paidAmount = Payment::paidAmount($data['order_no']);
+        if ($paidAmount >= $order->getAttr('amount_real')) {
+            // 更新订单状态
+            $order->save([
+                'status'         => $order->getAttr('delivery_type') ? 4 : 5,
+                'payment_time'   => $data['payment_time'],
+                'payment_amount' => $paidAmount,
+                'payment_status' => 1,
+            ]);
+            try { // 奖励余额及积分
+                OrderService::confirm($data['order_no']);
+            } catch (\Exception $exception) {
+                trace_file($exception);
+            }
+            try { // 订单返利处理
+                UserRebateService::execute($data['order_no']);
+            } catch (\Exception $exception) {
+                trace_file($exception);
+            }
+        } elseif ($data['channel_type'] === Payment::VOUCHER && $data['audit_status'] === 1) {
+            if ($order->getAttr('status') === 2) $order->save(['status' => 3]);
+        } elseif ($data['channel_type'] === Payment::VOUCHER && $data['audit_status'] === 0) {
+            $map = ['channel_type' => Payment::VOUCHER, 'audit_status' => 1, 'order_no' => $order->getAttr('order_no')];
+            if (!PluginPaymentRecord::mk()->where($map)->findOrEmpty()->isExists()) {
+                if ($order->getAttr('status') === 3) $order->save(['status' => 2]);
+            }
+        } else {
+            $order->save(['payment_amount' => $paidAmount]);
+        }
+    }
+
+    /**
+     * 验证订单发放余额
+     * @param string $orderNo
+     * @return string
+     * @throws \think\admin\Exception
+     */
+    public static function confirm(string $orderNo): string
+    {
+        $map = [['status', '>=', 4], ['order_no', '=', $orderNo]];
+        $order = PluginWemallOrder::mk()->where($map)->findOrEmpty();
+        if ($order->isEmpty()) throw new Exception('订单状态异常');
+        $code = "CZ{$order['order_no']}";
+        // 返回余额
+        if ($order['reward_balance'] > 0) {
+            $remark = "来自订单 {$order['order_no']} 奖励 {$order['reward_balance']} 余额";
+            Balance::create($order['unid'], $code, "购物返还余额", $order['reward_balance'], $remark, true);
+        }
+        // 奖励积分
+        if ($order['reward_integral'] > 0) {
+            $remark = "来自订单 {$order['order_no']} 奖励 {$order['reward_integral']} 积分";
+            Integral::create($order['unid'], $code, "购物奖励积分", $order['reward_integral'], $remark, true);
+        }
+        return $code;
     }
 }

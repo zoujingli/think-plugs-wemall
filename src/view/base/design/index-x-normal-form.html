@@ -69,7 +69,7 @@
                                             </label>
                                             <label class="flex relative margin-top-5">
                                                 <span class="layui-form-label" style="width:3em">链 接</span>
-                                                <input placeholder="必选，请选择链接" vali-name="链接" v-model="xx.link" class="flex-1 layui-input">
+                                                <input @click="setLink(xx)" placeholder="必选，请选择链接" readonly v-model="xx.link" class="flex-1 layui-input pointer">
                                             </label>
                                         </div>
                                         <div>
@@ -144,7 +144,7 @@
                                 </label>
                                 <label class="flex relative margin-top-5">
                                     <span class="layui-form-label" style="width:3em">链 接</span>
-                                    <input placeholder="必选，请选择链接" vali-name="链接" v-model="edit.item.link" class="flex-1 layui-input">
+                                    <input placeholder="必选，请选择链接" readonly @click="setLink(edit.item)" v-model="edit.item.link" class="flex-1 pointer layui-input">
                                 </label>
                             </div>
                         </div>
@@ -180,7 +180,7 @@
                                     </label>
                                     <label class="flex relative margin-top-5">
                                         <span class="layui-form-label" style="width:3em">链 接</span>
-                                        <input placeholder="必选，请选择链接" vali-name="链接" v-model="xx.link" class="flex-1 layui-input">
+                                        <input placeholder="必选，请选择链接" readonly @click="setLink(xx)" v-model="xx.link" class="flex-1 layui-input pointer">
                                     </label>
                                 </div>
                                 <div>

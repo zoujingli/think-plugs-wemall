@@ -4,8 +4,8 @@
 [![Total Downloads](https://poser.pugx.org/zoujingli/think-plugs-wemall/downloads)](https://packagist.org/packages/zoujingli/think-plugs-wemall)
 [![Monthly Downloads](https://poser.pugx.org/zoujingli/think-plugs-wemall/d/monthly)](https://packagist.org/packages/zoujingli/think-plugs-wemall)
 [![Daily Downloads](https://poser.pugx.org/zoujingli/think-plugs-wemall/d/daily)](https://packagist.org/packages/zoujingli/think-plugs-wemall)
-[![PHP Version](https://doc.thinkadmin.top/static/icon/php-7.1.svg)](https://thinkadmin.top)
-[![License](https://doc.thinkadmin.top/static/icon/license-vip.svg)](https://thinkadmin.top/vip-introduce)
+[![PHP Version](https://thinkadmin.top/static/icon/php-7.1.svg)](https://thinkadmin.top)
+[![License](https://thinkadmin.top/static/icon/license-vip.svg)](https://thinkadmin.top/vip-introduce)
 
 **注意：** 该插件测试版有数据库结构变化，未生成升级补丁，每次更新需要全新安装！
 
@@ -15,9 +15,9 @@
 
 ### 依赖插件
 
-* 插件服务管理中心：[ThinkPlugsCenter](https://doc.thinkadmin.top/think-plugs-center)
-* 多终端用户管理插件：[ThinkPlugsAccount](https://doc.thinkadmin.top/vip-plugs-account)
-* 多终端支付管理插件：[ThinkPlugsPayment](https://doc.thinkadmin.top/vip-plugs-payment)
+* 插件服务管理中心：[ThinkPlugsCenter](https://thinkadmin.top/think-plugs-center)
+* 多终端用户管理插件：[ThinkPlugsAccount](https://thinkadmin.top/vip-plugs-account)
+* 多终端支付管理插件：[ThinkPlugsPayment](https://thinkadmin.top/vip-plugs-payment)
 
 ### 接口文档
 

@@ -43,7 +43,7 @@ class Cate extends Controller
      */
     public function index()
     {
-        PluginWemallGoodsCate::mQuery()->layTable(function () {
+        PluginWemallGoodsCate::mQuery($this->get)->layTable(function () {
             $this->title = "商品分类管理";
         }, function (QueryHelper $query) {
             $query->where(['deleted' => 0]);
@@ -114,5 +114,20 @@ class Cate extends Controller
     public function remove()
     {
         PluginWemallGoodsCate::mDelete();
+    }
+
+    /**
+     * 商品分类选择器
+     * @login true
+     * @return void
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    public function select()
+    {
+        $this->get['status'] = 1;
+        $this->get['deleted'] = 0;
+        $this->index();
     }
 }

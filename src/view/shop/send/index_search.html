@@ -1,7 +1,7 @@
 <form action="{:sysuri()}" autocomplete="off" class="layui-form layui-form-pane form-search" method="get" onsubmit="return false">
 
     <div class="layui-form-item layui-inline">
-        <label class="layui-form-label">订单用户</label>
+        <label class="layui-form-label">会员用户</label>
         <label class="layui-input-inline">
             <input class="layui-input" name="user_keys" placeholder="请输入手机或昵称" value="{$get.user_keys|default=''}">
         </label>
@@ -37,9 +37,9 @@
     </div>
 
     <div class="layui-form-item layui-inline">
-        <label class="layui-form-label">提交时间</label>
+        <label class="layui-form-label">创建时间</label>
         <label class="layui-input-inline">
-            <input class="layui-input" data-date-range name="create_time" placeholder="请选择提交时间" value="{$get.create_time|default=''}">
+            <input class="layui-input" data-date-range name="create_time" placeholder="请选择创建时间" value="{$get.create_time|default=''}">
         </label>
     </div>
 
@@ -104,11 +104,16 @@
                     ]);
                 });
             });
+
+            // 设置表头内容
             rows.unshift([
                 '订单号', '商品哈希', '商品名称', '商品SKU编码', '商品规格', '数量', '单价', '总额',
                 '寄件方', '收货人', '电话', '省份', '城市', '区', '地址'
             ]);
-            return rows;
+
+            // 应用表格样式
+            return this.withStyle(data);
+
         }, '订单发货记录' + layui.util.toDateString(Date.now(), '_yyyyMMdd_HHmmss'));
     });
 </script>

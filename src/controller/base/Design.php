@@ -57,4 +57,19 @@ class Design extends Controller
         ]);
         $this->success('保存成功！');
     }
+
+    /**
+     * 连接选择器
+     * @login true
+     * @return void
+     */
+    public function link()
+    {
+        $this->types = [
+            ['name' => '商品分类', 'link' => sysuri('plugin-wemall/shop.goods.cate/select')],
+            ['name' => '商品标签', 'link' => sysuri('plugin-wemall/shop.goods.mark/select')],
+            ['name' => '商品详情', 'link' => sysuri('plugin-wemall/shop.goods/select')],
+        ];
+        $this->fetch();
+    }
 }

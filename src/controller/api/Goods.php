@@ -1,5 +1,19 @@
 <?php
 
+// +----------------------------------------------------------------------
+// | WeMall Plugin for ThinkAdmin
+// +----------------------------------------------------------------------
+// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// +----------------------------------------------------------------------
+// | 官方网站: https://thinkadmin.top
+// +----------------------------------------------------------------------
+// | 免责声明 ( https://thinkadmin.top/disclaimer )
+// | 会员免费 ( https://thinkadmin.top/vip-introduce )
+// +----------------------------------------------------------------------
+// | gitee 代码仓库：https://gitee.com/zoujingli/think-plugs-wemall
+// | github 代码仓库：https://github.com/zoujingli/think-plugs-wemall
+// +----------------------------------------------------------------------
+
 namespace plugin\wemall\controller\api;
 
 use plugin\wemall\model\PluginWemallGoods;
@@ -20,14 +34,14 @@ class Goods extends Controller
     {
         PluginWemallGoods::mQuery(null, function (QueryHelper $query) {
             $query->equal('code')->like('name')->like('marks,cates', ',');
-            if ($this->request->has('code') && ($code = $this->request->param('code'))) {
+            if (!empty($code = input('code'))) {
                 $query->with('items');
                 PluginWemallGoods::mk()->where(['code' => $code])->inc('num_read')->update([]);
             } else {
                 $query->withoutField('content');
             }
             $query->where(['status' => 1, 'deleted' => 0])->order('sort desc,id desc');
-            $this->success('获取商品数据', $query->page(intval($this->request->post('page', 1)), false, false, 10));
+            $this->success('获取商品数据', $query->page(intval(input('page', 1)), false, false, 10));
         });
     }
 

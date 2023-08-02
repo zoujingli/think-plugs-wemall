@@ -36,7 +36,7 @@ class Mark extends Controller
      */
     public function index()
     {
-        PluginWemallGoodsMark::mQuery()->layTable(function () {
+        PluginWemallGoodsMark::mQuery($this->get)->layTable(function () {
             $this->title = '商品标签管理';
         }, function (QueryHelper $query) {
             $query->like('name')->equal('status')->dateBetween('create_at');
@@ -77,5 +77,20 @@ class Mark extends Controller
     public function remove()
     {
         PluginWemallGoodsMark::mDelete();
+    }
+
+    /**
+     * 商品标签选择kkd
+     * @login true
+     * @return void
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    public function select()
+    {
+        $this->get['status'] = 1;
+        $this->get['deleted'] = 0;
+        $this->index();
     }
 }

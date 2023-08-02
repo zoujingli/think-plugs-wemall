@@ -16,6 +16,8 @@
 
 namespace plugin\wemall\model;
 
+use think\model\relation\HasOne;
+
 /**
  * 商城商品规格模型
  * @class PluginWemallGoodsItem
@@ -23,6 +25,30 @@ namespace plugin\wemall\model;
  */
 class PluginWemallGoodsItem extends Abs
 {
+
+    /**
+     * 关联商品信息
+     * @return \think\model\relation\HasOne
+     */
+    public function goods(): HasOne
+    {
+        return $this->hasOne(PluginWemallGoods::class, 'code', 'gcode');
+    }
+
+    /**
+     * 绑定商品信息
+     * @return \think\model\relation\HasOne
+     */
+    public function bindGoods(): HasOne
+    {
+        return $this->goods()->bind([
+            'gname'    => 'name',
+            'gcover'   => 'cover',
+            'gstatus'  => 'status',
+            'gdeleted' => 'deleted'
+        ]);
+    }
+
     /**
      * 获取商品规格JSON数据
      * @param string $code

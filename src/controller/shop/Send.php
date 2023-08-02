@@ -18,6 +18,7 @@ namespace plugin\wemall\controller\shop;
 
 use plugin\account\model\PluginAccountUser;
 use plugin\wemall\model\PluginWemallExpressCompany;
+use plugin\wemall\model\PluginWemallExpressTemplate;
 use plugin\wemall\model\PluginWemallOrder;
 use plugin\wemall\model\PluginWemallOrderSend;
 use plugin\wemall\service\ExpressService;
@@ -106,15 +107,19 @@ class Send extends Controller
     protected function _delivery_form_filter(array &$vo)
     {
         if ($this->request->isGet()) {
-            $this->items = PluginWemallExpressCompany::items();
+            $map = ['code' => $vo['delivery_code'], 'status' => 1, 'deleted' => 0];
+            $delivery = PluginWemallExpressTemplate::mk()->where($map)->findOrEmpty();
+            if ($delivery->isEmpty() || empty($this->items = $delivery->getAttr('company'))) {
+                $this->items = PluginWemallExpressCompany::items();
+            }
         } elseif ($this->request->isPost()) {
-            $where = ['order_no' => $vo['order_no']];
-            $order = PluginWemallOrder::mk()->where($where)->findOrEmpty();
+            $map = ['order_no' => $vo['order_no']];
+            $order = PluginWemallOrder::mk()->where($map)->findOrEmpty();
             if ($order->isEmpty()) $this->error('订单查询异常，请稍候再试！');
 
             // 配送快递公司填写
-            $where = ['code' => $vo['company_code']];
-            $company = PluginWemallExpressCompany::mk()->where($where)->findOrEmpty();
+            $map = ['code' => $vo['company_code']];
+            $company = PluginWemallExpressCompany::mk()->where($map)->findOrEmpty();
             if ($company->isEmpty()) $this->error('配送快递公司异常，请重新选择快递公司！');
 
             // 追加表单数据

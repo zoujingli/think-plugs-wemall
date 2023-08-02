@@ -20,8 +20,11 @@ use plugin\wemall\model\PluginWemallGoods;
 use plugin\wemall\model\PluginWemallGoodsItem;
 use plugin\wemall\model\PluginWemallGoodsStock;
 use plugin\wemall\model\PluginWemallOrder;
+use plugin\wemall\model\PluginWemallOrderCart;
 use plugin\wemall\model\PluginWemallOrderItem;
+use think\admin\Exception;
 use think\admin\Service;
+use think\Model;
 
 /**
  * 商品数据服务
@@ -70,5 +73,66 @@ class GoodsService extends Service
             'stock_virtual' => PluginWemallGoodsItem::mk()->where(['gcode' => $code])->sum('number_virtual'),
         ]);
         return true;
+    }
+
+    /**
+     * 解析下单数据
+     * @param integer $unid 用户编号
+     * @param string $rules 直接下单
+     * @param string $carts 购物车下单
+     * @return array
+     * @throws \think\admin\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    public static function parse(int $unid, string $rules, string $carts): array
+    {
+        // 读取商品数据
+        [$lines, $carts] = [[], str2arr($carts)];
+        if (!empty($carts)) {
+            $where = [['unid', '=', $unid], ['id', 'in', $carts]];
+            $field = ['ghash' => 'ghash', 'gcode' => 'gcode', 'gspec' => 'gspec', 'number' => 'count'];
+            PluginWemallOrderCart::mk()->field($field)->where($where)->with([
+                'goods' => function ($query) {
+                    $query->where(['status' => 1, 'deleted' => 0]);
+                    $query->withoutField(['specs', 'content', 'status', 'deleted', 'create_time', 'update_time']);
+                },
+                'specs' => function ($query) {
+                    $query->where(['status' => 1]);
+                    $query->withoutField(['status', 'create_time', 'update_time']);
+                }
+            ])->select()->each(function (Model $model) use (&$lines) {
+                if (isset($lines[$ghash = $model->getAttr('ghash')])) {
+                    $lines[$ghash]['count'] += $model->getAttr('count');
+                } else {
+                    $lines[$ghash] = $model->toArray();
+                }
+            });
+        } elseif (!empty($rules)) {
+            foreach (explode(';', $rules) as $rule) {
+                [$ghash, $count] = explode(':', "{$rule}:1");
+                if (isset($lines[$ghash])) {
+                    $lines[$ghash]['count'] += $count;
+                } else {
+                    $lines[$ghash] = ['ghash' => $ghash, 'gcode' => '', 'gspec' => '', 'count' => $count];
+                }
+            }
+            // 读取规格数据
+            $map1 = [['status', '=', 1], ['ghash', 'in', array_column($lines, 'ghash')]];
+            foreach (PluginWemallGoodsItem::mk()->where($map1)->select()->toArray() as $item) {
+                foreach ($lines as &$line) if ($line['ghash'] === $item['ghash']) {
+                    [$line['gcode'], $line['gspec'], $line['specs']] = [$item['gcode'], $item['gspec'], $item];
+                }
+            }
+            // 读取商品数据
+            $map2 = [['status', '=', 1], ['deleted', '=', 0], ['code', 'in', array_unique(array_column($lines, 'gcode'))]];
+            foreach (PluginWemallGoods::mk()->where($map2)->withoutField(['specs', 'content'])->select()->toArray() as $goods) {
+                foreach ($lines as &$line) if ($line['gcode'] === $goods['code']) $line['goods'] = $goods;
+            }
+        } else {
+            throw new Exception('无效参数数据！');
+        }
+        return array_values($lines);
     }
 }

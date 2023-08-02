@@ -32,10 +32,16 @@ class PluginWemallGoods extends Abs
      */
     public function items(): HasMany
     {
-        return $this
+        return static::mk()
             ->hasMany(PluginWemallGoodsItem::class, 'gcode', 'code')
             ->withoutField('id,status,create_time,update_time')
             ->where(['status' => 1]);
+    }
+
+    public static function lists(): array
+    {
+        $model = static::mk()->with('items')->withoutField('specs');
+        return $model->order('sort desc,id desc')->where(['deleted' => 0])->select()->toArray();
     }
 
     /**

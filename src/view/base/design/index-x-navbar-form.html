@@ -27,12 +27,12 @@
                             </div>
                             <div class="flex-1">
                                 <label class="relative flex">
-                                    <span class="design-form-label" style="min-width:3em">名称</span>
+                                    <span class="design-form-label" style="min-width:3em">名 称</span>
                                     <input class="layui-input flex-1" v-model="x.foot.name" placeholder="请输入名称">
                                 </label>
                                 <label class="relative flex margin-top-5">
-                                    <span class="design-form-label" style="min-width:3em">链接</span>
-                                    <input class="layui-input flex-1" v-model="x.link.value" placeholder="请输入链接">
+                                    <span class="design-form-label" style="min-width:3em">链 接</span>
+                                    <input class="layui-input flex-1 pointer" readonly @click="setLink(x.link,'value')" v-model="x.link.value" placeholder="请输入链接">
                                 </label>
                             </div>
                             <div>

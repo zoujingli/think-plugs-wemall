@@ -41,31 +41,30 @@
 
     $(function () {
         $('#OrderTable').layTable({
-            even: true, height: 'full', page: false,
+            even: true, height: 'full',
             sort: {field: 'id', type: 'desc'},
             cols: [[
+                {field: 'headimg', title: '头 像', width: 70, align: 'center', templet: '<div>{{-showTableImage(d.user.headimg,true,"sm")}}</div>'},
                 {
-                    field: '', title: '会员用户', minWidth: 160, templet: function (d) {
+                    field: 'unid', title: '会员用户', width: 205, templet: function (d) {
                         let tpls = [];
                         tpls.push('用户昵称：{{d.user.nickname||d.user.username||"-"}}');
                         tpls.push('用户编号：<b class="font-code">{{d.user.code}}</b>');
-                        return laytpl(
-                            '<div class="flex">' +
-                            '   <div>{{-showTableImage(d.user.headimg,false,"sm")}}</div>' +
-                            '   <div class="padding-left-5"></div>' +
-                            '   <div>' + tpls.join('<br>') + '</div>' +
-                            '</div>'
-                        ).render(d);
+                        return laytpl("<div class='nowrap'>" + tpls.join('<br>') + "</div>").render(d);
                     }
                 },
                 {
-                    field: '', title: '订单信息', minWidth: 220, templet: function (d) {
+                    field: 'order_no', title: '订单信息', minWidth: 220, templet: function (d) {
                         let status = laytpl('<span class="layui-badge layui-badge-middle {{d.style}}" style="zoom:85%;line-height:15px;padding:3px 4px">{{d.status}}</span>').render({
                             status: ostatus[d.status], style: ostyles[d.status]
                         });
                         let tpls = '订单号：<b class="font-code">{{d.main.order_no}}</b>';
                         if (d.main.amount_real > 0) {
-                            tpls += '<br>需支付 <b class="font-code">{{str2num(d.main.amount_real)}}</b> 元';
+                            if (d.main.status > 3) {
+                                tpls += '<br>已支付 <b class="font-code">{{str2num(d.main.amount_real)}}</b> 元';
+                            } else {
+                                tpls += '<br>需支付 <b class="font-code">{{str2num(d.main.amount_real)}}</b> 元';
+                            }
                         } else {
                             tpls += '<br>无需支付';
                         }
@@ -88,7 +87,7 @@
                                 '   <div>' +
                                 '       <span class="layui-badge think-bg-gray">{{d.gname}}</span>' +
                                 '       <span class="layui-badge think-bg-gray">{{str2name(d.gspec)}}</span><br>' +
-                                '       <span class="layui-badge think-bg-gray">{{d.stock_sales}}件 x {{str2num(d.price_selling)}}元/件 = {{str2num(d.total_selling)}}元</span> ' +
+                                '       <span class="layui-badge think-bg-gray">{{d.stock_sales}}件 x {{str2num(d.price_selling)}}元/件 = {{str2num(d.total_price_selling)}}元</span> ' +
                                 '   </div>' +
                                 '</div>'
                             ).render(v));
@@ -99,7 +98,7 @@
                 {
                     field: '', title: '收货地址', templet: function (d) {
                         let tpls = [];
-                        tpls.push('<b>{{d.user_name}}</b> <span class="color-blue font-code">{{d.user_phone}}</span>');
+                        tpls.push('<b>{{d.user_name}}</b> <span class="color-blue font-code margin-left-5">{{d.user_phone}}</span>');
                         tpls.push('{{d.region_prov}} {{d.region_city}} {{d.region_city}} {{d.region_addr}}');
                         return laytpl(tpls.join('<br>')).render(d);
                     }

@@ -27,14 +27,14 @@ use think\console\Output;
 
 /**
  * 商城订单自动清理
- * @class Clean
+ * @class Clear
  * @package app\data\command
  */
-class Clean extends Command
+class Clear extends Command
 {
     protected function configure()
     {
-        $this->setName('xdata:WemallClean');
+        $this->setName('xdata:mall:clear');
         $this->setDescription('清理商城订单数据');
     }
 

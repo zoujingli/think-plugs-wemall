@@ -73,48 +73,9 @@
             // 设置表头内容
             data.unshift(['ID', '用户编号', '用户姓名', '用户昵称', '绑定手机', '绑定邮箱', '用户等级', '绑定时间']);
 
-            // 自动计算列序
-            let lastCol = layui.excel.numToTitle((function (count) {
-                for (let idx in data[0]) count++;
-                return count;
-            })(0));
+            // 应用表格样式
+            return this.withStyle(data, {H: 120});
 
-            // 设置表头样式
-            layui.excel.setExportCellStyle(data, 'A1:' + lastCol + '1', {
-                s: {
-                    font: {sz: 12, bold: true, color: {rgb: "FFFFFF"}, name: '微软雅黑', shadow: true},
-                    fill: {bgColor: {indexed: 64}, fgColor: {rgb: "5FB878"}},
-                    alignment: {vertical: 'center', horizontal: 'center'}
-                }
-            });
-
-            // 设置内容样式
-            (function (style1, style2) {
-                layui.excel.setExportCellStyle(data, 'A2:' + lastCol + data.length, {s: style1}, function (rawCell, newCell, row, config, curRow) {
-                    /* 判断并转换单元格数据为对象，以便初始化样式 */
-                    typeof rawCell !== 'object' && (rawCell = {v: rawCell});
-                    rawCell.s = Object.assign({}, style2, rawCell.s || {});
-                    return (curRow % 2 === 0) ? newCell : rawCell;
-                });
-            })({
-                font: {sz: 10, shadow: true, name: '微软雅黑'},
-                fill: {bgColor: {indexed: 64}, fgColor: {rgb: "EAEAEA"}},
-                alignment: {vertical: 'center', horizontal: 'center'}
-            }, {
-                font: {sz: 10, shadow: true, name: '微软雅黑'},
-                fill: {bgColor: {indexed: 64}, fgColor: {rgb: "FFFFFF"}},
-                alignment: {vertical: 'center', horizontal: 'center'}
-            });
-
-            // 设置表格行宽高，需要设置最后的行或列宽高，否则部分不生效 ？？？
-            let rowsC = {1: 33}, colsC = {A: 60, B: 110, C: 80, E: 80};
-            (rowsC[data.length] = 28) && (colsC[lastCol] = 160);
-            this.options.extend = {
-                '!rows': layui.excel.makeRowConfig(rowsC, 28), // 设置每行高度，默认 33
-                '!cols': layui.excel.makeColConfig(colsC, 99), // 设置每行宽度，默认 99
-            };
-
-            return data;
         }, '用户账号数据' + layui.util.toDateString(Date.now(), '_yyyyMMdd_HHmmss'));
     });
 </script>

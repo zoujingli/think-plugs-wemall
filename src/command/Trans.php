@@ -33,14 +33,14 @@ use WePay\TransfersBank;
 
 /**
  * 用户提现处理
- * @class Transfer
+ * @class Trans
  * @package app\data\command
  */
-class Transfer extends Command
+class Trans extends Command
 {
     protected function configure()
     {
-        $this->setName('xdata:WemallTransfer');
+        $this->setName('xdata:mall:trans');
         $this->setDescription('执行提现打款操作');
     }
 

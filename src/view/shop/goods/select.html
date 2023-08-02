@@ -1,48 +1,39 @@
-{extend name="full"}
-
 {block name="content"}
-<div class="iframe-pagination">
+<div class="think-box-shadow relative padding-top-0 shadow-none">
     {include file='shop/goods/select_search'}
-    <table class="layui-table margin-top-10" lay-skin="line">
-        {notempty name='list'}
-        <thead>
-        <tr>
-            <th>商品信息</th>
-            <th>商品状态</th>
-            <th></th>
-        </tr>
-        </thead>
-        {/notempty}
-        <tbody>
-        {foreach $list as $key=>$vo}
-        <tr>
-            <td class='nowrap'>
-                {notempty name='vo.cover'}
-                <div class="headimg" data-lazy-src="{$vo.cover}" data-tips-image></div>
-                {/notempty}
-                <div class="inline-block">
-                    商品编号：{$vo.code|default='--'}<br>
-                    商品名称：{$vo.name|default='--'}<br>
-                </div>
-            </td>
-            <td class='nowrap sub-span-blue'>
-                销售状态：{if $vo.status eq 0}<b class="color-red">已下架</b>{else}<b class="color-green">销售中</b>{/if}<br>
-                剩余库存 <span>{$vo.stock_total-$vo.stock_sales}</span> 件 ( 已销售 <span>{$vo.stock_sales}</span> 件 )<br>
-            </td>
-            <td class='text-right'><a class="layui-btn layui-btn-sm layui-btn-normal" data-item="{$vo.code}">选择商品</a></td>
-        </tr>
-        {/foreach}
-        </tbody>
-    </table>
-    {empty name='list'}<span class="notdata">没有记录哦</span>{else}{$pagehtml|raw|default=''}{/empty}
+    <table id="GoodsTableSelect" data-line="2" data-url="{:request()->url()}"></table>
 </div>
 {/block}
 
 {block name='script'}
 <script>
-    $('[data-item]').on('click', function () {
-        top.setItemValue(this.getAttribute('data-item') || '');
-        parent.layer.close(parent.layer.getFrameIndex(window.name));
+    $(function () {
+        $('#GoodsTableSelect').layTable({
+            even: true, height: 'full', page: true,
+            sort: {field: 'sort desc,id', type: 'desc'},
+            cols: [[
+                // {checkbox: true},
+                {field: 'id', hide: true},
+                {field: 'sort', hide: true},
+                {field: 'cover', title: '商品封面', width: 80, align: 'center', templet: '<div>{{-showTableImage(d.cover,false,"sm")}}</div>'},
+                {field: 'name', title: '商品名称', templet: "<div>商品名称：{{d.name}}<br>商品编号：<b class='color-blue'>{{d.code}}</b></div>"},
+                {field: 'create_time', title: '创建时间', width: 210, templet: "<div>更新：{{d.update_time}}<br>创建：{{d.create_time}}</div>"},
+                {toolbar: '#SelectToolbar', title: '操作面板', width: 80, align: 'center', fixed: 'right'},
+            ]]
+        }).trigger('tool', function (item) {
+            let attr = ['商品详情', item.data.code, item.data.name];
+            window.setItemValue(item.data, attr.join('#'));
+            $.msg.closeThisModal(this);
+        });
     });
+</script>
+
+<!-- 操作工具条模板 -->
+<script type="text/html" id="SelectToolbar">
+    {{# if (typeof checkItemValue !== 'function' || checkItemValue(d.id)){ }}
+    <a class="layui-btn layui-btn-sm" lay-event="select">选 择</a>
+    {{# }else{ }}
+    <a class="layui-btn layui-btn-sm layui-btn-disabled">已 选</a>
+    {{# } }}
 </script>
 {/block}

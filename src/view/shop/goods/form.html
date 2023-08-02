@@ -86,34 +86,30 @@
             <div class="flex flex-wrap">
                 <!--{if isset($upgrades) and count($upgrades)>1}-->
                 <fieldset class="layui-bg-gray notselect">
-                    <legend><span class="layui-badge think-bg-violet">入会礼包配置</span></legend>
-                    <div class="notselect">
-                        <select class="layui-select" name="level_upgrade">
-                            {foreach $upgrades as $upgrade}{if isset($vo.level_upgrade) and $vo.level_upgrade eq $upgrade.number}
-                            <option value="{$upgrade.number|default=0}" selected>
-                                [ {$upgrade.prefix|default='0'} ] {if $upgrade.number eq 0}入会普通礼包，不升级{elseif $upgrade.number>0}入会升级礼包，升级到【{$upgrade.name|default=''}】{else} {$upgrade.name|default=''} {/if}
-                            </option>
-                            {else}
-                            <option value="{$upgrade.number|default=0}">
-                                [ {$upgrade.prefix|default='0'} ] {if $upgrade.number eq 0}入会普通礼包，不升级{elseif $upgrade.number>0}入会升级礼包，升级到【{$upgrade.name|default=''}】{else} {$upgrade.name|default=''} {/if}
-                            </option>
-                            {/if}{/foreach}
-                        </select>
-                    </div>
+                    <legend><span class="layui-badge think-bg-violet">不是礼包配置</span></legend>
+                    <select class="layui-select" name="level_upgrade">
+                        {foreach $upgrades as $upgrade}{if isset($vo.level_upgrade) and $vo.level_upgrade eq $upgrade.number}
+                        <option value="{$upgrade.number|default=0}" selected>
+                            [ {$upgrade.prefix|default='0'} ] {if $upgrade.number eq 0}入会礼包，不升级{elseif $upgrade.number>0}升级礼包，升级到【{$upgrade.name|default=''}】{else} {$upgrade.name|default=''} {/if}
+                        </option>
+                        {else}
+                        <option value="{$upgrade.number|default=0}">
+                            [ {$upgrade.prefix|default='0'} ] {if $upgrade.number eq 0}入会礼包，不升级{elseif $upgrade.number>0}升级礼包，升级到【{$upgrade.name|default=''}】{else} {$upgrade.name|default=''} {/if}
+                        </option>
+                        {/if}{/foreach}
+                    </select>
                     <span class="help-block">购买商品后可直接升级到该等级！</span>
                 </fieldset>
                 <fieldset class="layui-bg-gray notselect">
                     <legend><span class="layui-badge think-bg-violet">限制购买等级</span></legend>
-                    <div class="notselect">
-                        <select class="layui-select" name="limit_lowvip">
-                            <option value="0">[ - ] 不限等级</option>
-                            {foreach $upgrades as $upgrade}{if $upgrade.number>0}{if isset($vo.limit_lowvip) and $vo.limit_lowvip eq $upgrade.number}
-                            <option selected value="{$upgrade.number|default=0}">[ {$upgrade.number|default='0'} ] {$upgrade.name|default=''}</option>
-                            {else}
-                            <option value="{$upgrade.number|default=0}">[ {$upgrade.number|default='0'} ] {$upgrade.name|default=''}</option>
-                            {/if}{/if}{/foreach}
-                        </select>
-                    </div>
+                    <select class="layui-select" name="limit_lowvip">
+                        <option value="0">[ - ] 不限等级</option>
+                        {foreach $upgrades as $upgrade}{if $upgrade.number>0}{if isset($vo.limit_lowvip) and $vo.limit_lowvip eq $upgrade.number}
+                        <option selected value="{$upgrade.number|default=0}">[ {$upgrade.number|default=0} ] 限制【{$upgrade.name|default=''}】及以上可购买</option>
+                        {else}
+                        <option value="{$upgrade.number|default=0}">[ {$upgrade.number|default=0} ] 限制【{$upgrade.name|default=''}】及以上可购买</option>
+                        {/if}{/if}{/foreach}
+                    </select>
                     <span class="help-block">限制低于该等级的用户不能购买！</span>
                 </fieldset>
                 <!--{else}-->
@@ -124,17 +120,17 @@
                     <legend><span class="layui-badge think-bg-violet">限制购买数量</span></legend>
                     <label>
                         <input class="layui-input" type="number" min="0" data-blur-number="0" name="limit_maxnum" placeholder="请输入商品限购数量" value="{$vo.limit_maxnum|default=0}">
-                        <span class="help-block">限制每人购买数量，为 0 时不限制！</span>
+                        <span class="help-block">限制每人购买数量，值为 0 时不限制！</span>
                     </label>
                 </fieldset>
                 <!--{if isset($discounts) and count($discounts)>1}-->
                 <fieldset class="layui-bg-gray">
                     <legend><span class="layui-badge think-bg-violet">会员折扣方案</span></legend>
-                    <select class="layui-select" lay-search name="discount_id">
+                    <select class="layui-select" name="discount_id" lay-search>
                         {foreach $discounts as $discount}{if isset($vo.discount_id) and $vo.discount_id eq $discount.id}
-                        <option selected value="{$discount.id|default=0}">{$discount.name|default='0'}</option>
+                        <option selected value="{$discount.id|default=0}">[ {$discount.id?:'-'} ] {$discount.name|default='0'}</option>
                         {else}
-                        <option value="{$discount.id|default=0}">{$discount.name|default='0'}</option>
+                        <option value="{$discount.id|default=0}">[ {$discount.id?:'-'} ] {$discount.name|default='0'}</option>
                         {/if}{/foreach}
                     </select>
                     <span class="help-block">当用户等级达到指定等级后可享有折扣！</span>
@@ -144,18 +140,16 @@
                 <!--{/if}-->
                 <fieldset class="layui-bg-gray">
                     <legend><span class="layui-badge think-bg-violet">商品返利配置</span></legend>
-                    <div class="nowrap">
-                        <div class="padding-top-5 padding-bottom-5">
-                            {empty name='vo.rebate_type'}{assign name='vo.rebate_type' value='0'}{/empty}
-                            {foreach ['非返利商品','是返利商品'] as $k => $v}
-                            {if isset($vo.rebate_type) and $vo.rebate_type eq $k}
-                            <input checked name="rebate_type" title="{$v}" type="radio" value="{$k}">
-                            {else}
-                            <input name="rebate_type" title="{$v}" type="radio" value="{$k}">
-                            {/if}{/foreach}
-                        </div>
-                        <div class="help-block">代理获得该商品线上支付部分的返利比例！</div>
+                    <div class="padding-top-5 padding-bottom-5 nowrap">
+                        {empty name='vo.rebate_type'}{assign name='vo.rebate_type' value='0'}{/empty}
+                        {foreach ['非返利商品','是返利商品'] as $k => $v}
+                        {if isset($vo.rebate_type) and $vo.rebate_type eq $k}
+                        <input name="rebate_type" title="{$v}" type="radio" value="{$k}" checked>
+                        {else}
+                        <input name="rebate_type" title="{$v}" type="radio" value="{$k}">
+                        {/if}{/foreach}
                     </div>
+                    <div class="help-block nowrap">代理获得该商品线上支付部分的返利比例！</div>
                 </fieldset>
             </div>
         </div>
@@ -296,16 +290,6 @@
                 return $rootScope.cache[hash][name] = $rootScope.items[hash][name] = value;
             };
 
-            /*！动态读取内容 */
-            $rootScope.getValue = function (hash, name, value) {
-                let cache = $rootScope.cache[hash] || {};
-                if (typeof cache[name] === 'undefined') {
-                    $rootScope.setValue(hash, name, value, '_')
-                    cache = $rootScope.cache[hash] || {};
-                }
-                return cache[name];
-            };
-
             /*! 去除空白字符 */
             $rootScope.trimSpace = function (x, i) {
                 return x[i] = (x[i] || '').replace(/[\s,;'"]+/ig, '');
@@ -327,11 +311,13 @@
                     }) && 0) || (data.push(temp) && navas.push(spec.name));
                 });
                 /*! 规格交叉数据生成 */
-                (data.forEach(function (rows) {
+                data.forEach(function (rows) {
                     let temp = [];
                     items.forEach(r => rows.forEach(c => temp.push(r.concat(c))));
                     items = temp;
-                }) && 0) || items.forEach(function (rows) {
+                });
+                items = angular.fromJson(angular.toJson(items));
+                items.forEach(function (rows) {
                     let keys = [], unids = [];
                     (rows.forEach(function (item) {
                         unids.push(item.unid);
@@ -339,16 +325,16 @@
                     }) && 0) || rows.forEach(function (item) {
                         item.spec = keys.join(';;');
                         item.hash = md5.hash("{$vo.code}#" + unids.sort().join(';'));
-                        item.gsku = $rootScope.getValue(item.hash, 'gsku', withRandString(14, 'S'));
-                        item.status = !!$rootScope.getValue(item.hash, 'status', 1);
-                        item.market = $rootScope.getValue(item.hash, 'market', '0.00');
-                        item.balance = $rootScope.getValue(item.hash, 'balance', '0.00');
-                        item.selling = $rootScope.getValue(item.hash, 'selling', '0.00');
-                        item.allow_balance = $rootScope.getValue(item.hash, 'allow_balance', '0.00');
-                        item.allow_integral = $rootScope.getValue(item.hash, 'allow_integral', '0');
-                        item.integral = $rootScope.getValue(item.hash, 'integral', '0');
-                        item.express = $rootScope.getValue(item.hash, 'express', '1');
-                        item.virtual = $rootScope.getValue(item.hash, 'virtual', '0');
+                        item.gsku = getValue(item.hash, 'gsku', withRandString(14, 'S'));
+                        item.status = !!getValue(item.hash, 'status', 1);
+                        item.market = getValue(item.hash, 'market', '0.00');
+                        item.balance = getValue(item.hash, 'balance', '0.00');
+                        item.selling = getValue(item.hash, 'selling', '0.00');
+                        item.allow_balance = getValue(item.hash, 'allow_balance', '0.00');
+                        item.allow_integral = getValue(item.hash, 'allow_integral', '0');
+                        item.integral = getValue(item.hash, 'integral', '0');
+                        item.express = getValue(item.hash, 'express', '1');
+                        item.virtual = getValue(item.hash, 'virtual', '0');
                     });
                 });
                 $rootScope.navas = navas;
@@ -384,6 +370,16 @@
             $rootScope.delSpecVal = function (data, $index) {
                 data.splice($index, 1);
             };
+
+            /*！动态读取内容 */
+            function getValue(hash, name, value) {
+                let cache = $rootScope.cache[hash] || {};
+                if (typeof cache[name] === 'undefined') {
+                    $rootScope.setValue(hash, name, value, '_')
+                    cache = $rootScope.cache[hash] || {};
+                }
+                return cache[name];
+            }
         }
 
         // 创建分组

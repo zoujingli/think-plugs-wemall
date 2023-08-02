@@ -15,6 +15,7 @@
             mainBgColor: 'rgba(191,13,13,1)',
             mainTxColor: 'rgba(255,255,255,1)'
         }
+
         // 创建菜单导航页
         let CreateNewPage = (type) => {
             if (!PageTypesConfig[type]) {
@@ -345,6 +346,15 @@
                     if (ix >= is.length - 1) return app.showError('已经是最后一个组件，不能再下移了哦！');
                     (item => is.splice(ix + 1, 1) && is.splice(ix, 0, item) && co && (this.idx = ix + 1))(is[ix + 1]);
                 },
+                /*! 链接选择器 ( 数据对象，绑定字段 ) */
+                setLink: function (x, f) {
+                    let that = this;
+                    $.form.modal('{:url("link")}', {}, '链接选择器')
+                    window.setItemValue = function (data, rule) {
+                        that.$set(x, f || 'link', rule);
+                    }
+                },
+                /*! 动态设置全屏 */
                 FullHeightStyle: function () {
                     let menu = this.$el.querySelector('div.design-layout-view-body');
                     return {height: menu.offsetHeight + 'px', position: 'relative'};

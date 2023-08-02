@@ -30,7 +30,7 @@ class PluginWemallConfigLevel extends Abs
      */
     public static function items(bool $allow = false): array
     {
-        $items = $allow ? [-1 => ['name' => '非入会礼包', 'prefix' => '-', 'number' => -1, 'upgrade_team' => 0]] : [];
+        $items = $allow ? [-1 => ['name' => '普通商品', 'prefix' => '-', 'number' => -1, 'upgrade_team' => 0]] : [];
         return $items + static::mk()->where(['status' => 1])
                 ->hidden(['id', 'utime', 'status', 'create_at'])
                 ->order('number asc')->column('name,number as prefix,number,upgrade_team', 'number');

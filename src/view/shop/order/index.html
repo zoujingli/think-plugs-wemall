@@ -39,28 +39,28 @@
 
     $(function () {
         $('#OrderTable').layTable({
-            even: true, height: 'full', page: false,
+            even: true, height: 'full',
             sort: {field: 'id', type: 'desc'},
             cols: [[
+                {field: 'headimg', title: '头 像', width: 70, align: 'center', templet: '<div>{{-showTableImage(d.user.headimg,true,"sm")}}</div>'},
                 {
-                    field: '', title: '会员用户', minWidth: 160, templet: function (d) {
+                    field: '', title: '会员用户', width: 205, templet: function (d) {
                         let tpls = [];
                         tpls.push('用户昵称：{{d.user.nickname||d.user.username||"-"}}');
                         tpls.push('用户编号：<b class="font-code">{{d.user.code}}</b>');
-                        return laytpl(
-                            '<div class="flex">' +
-                            '   <div>{{-showTableImage(d.user.headimg,false,"sm")}}</div>' +
-                            '   <div class="padding-left-5"></div>' +
-                            '   <div>' + tpls.join('<br>') + '</div>' +
-                            '</div>'
-                        ).render(d);
+                        return laytpl("<div class='nowrap'>" + tpls.join('<br>') + "</div>").render(d);
                     }
                 },
                 {
                     field: '', title: '订单信息', minWidth: 220, templet: function (d) {
                         let tpls = '订单号：<b class="font-code">{{d.order_no}}</b>';
+                        d.showPayments = "{:url('plugin-payment/record/index')}"
                         if (d.amount_real > 0) {
-                            tpls += '<br>需支付 <b class="font-code">{{str2num(d.amount_real)}}</b> 元';
+                            if (d.payment_status > 0) {
+                                tpls += '<br>已支付 <b class="font-code" data-width="1024px" data-title="查看支付详情" data-modal="{{d.showPayments}}?orderinfo={{d.order_no}}">{{str2num(d.amount_real)}}</b> 元';
+                            } else {
+                                tpls += '<br>需支付 <b class="font-code" data-width="1024px" data-title="查看支付详情" data-modal="{{d.showPayments}}?orderinfo={{d.order_no}}">{{str2num(d.amount_real)}}</b> 元';
+                            }
                         } else {
                             tpls += '<br>无需支付';
                         }
@@ -76,9 +76,9 @@
                     }
                 },
                 {
-                    field: '', title: '商品详情', templet: function (d) {
+                    field: '', title: '商品详情', minWidth: 220, templet: function (d) {
                         let tpls = [];
-                        d.items.forEach(function (v) {
+                        return d.items.map(function (v) {
                             tpls.push(laytpl(
                                 '<div class="flex">' +
                                 '   <div>{{-showTableImage(d.gcover,false,"sm")}}</div>' +
@@ -86,23 +86,22 @@
                                 '   <div>' +
                                 '       <span class="layui-badge think-bg-gray">{{d.gname}}</span>' +
                                 '       <span class="layui-badge think-bg-gray">{{str2name(d.gspec)}}</span><br>' +
-                                '       <span class="layui-badge think-bg-gray">{{d.stock_sales}}件 x {{str2num(d.price_selling)}}元/件 = {{str2num(d.total_selling)}}元</span> ' +
+                                '       <span class="layui-badge think-bg-gray">{{d.stock_sales}}{{d.gunit||"件"}} x {{str2num(d.price_selling)}}元/{{d.gunit||"件"}}，共 {{str2num(d.total_price_selling)}} 元</span> ' +
                                 '   </div>' +
                                 '</div>'
                             ).render(v));
-                        });
-                        return tpls.join('<br>');
+                        }), tpls.join('<br>');
                     }
                 },
                 {
                     field: '', title: '收货地址', templet: function (d) {
                         if (d.address) {
                             let tpls = [];
-                            tpls.push('<b>{{d.user_name}}</b> <span class="color-blue font-code">{{d.user_phone}}</span>');
+                            tpls.push('<b class="margin-right-5">{{d.user_name}}</b><span class="color-blue font-code">{{d.user_phone}}</span>');
                             tpls.push('{{d.region_prov}} {{d.region_city}} {{d.region_city}} {{d.region_addr}}');
                             return laytpl(tpls.join('<br>')).render(d.address);
                         } else {
-                            return '<div class="padding-top-10"><span class="color-desc">无收货信息</span></div>';
+                            return '<div class="padding-top-10 color-desc">无收货信息</div>';
                         }
                     }
                 },

@@ -3,6 +3,7 @@
   "name": "zoujingli/think-plugs-wemall",
   "homepage": "https://thinkadmin.top",
   "description": "WeMall for ThinkAdmin",
+  "version": "dev-master",
   "authors": [
     {
       "name": "Anyon",
@@ -12,9 +13,9 @@
   "require": {
     "php": ">=7.1",
     "ext-json": "*",
-    "zoujingli/think-plugs-admin": "^1.0||dev-master",
-    "zoujingli/think-plugs-account": "^1.0||dev-master",
-    "zoujingli/think-plugs-payment": "^1.0||dev-master"
+    "zoujingli/think-plugs-admin": "^1.0|dev-master",
+    "zoujingli/think-plugs-account": "^1.0|dev-master",
+    "zoujingli/think-plugs-payment": "^1.0|dev-master"
   },
   "autoload": {
     "files": [
@@ -32,18 +33,20 @@
     },
     "config": {
       "type": "module",
-      "name": "微商城系统",
+      "name": "多端商城系统",
       "icon": "https://static.cdn.cuci.cc/bd/2a2f272511ee7216cdec6cf3843a38.png",
       "cover": "https://static.cdn.cuci.cc/bd/2a2f272511ee7216cdec6cf3843a38.png",
-      "description": "微商城系统"
+      "license": [
+        "VIP"
+      ],
+      "homepage": "https://thinkadmin.top",
+      "document": "https://thinkadmin.top/plugin/think-plugs-wemall.html",
+      "description": "多端商城系统，极简分销商城。"
     },
     "plugin": {
       "copy": {
         "stc/database": "database/migrations"
-      },
-      "event": [
-        "plugin\\wemall\\Event"
-      ]
+      }
     }
   },
   "minimum-stability": "dev",

@@ -19,8 +19,9 @@ declare (strict_types=1);
 namespace plugin\wemall\command;
 
 use plugin\account\model\PluginAccountUser;
+use plugin\payment\service\Balance;
+use plugin\payment\service\Integral;
 use plugin\wemall\model\PluginWemallUserRelation;
-use plugin\wemall\service\UserBalanceService;
 use plugin\wemall\service\UserRebateService;
 use plugin\wemall\service\UserUpgradeService;
 use think\admin\Command;
@@ -29,15 +30,15 @@ use think\console\Output;
 
 /**
  * 同步计算用户信息
- * @class Userinfo
+ * @class Users
  * @package plugin\wemall\command
  */
-class Userinfo extends Command
+class Users extends Command
 {
 
     public function configure()
     {
-        $this->setName('xdata:WemallUserinfo')->setDescription('同步用户关联数据');
+        $this->setName('xdata:mall:users')->setDescription('同步用户关联数据');
     }
 
     /**
@@ -55,7 +56,7 @@ class Userinfo extends Command
             PluginWemallUserRelation::sync($user['id']);
             UserUpgradeService::upgrade($user['id']);
             UserRebateService::amount($user['id']);
-            UserBalanceService::amount($user['id']);
+            Balance::recount($user['id']) && Integral::recount($user['id']);
             $this->queue->message($total, $count, "刷新用户 [{$user['id']}] 数据成功", 1);
         } catch (\Exception $exception) {
             $this->queue->message($total, $count, "刷新用户 [{$user['id']}] 数据失败, {$exception->getMessage()}", 1);

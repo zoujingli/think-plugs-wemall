@@ -77,6 +77,15 @@ class PluginWemallOrder extends Abs
     }
 
     /**
+     * 关联发货信息
+     * @return \think\model\relation\HasOne
+     */
+    public function sender(): HasOne
+    {
+        return $this->hasOne(PluginWemallOrderSend::class, 'order_no', 'order_no');
+    }
+
+    /**
      * 格式化支付通道
      * @param mixed $value
      * @return array
@@ -85,5 +94,25 @@ class PluginWemallOrder extends Abs
     {
         $payments = is_string($value) ? str2arr($value) : [];
         return in_array('all', $payments) ? ['all'] : $payments;
+    }
+
+    /**
+     * 时间格式处理
+     * @param mixed $value
+     * @return string
+     */
+    public function getPaymentTimeAttr($value): string
+    {
+        return $this->getCreateTimeAttr($value);
+    }
+
+    /**
+     * 时间格式处理
+     * @param mixed $value
+     * @return array|string|string[]
+     */
+    public function setPaymentTimeAttr($value)
+    {
+        return $this->setCreateTimeAttr($value);
     }
 }

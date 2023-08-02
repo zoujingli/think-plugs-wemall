@@ -8,7 +8,7 @@
 
         <div class="layui-form-item label-required-prev">
             <span class="help-label"><b>用户等级折扣</b>Scheme</span>
-            <table class="layui-table think-level-box" lay-skin="line" lay-size="lg">
+            <table class="layui-table" lay-skin="line">
                 <thead>
                 <tr class="layui-bg-gray">
                     <th class="text-left">用户等级</th>
@@ -20,10 +20,10 @@
                 <tr>
                     <td class="nowrap sub-span-blue">[ <span>VIP{$level.number|default='0'}</span> ] {$level.name|default=''}</td>
                     <td class="nowrap padding-0">
-                        <label class="relative pull-right margin-right-5">
-                            {php} $key = '_level_' . $level['number']; {/php}
-                            <input class="layui-input text-right" style="width:200px;padding-right:55px" data-blur-number="4" data-value-min="0" data-value-max="100" name="_level_{$level.number}" value="{$vo[$key]??'100.0000'}" placeholder="请输入用户等级折扣">
-                            <span class="input-right-icon">%</span>
+                        {php} $key = '_level_' . $level['number']; {/php}
+                        <label class="layui-input-group pull-right">
+                            <input class="layui-input text-center padding-right-0" type="number" step="0.0001" style="width:150px" data-blur-number="4" max="100" min="0" name="_level_{$level.number}" value="{$vo[$key]??'100.0000'}" placeholder="请输入用户等级折扣">
+                            <span class="layui-input-suffix">%</span>
                         </label>
                     </td>
                 </tr>
@@ -47,15 +47,3 @@
     </div>
 
 </form>
-
-<!--<style>-->
-<!--    .think-level-box tr input {-->
-<!--        width: 90%;-->
-<!--        height: 38px;-->
-<!--        border: none;-->
-<!--        text-align: right;-->
-<!--        line-height: 38px;-->
-<!--    }-->
-<!--</style>-->
-
-
