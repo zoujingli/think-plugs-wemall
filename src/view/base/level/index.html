@@ -20,54 +20,54 @@
             even: true, height: 'full',
             sort: {field: 'number', type: 'asc'},
             cols: [[
-                {field: 'number', title: '序号', align: "center", width: 80, sort: true},
+                {field: 'number', title: '序号', align: "center", minWidth: 70, width: '5%', sort: true},
                 {field: 'cover', title: '图标', width: 70, align: 'center', templet: '<div>{{-$.layTable.showImage(d.cover)}}</div>'},
-                {field: 'name', title: '等级名称', align: 'center', minWidth: 100},
+                {field: 'name', title: '等级名称', align: 'center', minWidth: 80, width: '12%'},
                 {
-                    field: 'upgrade_team', title: '团队计数', align: 'center', width: 80, templet: function (d) {
+                    field: 'upgrade_team', title: '团队计数', align: 'center', minWidth: 80, width: '5%', templet: function (d) {
                         if (!d.upgrade_team || d.upgrade_team < 1) return '-';
                         return '<b class="layui-icon layui-icon-ok-circle color-green"></b>';
                     }
                 },
                 {
-                    field: 'upgrade_type', title: '升级规则', align: 'center', width: 80, templet: function (d) {
+                    field: 'upgrade_type', title: '升级规则', align: 'center', minWidth: 80, width: '5%', templet: function (d) {
                         if (d.upgrade_type === 1) return '<span class="color-green">全部条件</span>';
                         return '<span class="color-blue">任意条件</span>';
                     }
                 },
                 {
-                    field: 'enter_vip_status', title: '入会礼包', align: 'center', width: 80, templet: function (d) {
+                    field: 'enter_vip_status', title: '入会礼包', align: 'center', minWidth: 80, width: '5%', templet: function (d) {
                         if (!d.enter_vip_status || d.enter_vip_status < 1) return '-';
                         return '<b class="layui-icon layui-icon-ok-circle color-green"></b>';
                     }
                 },
                 {
-                    field: 'teams_users_status', title: '团队总数', align: 'center', width: 80, templet: function (d) {
+                    field: 'teams_users_status', title: '团队总数', align: 'center', minWidth: 80, width: '5%', templet: function (d) {
                         if (!d.teams_users_status || d.teams_users_status < 1) return '-';
                         return laytpl('<b>{{d.teams_users_number}}</b>').render(d);
                     }
                 },
                 {
-                    field: 'teams_direct_status', title: '直属团队', align: 'center', width: 80, templet: function (d) {
+                    field: 'teams_direct_status', title: '直属团队', align: 'center', minWidth: 80, width: '5%', templet: function (d) {
                         if (!d.teams_direct_status || d.teams_direct_status < 1) return '-';
                         return laytpl('<b>{{d.teams_direct_number}}</b>').render(d);
                     }
                 },
                 {
-                    field: 'teams_indirect_status', title: '间接团队', align: 'center', width: 80, templet: function (d) {
+                    field: 'teams_indirect_status', title: '间接团队', align: 'center', minWidth: 80, width: '5%', templet: function (d) {
                         if (!d.teams_indirect_status || d.teams_indirect_status < 1) return '-';
                         return laytpl('<b>{{d.teams_indirect_number}}</b>').render(d);
                     }
                 },
                 {
-                    field: 'order_amount_status', title: '订单金额', align: 'center', width: 80, templet: function (d) {
+                    field: 'order_amount_status', title: '订单金额', align: 'center', minWidth: 80, width: '5%', templet: function (d) {
                         if (!d.order_amount_status || d.order_amount_status < 1) return '-';
                         return laytpl('<b>{{d.order_amount_number}}</b>').render(d);
                     }
                 },
-                {field: 'status', title: '等级状态', align: 'center', width: 110, templet: '#StatusSwitchTpl'},
-                {field: 'create_time', title: '创建时间', align: 'center', width: 170, sort: true},
-                {toolbar: '#toolbar', title: '操作面板', align: 'center', minWidth: 160, fixed: 'right'},
+                {field: 'status', title: '等级状态', align: 'center', minWidth: 110, width: '8%', templet: '#StatusSwitchTpl'},
+                {field: 'create_time', title: '创建时间', align: 'center', minWidth: 170, width: '14%', sort: true},
+                {toolbar: '#toolbar', title: '操作面板', align: 'center', minWidth: 150, fixed: 'right'},
             ]]
         });
 

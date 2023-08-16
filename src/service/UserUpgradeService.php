@@ -173,11 +173,18 @@ class UserUpgradeService
                 'order_amount_total'    => $orderAmountTotal,
             ]
         ];
-        if (!empty($orderNo)) $data['extra']['level_order'] = $orderNo;
-        if ($data['level_code'] !== $relation['level_code']) $data['extra']['level_time'] = date('Y-m-d H:i:s');
-        if ($relation->save($data) && $relation['level_code'] < $levelCode) Library::$sapp->event->trigger('PluginWemallUpgradeLevel', [
-            'unid' => $relation['unid'], 'order_no' => $orderNo, 'level_code_old' => $relation['level_code'], 'level_code_new' => $levelCode,
-        ]);
+        if (!empty($orderNo)) {
+            $data['extra']['level_order'] = $orderNo;
+        }
+        if ($data['level_code'] !== $relation['level_code']) {
+            $data['extra']['level_time'] = date('Y-m-d H:i:s');
+        }
+        if ($relation->save($data) && $relation['level_code'] < $levelCode) {
+            Library::$sapp->event->trigger('PluginWemallUpgradeLevel', [
+                'unid'           => $relation['unid'], 'order_no' => $orderNo,
+                'level_code_old' => $relation['level_code'], 'level_code_new' => $levelCode,
+            ]);
+        }
         return !($parent && $relation['puid1'] > 0) || static::upgrade($relation['puid1'], false);
     }
 }

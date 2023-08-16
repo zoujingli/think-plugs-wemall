@@ -18,6 +18,7 @@ declare (strict_types=1);
 
 namespace plugin\wemall;
 
+use plugin\payment\model\PluginPaymentRecord;
 use plugin\wemall\command\Clear;
 use plugin\wemall\command\Trans;
 use plugin\wemall\command\Users;
@@ -61,41 +62,36 @@ class Service extends Plugin
         });
 
         // 注册支付审核事件
-        $this->app->event->listen('PluginPaymentAudit', function (array $data) {
-            $this->app->log->notice("Event PluginPaymentAudit {$data['order_no']}");
-            $map = ['order_no' => $data['order_no']];
-            $order = PluginWemallOrder::mk()->where($map)->findOrEmpty();
-            $order->isExists() && UserOrderService::payment($order, $data);
+        $this->app->event->listen('PluginPaymentAudit', function (PluginPaymentRecord $payment) {
+            $this->app->log->notice("Event PluginPaymentAudit {$payment['order_no']}");
+            $order = PluginWemallOrder::mk()->where(['order_no' => $payment['order_no']])->findOrEmpty();
+            $order->isExists() && UserOrderService::payment($order, $payment);
         });
 
         // 注册支付拒审事件
-        $this->app->event->listen('PluginPaymentRefuse', function (array $data) {
-            $this->app->log->notice("Event PluginPaymentRefuse {$data['order_no']}");
-            $map = ['order_no' => $data['order_no']];
-            $order = PluginWemallOrder::mk()->where($map)->findOrEmpty();
-            $order->isExists() && UserOrderService::payment($order, $data);
+        $this->app->event->listen('PluginPaymentRefuse', function (PluginPaymentRecord $payment) {
+            $this->app->log->notice("Event PluginPaymentRefuse {$payment['order_no']}");
+            $order = PluginWemallOrder::mk()->where(['order_no' => $payment['order_no']])->findOrEmpty();
+            $order->isExists() && UserOrderService::payment($order, $payment);
         });
 
         // 注册支付完成事件
-        $this->app->event->listen('PluginPaymentSuccess', function (array $data) {
-            $this->app->log->notice("Event PluginPaymentSuccess {$data['order_no']}");
-            $map = ['order_no' => $data['order_no']];
-            $order = PluginWemallOrder::mk()->where($map)->findOrEmpty();
-            $order->isExists() && UserOrderService::payment($order, $data);
+        $this->app->event->listen('PluginPaymentSuccess', function (PluginPaymentRecord $payment) {
+            $this->app->log->notice("Event PluginPaymentSuccess {$payment['order_no']}");
+            $order = PluginWemallOrder::mk()->where(['order_no' => $payment['order_no']])->findOrEmpty();
+            $order->isExists() && UserOrderService::payment($order, $payment);
         });
 
         // 注册支付取消事件
-        $this->app->event->listen('PluginPaymentCancel', function (array $data) {
-            $this->app->log->notice("Event PluginPaymentCancel {$data['order_no']}");
-            $map = ['order_no' => $data['order_no']];
-            $order = PluginWemallOrder::mk()->where($map)->findOrEmpty();
-            $order->isExists() && UserOrderService::payment($order, $data);
+        $this->app->event->listen('PluginPaymentCancel', function (PluginPaymentRecord $payment) {
+            $this->app->log->notice("Event PluginPaymentCancel {$payment['order_no']}");
+            $order = PluginWemallOrder::mk()->where(['order_no' => $payment['order_no']])->findOrEmpty();
+            $order->isExists() && UserOrderService::payment($order, $payment);
         });
 
         // 注册订单确认事件
         $this->app->event->listen('PluginPaymentConfirm', function (array $data) {
             $this->app->log->notice("Event PluginPaymentConfirm {$data['order_no']}");
-            // 更新返利记录
             UserRebateService::confirm($data['order_no']);
         });
     }
@@ -107,7 +103,7 @@ class Service extends Plugin
     public static function menu(): array
     {
         $code = app(static::class)->appCode;
-        return [
+        return array_merge([
             [
                 'name' => '商城配置',
                 'subs' => [
@@ -127,7 +123,7 @@ class Service extends Plugin
             [
                 'name' => '用户管理',
                 'subs' => [
-                    ['name' => '用户账号管理', 'icon' => 'layui-icon layui-icon-user', 'node' => "{$code}/user.admin/index"],
+                    ['name' => '用户关系管理', 'icon' => 'layui-icon layui-icon-user', 'node' => "{$code}/user.admin/index"],
                     ['name' => '用户余额管理', 'icon' => 'layui-icon layui-icon-rmb', 'node' => "plugin-payment/balance/index"],
                     ['name' => '用户积分管理', 'icon' => 'layui-icon layui-icon-diamond', 'node' => "plugin-payment/integral/index"],
                     ['name' => '用户返利管理', 'icon' => 'layui-icon layui-icon-transfer', 'node' => "{$code}/user.rebate/index"],
@@ -144,6 +140,6 @@ class Service extends Plugin
                     ['name' => '邮费模板管理', 'icon' => 'layui-icon layui-icon-template-1', 'node' => "{$code}/base.express.template/index"],
                 ],
             ],
-        ];
+        ], \plugin\payment\Service::menu());
     }
 }

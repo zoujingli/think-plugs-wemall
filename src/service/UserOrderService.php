@@ -184,7 +184,7 @@ class UserOrderService
         // 更新用户订单数据
         if ($order->save($update)) {
             // 触发订单确认事件
-            Library::$sapp->event->trigger('PluginWemallOrderPerfect', $order->refresh()->toArray());
+            Library::$sapp->event->trigger('PluginWemallOrderPerfect', $order);
             // 返回处理成功数据
             return true;
         } else {
@@ -195,28 +195,28 @@ class UserOrderService
     /**
      * 更新订单支付状态
      * @param PluginWemallOrder $order 订单模型
-     * @param array $data 支付行为记录
+     * @param PluginPaymentRecord $payment 支付行为记录
      * @remark 订单状态(0已取消,1预订单,2待支付,3待审核,4待发货,5已发货,6已收货,7已评论)
      */
-    public static function payment(PluginWemallOrder $order, array $data)
+    public static function payment(PluginWemallOrder $order, PluginPaymentRecord $payment)
     {
         // 订单达到完成支付条件，标志已完成
-        $paidAmount = Payment::paidAmount($data['order_no'], true);
+        $paidAmount = Payment::paidAmount($payment['order_no'], true);
         // 订单已取消并已退款
-        if (empty($paidAmount) && $data['refund_status']) {
+        if (empty($paidAmount) && $payment['refund_status']) {
             $order->save([
                 'status'         => 0,
-                'payment_time'   => $data['payment_time'],
+                'payment_time'   => $payment['payment_time'],
                 'payment_amount' => $paidAmount,
                 'payment_status' => 1,
             ]);
             try { /* 奖励余额及积分 */
-                static::cancel($data['order_no']);
+                static::cancel($payment['order_no']);
             } catch (\Exception $exception) {
                 trace_file($exception);
             }
             try { /* 订单返利处理 */
-                UserRebateService::cancel($data['order_no']);
+                UserRebateService::cancel($payment['order_no']);
             } catch (\Exception $exception) {
                 trace_file($exception);
             }
@@ -224,23 +224,23 @@ class UserOrderService
             // 更新订单状态
             $order->save([
                 'status'         => $order->getAttr('delivery_type') ? 4 : 5,
-                'payment_time'   => $data['payment_time'],
+                'payment_time'   => $payment['payment_time'],
                 'payment_amount' => $paidAmount,
                 'payment_status' => 1,
             ]);
             try { /* 奖励余额及积分 */
-                static::confirm($data['order_no']);
+                static::confirm($payment['order_no']);
             } catch (\Exception $exception) {
                 trace_file($exception);
             }
             try { /* 订单返利处理 */
-                UserRebateService::create($data['order_no']);
+                UserRebateService::create($payment['order_no']);
             } catch (\Exception $exception) {
                 trace_file($exception);
             }
-        } elseif ($data['channel_type'] === Payment::VOUCHER && $data['audit_status'] === 1) {
+        } elseif ($payment['channel_type'] === Payment::VOUCHER && $payment['audit_status'] === 1) {
             if ($order->getAttr('status') === 2) $order->save(['status' => 3]);
-        } elseif ($data['channel_type'] === Payment::VOUCHER && $data['audit_status'] === 0) {
+        } elseif ($payment['channel_type'] === Payment::VOUCHER && $payment['audit_status'] === 0) {
             $map = ['channel_type' => Payment::VOUCHER, 'audit_status' => 1, 'order_no' => $order->getAttr('order_no')];
             if (!PluginPaymentRecord::mk()->where($map)->findOrEmpty()->isExists()) {
                 if ($order->getAttr('status') === 3) $order->save(['status' => 2]);
@@ -287,15 +287,16 @@ class UserOrderService
         // 确认返回余额
         if ($order['reward_balance'] > 0) {
             $remark = "来自订单 {$order['order_no']} 奖励 {$order['reward_balance']} 余额";
-            Balance::create($order['unid'], $code, "购物返还余额", $order['reward_balance'], $remark, true);
+            Balance::create($order['unid'], $code, '购物返还余额', $order['reward_balance'], $remark, true);
         }
         // 确认奖励积分
         if ($order['reward_integral'] > 0) {
             $remark = "来自订单 {$order['order_no']} 奖励 {$order['reward_integral']} 积分";
-            Integral::create($order['unid'], $code, "购物奖励积分", $order['reward_integral'], $remark, true);
+            Integral::create($order['unid'], $code, '购物奖励积分', $order['reward_integral'], $remark, true);
         }
         // 升级用户等级
         UserUpgradeService::upgrade($order->getAttr('unid'));
+        // 返回奖励单号
         return $code;
     }
 }

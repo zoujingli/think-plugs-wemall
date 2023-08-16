@@ -23,14 +23,14 @@ use think\admin\Controller;
 use think\admin\helper\QueryHelper;
 
 /**
- * 普通用户管理
+ * 用户关系管理
  * @class Admin
  * @package plugin\wemall\controller\user
  */
 class Admin extends Controller
 {
     /**
-     * 普通用户管理
+     * 用户关系管理
      * @auth true
      * @menu true
      * @throws \think\db\exception\DataNotFoundException
@@ -41,7 +41,7 @@ class Admin extends Controller
     {
         $this->type = $this->get['type'] ?? 'index';
         PluginWemallUserRelation::mQuery()->layTable(function () {
-            $this->title = '普通用户管理';
+            $this->title = '用户关系管理';
             $this->upgrades = PluginWemallConfigLevel::items();
         }, function (QueryHelper $query) {
             $query->with(['user'])->equal('level_code');

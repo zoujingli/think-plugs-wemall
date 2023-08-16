@@ -369,7 +369,7 @@ class Order extends Auth
             if ($order->save($data) && UserOrderService::stock($order->getAttr('order_no'))) {
                 // 触发订单取消事件
                 Payment::refund($order->getAttr('order_no'));
-                $this->app->event->trigger('PluginWemallOrderCancel', $order->toArray());
+                $this->app->event->trigger('PluginWemallOrderCancel', $order);
                 // 返回处理成功数据
                 $this->success('订单取消成功');
             } else {
@@ -396,7 +396,7 @@ class Order extends Auth
                 'deleted_remark' => '用户主动删除订单',
             ])) {
                 // 触发订单删除事件
-                $this->app->event->trigger('PluginWemallOrderRemove', $order->toArray());
+                $this->app->event->trigger('PluginWemallOrderRemove', $order);
                 // 返回处理成功数据
                 $this->success('订单删除成功');
             } else {
@@ -416,7 +416,7 @@ class Order extends Auth
         $order = $this->getOrderModel();
         if ($order->getAttr('status') == 5 && $order->save(['status' => 6])) {
             // 触发订单确认事件
-            $this->app->event->trigger('PluginWemallOrderConfirm', $order->refresh()->toArray());
+            $this->app->event->trigger('PluginWemallOrderConfirm', $order);
             // 返回处理成功数据
             $this->success('订单确认成功');
         } else {

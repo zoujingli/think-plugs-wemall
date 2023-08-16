@@ -137,7 +137,7 @@ class Order extends Controller
                     $this->app->event->trigger('PluginPaymentSuccess', $data);
                     $this->success('订单审核通过成功！');
                 } else {
-                    $this->app->event->trigger('PluginWemallOrderCancel', $order->toArray());
+                    $this->app->event->trigger('PluginWemallOrderCancel', $order);
                     UserOrderService::stock($data['order_no']);
                     $this->success('审核驳回并取消成功！');
                 }
@@ -178,7 +178,7 @@ class Order extends Controller
             ]);
             if ($result !== false) {
                 UserOrderService::stock($order['order_no']);
-                $this->app->event->trigger('PluginWemallOrderCancel', $order->toArray());
+                $this->app->event->trigger('PluginWemallOrderCancel', $order);
                 $this->success('取消未支付的订单成功！');
             } else {
                 $this->error('取消支付的订单失败！');
