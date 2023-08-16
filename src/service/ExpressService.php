@@ -18,7 +18,6 @@ namespace plugin\wemall\service;
 
 use plugin\wemall\model\PluginWemallExpressTemplate;
 use think\admin\Exception;
-use think\admin\Service;
 use think\admin\service\InterfaceService;
 
 /**
@@ -26,7 +25,7 @@ use think\admin\service\InterfaceService;
  * @class ExpressService
  * @package plugin\wemall\service
  */
-class ExpressService extends Service
+class ExpressService
 {
     /**
      * 模拟计算快递费用

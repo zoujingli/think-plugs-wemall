@@ -1,9 +1,9 @@
 {
   "type": "think-admin-plugin",
   "name": "zoujingli/think-plugs-wemall",
+  "version": "dev-master",
   "homepage": "https://thinkadmin.top",
   "description": "WeMall for ThinkAdmin",
-  "version": "dev-master",
   "authors": [
     {
       "name": "Anyon",

@@ -28,7 +28,7 @@ use plugin\wemall\model\PluginWemallOrderItem;
 use plugin\wemall\service\ExpressService;
 use plugin\wemall\service\GoodsService;
 use plugin\wemall\service\ImageService;
-use plugin\wemall\service\OrderService;
+use plugin\wemall\service\UserOrderService;
 use plugin\wemall\service\UserUpgradeService;
 use think\admin\extend\CodeExtend;
 use think\admin\helper\QueryHelper;
@@ -95,7 +95,7 @@ class Order extends Auth
                 // 商品库存检查
                 if ($gspec['stock_sales'] + $count > $gspec['stock_total']) $this->error('库存不足');
                 // 商品折扣处理
-                [$discountId, $discountRate] = OrderService::discount($goods['discount_id'], $this->levelCode);
+                [$discountId, $discountRate] = UserOrderService::discount($goods['discount_id'], $this->levelCode);
                 // 订单详情处理
                 $items[] = [
                     'unid'                  => $order['unid'],
@@ -154,7 +154,7 @@ class Order extends Auth
             // 优惠折扣金额
             $order['amount_discount'] = array_sum(array_column($items, 'discount_amount'));
             // 订单随减金额
-            $order['amount_reduct'] = OrderService::reduct();
+            $order['amount_reduct'] = UserOrderService::reduct();
             if ($order['amount_reduct'] > $order['amount_goods']) {
                 $order['amount_reduct'] = $order['amount_goods'];
             }
@@ -169,7 +169,7 @@ class Order extends Auth
                 if ($order['delivery_type']) {
                     $map = ['unid' => $this->unid, 'deleted' => 0];
                     $address = PluginPaymentAddress::mk()->where($map)->order('type desc,id desc')->findOrEmpty();
-                    $address->isExists() && OrderService::perfect($model->refresh(), $address);
+                    $address->isExists() && UserOrderService::perfect($model->refresh(), $address);
                 }
             });
             // 同步商品库存销量
@@ -249,7 +249,7 @@ class Order extends Auth
         if ($order->isEmpty()) $this->error('不能修改地址！');
 
         // 更新订单收货地址
-        if (OrderService::perfect($order, $address)) {
+        if (UserOrderService::perfect($order, $address)) {
             $this->success('订单确认成功！', $order->refresh()->toArray());
         } else {
             $this->error('订单确认失败！');
@@ -366,7 +366,7 @@ class Order extends Auth
                 'cancel_status' => 1,
                 'cancel_remark' => '用户主动取消订单',
             ];
-            if ($order->save($data) && OrderService::stock($order->getAttr('order_no'))) {
+            if ($order->save($data) && UserOrderService::stock($order->getAttr('order_no'))) {
                 // 触发订单取消事件
                 Payment::refund($order->getAttr('order_no'));
                 $this->app->event->trigger('PluginWemallOrderCancel', $order->toArray());

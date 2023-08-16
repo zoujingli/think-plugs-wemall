@@ -53,13 +53,14 @@
                 },
                 {
                     field: '', title: '订单信息', minWidth: 220, templet: function (d) {
-                        let tpls = '订单号：<b class="font-code">{{d.order_no}}</b>';
                         d.showPayments = "{:url('plugin-payment/record/index')}"
+                        let tpls = ' <a data-tips-text="查看支付信息" data-title="查看支付信息" class="layui-icon layui-icon-rmb font-s12 margin-right-5" data-width="999px" data-close-refresh="OrderTable"  data-modal="{{d.showPayments}}?orderinfo={{d.order_no}}"></a>';
+                        tpls += '订单号 <b class="font-code">{{d.order_no}}</b>';
                         if (d.amount_real > 0) {
                             if (d.payment_status > 0) {
-                                tpls += '<br>已支付 <b class="font-code" data-width="1024px" data-title="查看支付详情" data-modal="{{d.showPayments}}?orderinfo={{d.order_no}}">{{str2num(d.amount_real)}}</b> 元';
+                                tpls += '<br>已支付 <b class="font-code" data-width="1024px" data-title="查看支付详情">{{str2num(d.amount_real)}}</b> 元';
                             } else {
-                                tpls += '<br>需支付 <b class="font-code" data-width="1024px" data-title="查看支付详情" data-modal="{{d.showPayments}}?orderinfo={{d.order_no}}">{{str2num(d.amount_real)}}</b> 元';
+                                tpls += '<br>需支付 <b class="font-code" data-width="1024px" data-title="查看支付详情">{{str2num(d.amount_real)}}</b> 元';
                             }
                         } else {
                             tpls += '<br>无需支付';
@@ -78,7 +79,7 @@
                 {
                     field: '', title: '商品详情', minWidth: 220, templet: function (d) {
                         let tpls = [];
-                        return d.items.map(function (v) {
+                        d.items.map(function (v) {
                             tpls.push(laytpl(
                                 '<div class="flex">' +
                                 '   <div>{{-showTableImage(d.gcover,false,"sm")}}</div>' +
@@ -90,7 +91,8 @@
                                 '   </div>' +
                                 '</div>'
                             ).render(v));
-                        }), tpls.join('<br>');
+                        });
+                        return tpls.join('<br>');
                     }
                 },
                 {

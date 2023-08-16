@@ -22,14 +22,13 @@ use plugin\wemall\model\PluginWemallOrderItem;
 use plugin\wemall\model\PluginWemallUserRelation;
 use think\admin\Exception;
 use think\admin\Library;
-use think\admin\Service;
 
 /**
  * 用户等级升级服务
  * @class UserUpgradeService
  * @package plugin\wemall\service
  */
-class UserUpgradeService extends Service
+class UserUpgradeService
 {
 
     /**
@@ -82,7 +81,7 @@ class UserUpgradeService extends Service
             $agent = PluginWemallUserRelation::mk()->where(['unid' => $puid])->findOrEmpty();
             if ($agent->isEmpty()) throw new Exception('代理无推荐资格');
             if (strpos($agent->getAttr('path'), ",{$unid},") !== false) throw new Exception('不能绑定下级');
-            Library::$sapp->db->transaction(function () use ($user, $agent, $mode) {
+            Library::$sapp->db->transaction(static function () use ($user, $agent, $mode) {
                 // 更新用户代理
                 $path1 = rtrim($agent['path'] ?: ',', ',') . ",{$agent['id']},";
                 $user->save(['puid0' => $agent['id'], 'puid1' => $agent['id'], 'puid2' => $agent['puid1'], 'pids' => $mode > 0 ? 1 : 0, 'path' => $path1, 'layer' => substr_count($path1, ',')]);

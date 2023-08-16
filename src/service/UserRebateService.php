@@ -27,14 +27,13 @@ use plugin\wemall\model\PluginWemallUserTransfer;
 use think\admin\Exception;
 use think\admin\extend\CodeExtend;
 use think\admin\Library;
-use think\admin\Service;
 
 /**
  * 系统实时返利服务
  * @class UserRebateService
  * @package plugin\wemall\service
  */
-class UserRebateService extends Service
+class UserRebateService
 {
     public const prize_01 = 'PRIZE01';
     public const prize_02 = 'PRIZE02';
@@ -89,7 +88,7 @@ class UserRebateService extends Service
      * @throws \think\db\exception\DbException
      * @throws \think\db\exception\ModelNotFoundException
      */
-    public static function execute(string $orderNo)
+    public static function create(string $orderNo)
     {
         // 返利奖励到账时机 ( 1 支付后到账，2 确认后到账 )
         self::$status = self::config('settl_type') > 1 ? 0 : 1;
@@ -122,7 +121,7 @@ class UserRebateService extends Service
     }
 
     /**
-     * 确认收货订单处理
+     * 确认收货订单返利
      * @param string $orderNo
      * @return array [status, message]
      * @throws \think\db\exception\DataNotFoundException
@@ -132,11 +131,34 @@ class UserRebateService extends Service
     public static function confirm(string $orderNo): array
     {
         $map = [['status', '>=', 4], ['order_no', '=', $orderNo]];
-        $order = PluginWemallOrder::mk()->where($map)->findOrEmpty()->toArray();
-        if (empty($order)) return [0, '需处理的订单状态异常！'];
-        $map = [['status', '=', 0], ['order_no', 'like', "{$orderNo}%"]];
-        PluginWemallUserRebate::mk()->where($map)->update(['status' => 1]);
-        if (UserUpgradeService::upgrade($order['uuid'])) {
+        $order = PluginWemallOrder::mk()->where($map)->findOrEmpty();
+        if ($order->isEmpty()) return [0, '需处理的订单状态异常！'];
+        $map = [['status', '=', 0], ['deleted', '=', 0], ['order_no', 'like', "{$orderNo}%"]];
+        PluginWemallUserRebate::mk()->where($map)->update(['status' => 1, 'remark' => '订单已确认收货！']);
+        if (UserUpgradeService::upgrade($order->getAttr('unid'))) {
+            return [1, '重新计算用户金额成功！'];
+        } else {
+            return [0, '重新计算用户金额失败！'];
+        }
+    }
+
+    /**
+     * 取消订单发放返利
+     * @param string $orderNo
+     * @return array
+     * @throws \think\admin\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    public static function cancel(string $orderNo): array
+    {
+        $map = ['status' => 0, 'order_no' => $orderNo];
+        $order = PluginWemallOrder::mk()->where($map)->findOrEmpty();
+        if ($order->isEmpty()) throw new Exception('订单状态异常');
+        $map = [['deleted', '=', 0], ['order_no', 'like', "{$orderNo}%"]];
+        PluginWemallUserRebate::mk()->where($map)->update(['status' => 0, 'deleted' => 1, 'remark' => '订单已取消退回返利！']);
+        if (UserUpgradeService::upgrade($order['unid'])) {
             return [1, '重新计算用户金额成功！'];
         } else {
             return [0, '重新计算用户金额失败！'];
@@ -423,7 +445,7 @@ class UserRebateService extends Service
         $puids = PluginAccountUser::mk()->whereIn('id', $unids)->orderField('id', $unids)->where($map)->column('id');
         if (count($puids) < 2) return false;
 
-        Library::$sapp->db->transaction(function () use ($map, $puids) {
+        Library::$sapp->db->transaction(static function () use ($map, $puids) {
             foreach ($puids as $key => $puid) {
                 // 最多两层
                 if (($layer = $key + 1) > 2) break;

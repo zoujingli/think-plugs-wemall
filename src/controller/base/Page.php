@@ -22,7 +22,7 @@ class Page extends Controller
         $this->type = $this->get['type'] ?? 'index';
         PluginWemallBasePage::mQuery($this->get)->layTable(function () {
             $this->title = '页面内容管理';
-        }, function (QueryHelper $query) {
+        }, static function (QueryHelper $query) {
             $query->like('code,name')->dateBetween('create_at');
             $query->where(['status' => intval($this->type === 'index'), 'deleted' => 0]);
         });

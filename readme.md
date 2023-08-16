@@ -19,9 +19,10 @@
 * 多终端用户管理插件：[ThinkPlugsAccount](https://thinkadmin.top/vip-plugs-account)
 * 多终端支付管理插件：[ThinkPlugsPayment](https://thinkadmin.top/vip-plugs-payment)
 
-### 接口文档
+### 相关文档
 
-接口文档：https://documenter.getpostman.com/view/4518676/2s93eeRpDr
+* 插件文档：https://thinkadmin.top/plugin/think-plugs-wemall.html
+* 接口文档：https://documenter.getpostman.com/view/4518676/2s93eeRpDr
 
 ### 安装插件
 

@@ -17,14 +17,13 @@
 namespace plugin\wemall\service;
 
 use plugin\wemall\model\PluginWemallUserTransfer;
-use think\admin\Service;
 
 /**
  * 用户提现数据服务
  * @class UserTransferService
  * @package plugin\wemall\service
  */
-class UserTransferService extends Service
+class UserTransferService
 {
     /**
      * 提现方式配置

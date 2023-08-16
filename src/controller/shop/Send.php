@@ -34,6 +34,12 @@ use think\exception\HttpResponseException;
 class Send extends Controller
 {
     /**
+     * 订单静态状态
+     * @var int[]
+     */
+    private $oStatus = [0, 4, 5, 6, 7];
+
+    /**
      * 订单发货管理
      * @auth true
      * @menu true
@@ -47,17 +53,17 @@ class Send extends Controller
         PluginWemallOrderSend::mQuery()->layTable(function () {
             $this->title = '订单发货管理';
             $this->total = ['t0' => 0, 't1' => 0, 't2' => 0, 'ta' => 0];
-            $this->address = sysdata('PluginWemallSendAddress');
-            $db = PluginWemallOrder::mk()->whereIn('status', [4, 5, 6, 7])->where(['delivery_type' => 1]);
-            $query = PluginWemallOrderSend::mk()->whereRaw("order_no in {$db->field('order_no')->buildSql()}");
+            $this->address = sysdata('plugin.wemall.address');
+            // 订单状态统计
+            $order = PluginWemallOrder::mk()->whereIn('status', $this->oStatus)->where(['delivery_type' => 1]);
+            $query = PluginWemallOrderSend::mk()->whereRaw("order_no in {$order->field('order_no')->buildSql()}");
             foreach ($query->fieldRaw('status,count(1) total')->group('status')->cursor() as $vo) {
-                $this->total["t{$vo['status']}"] = $vo['total'];
                 $this->total["ta"] += $vo['total'];
+                $this->total["t{$vo['status']}"] = $vo['total'];
             }
         }, function (QueryHelper $query) {
             $query->with(['user', 'main']);
-
-            $query->like('user_name,user_phone,region_prov|region_city|region_area|region_addr#address');
+            $query->like('user_name|user_phone#user_name,region_prov|region_city|region_area|region_addr#address');
             $query->dateBetween('create_time,express_time')->equal('status')->like('express_code,order_no');
 
             // 用户搜索查询
@@ -65,7 +71,7 @@ class Send extends Controller
             if ($db->getOptions('where')) $query->whereRaw("unid in {$db->field('id')->buildSql()}");
 
             // 订单搜索查询
-            $db = PluginWemallOrder::mk()->whereIn('status', [4, 5, 6])->where(['delivery_type' => 1]);
+            $db = PluginWemallOrder::mk()->whereIn('status', $this->oStatus)->where(['delivery_type' => 1]);
             $query->whereRaw("order_no in {$db->field('order_no')->buildSql()}");
 
             // 列表选项卡状态
@@ -83,10 +89,10 @@ class Send extends Controller
     public function config()
     {
         if ($this->request->isGet()) {
-            $this->vo = sysdata('PluginWemallSendAddress');
+            $this->vo = sysdata('plugin.wemall.address');
             $this->fetch();
         } else {
-            sysdata('PluginWemallSendAddress', $this->request->post());
+            sysdata('plugin.wemall.address', $this->request->post());
             $this->success('发货地址保存成功');
         }
     }

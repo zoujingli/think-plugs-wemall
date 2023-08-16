@@ -41,7 +41,7 @@ class Level extends Controller
     {
         PluginWemallConfigLevel::mQuery()->layTable(function () {
             $this->title = '用户等级管理';
-        }, function (QueryHelper $query) {
+        }, static function (QueryHelper $query) {
             $query->like('name')->equal('status')->dateBetween('create_at');
         });
     }

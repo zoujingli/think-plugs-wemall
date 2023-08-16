@@ -20,7 +20,7 @@ use plugin\account\model\PluginAccountUser;
 use plugin\payment\service\Payment;
 use plugin\wemall\model\PluginWemallOrder;
 use plugin\wemall\model\PluginWemallOrderSend;
-use plugin\wemall\service\OrderService;
+use plugin\wemall\service\UserOrderService;
 use think\admin\Controller;
 use think\admin\extend\CodeExtend;
 use think\admin\helper\QueryHelper;
@@ -138,7 +138,7 @@ class Order extends Controller
                     $this->success('订单审核通过成功！');
                 } else {
                     $this->app->event->trigger('PluginWemallOrderCancel', $order->toArray());
-                    OrderService::stock($data['order_no']);
+                    UserOrderService::stock($data['order_no']);
                     $this->success('审核驳回并取消成功！');
                 }
             } else {
@@ -177,7 +177,7 @@ class Order extends Controller
                 'cancel_time'   => date('Y-m-d H:i:s'),
             ]);
             if ($result !== false) {
-                OrderService::stock($order['order_no']);
+                UserOrderService::stock($order['order_no']);
                 $this->app->event->trigger('PluginWemallOrderCancel', $order->toArray());
                 $this->success('取消未支付的订单成功！');
             } else {

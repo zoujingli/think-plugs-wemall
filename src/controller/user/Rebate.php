@@ -45,7 +45,7 @@ class Rebate extends Controller
             $this->title = '用户返利管理';
             $this->types = UserRebateService::prizes;
             $this->rebate = UserRebateService::amount(0);
-        }, function (QueryHelper $query) {
+        }, static function (QueryHelper $query) {
             $query->equal('type')->like('name,order_no')->dateBetween('create_at');
             // 会员条件查询
             $db = PluginAccountUser::mQuery()->like('nickname#order_nickname,phone#order_phone')->db();

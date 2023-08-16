@@ -38,10 +38,10 @@ class Cart extends Auth
     {
         PluginWemallOrderCart::mQuery(null, function (QueryHelper $query) {
             $query->equal('ghash')->where(['unid' => $this->unid])->with([
-                'goods' => function (Query $query) {
+                'goods' => static function (Query $query) {
                     $query->with('items');
                 },
-                'specs' => function (Query $query) {
+                'specs' => static function (Query $query) {
                     $query->withoutField('id,create_time,update_time');
                 },
             ]);

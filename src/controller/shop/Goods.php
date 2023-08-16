@@ -157,7 +157,7 @@ class Goods extends Controller
             $data['price_selling'] = min(array_column($items, 'selling'));
             $data['allow_balance'] = max(array_column($items, 'allow_balance'));
             $data['allow_integral'] = max(array_column($items, 'allow_integral'));
-            $this->app->db->transaction(function () use ($data, $items) {
+            $this->app->db->transaction(static function () use ($data, $items) {
                 PluginWemallGoods::mk()->where(['code' => $data['code']])->findOrEmpty()->save($data);
                 PluginWemallGoodsItem::mk()->where(['gcode' => $data['code']])->update(['status' => 0]);
                 foreach ($items as $item) PluginWemallGoodsItem::mk()->where(['ghash' => $item['hash']])->findOrEmpty()->save([

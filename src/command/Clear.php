@@ -20,7 +20,7 @@ namespace plugin\wemall\command;
 
 use plugin\wemall\model\PluginWemallOrder;
 use plugin\wemall\model\PluginWemallOrderItem;
-use plugin\wemall\service\OrderService;
+use plugin\wemall\service\UserOrderService;
 use think\admin\Command;
 use think\console\Input;
 use think\console\Output;
@@ -67,7 +67,7 @@ class Clear extends Command
                 } else {
                     $this->queue->message($total, ++$count, "开始取消未支付的订单 {$order->getAttr('order_no')}");
                     $order->save(['status' => 0, 'cancel_status' => 1, 'cancel_time' => date('Y-m-d H:i:s'), 'cancel_remark' => '自动取消30分钟未完成支付']);
-                    OrderService::stock($order->getAttr('order_no'));
+                    UserOrderService::stock($order->getAttr('order_no'));
                     $this->queue->message($total, $count, "完成取消未支付的订单 {$order->getAttr('order_no')}", 1);
                 }
             });

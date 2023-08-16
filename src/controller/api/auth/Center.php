@@ -19,7 +19,7 @@ namespace plugin\wemall\controller\api\auth;
 use plugin\payment\service\Balance;
 use plugin\payment\service\Integral;
 use plugin\wemall\controller\api\Auth;
-use plugin\wemall\service\OrderService;
+use plugin\wemall\service\UserOrderService;
 
 class Center extends Auth
 {
@@ -76,7 +76,7 @@ class Center extends Auth
     public function discount()
     {
         $data = $this->_vali(['discount.require' => '折扣编号不能为空！']);
-        [, $rate] = OrderService::discount(intval($data['discount']), $this->levelCode);
+        [, $rate] = UserOrderService::discount(intval($data['discount']), $this->levelCode);
         $this->success('会员折扣', ['rate' => floatval($rate)]);
     }
 }

@@ -32,12 +32,12 @@ class Config extends Controller
      * @menu true
      * @throws \think\admin\Exception
      */
-    public function wxapp()
-    {
-        $this->skey = 'wxapp';
-        $this->title = '微信小程序配置';
-        $this->__sysdata('wxapp');
-    }
+//    public function wxapp()
+//    {
+//        $this->skey = 'wxapp';
+//        $this->title = '微信小程序配置';
+//        $this->__sysdata('wxapp');
+//    }
 
     /**
      * 邀请二维码设置

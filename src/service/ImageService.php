@@ -17,7 +17,6 @@
 namespace plugin\wemall\service;
 
 use think\admin\Exception;
-use think\admin\Service;
 use think\admin\Storage;
 use think\admin\storage\LocalStorage;
 
@@ -26,7 +25,7 @@ use think\admin\storage\LocalStorage;
  * @class ImageService
  * @package plugin\wemall\service
  */
-class ImageService extends Service
+class ImageService
 {
     /**
      * 图片数据存储

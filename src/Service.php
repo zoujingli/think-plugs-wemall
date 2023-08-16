@@ -23,7 +23,7 @@ use plugin\wemall\command\Trans;
 use plugin\wemall\command\Users;
 use plugin\wemall\model\PluginWemallOrder;
 use plugin\wemall\model\PluginWemallUserRelation;
-use plugin\wemall\service\OrderService;
+use plugin\wemall\service\UserOrderService;
 use plugin\wemall\service\UserRebateService;
 use think\admin\Plugin;
 
@@ -63,28 +63,33 @@ class Service extends Plugin
         // 注册支付审核事件
         $this->app->event->listen('PluginPaymentAudit', function (array $data) {
             $this->app->log->notice("Event PluginPaymentAudit {$data['order_no']}");
-            // 更新支付状态
             $map = ['order_no' => $data['order_no']];
             $order = PluginWemallOrder::mk()->where($map)->findOrEmpty();
-            $order->isExists() && OrderService::payment($order, $data);
+            $order->isExists() && UserOrderService::payment($order, $data);
         });
 
         // 注册支付拒审事件
         $this->app->event->listen('PluginPaymentRefuse', function (array $data) {
             $this->app->log->notice("Event PluginPaymentRefuse {$data['order_no']}");
-            // 更新支付状态
             $map = ['order_no' => $data['order_no']];
             $order = PluginWemallOrder::mk()->where($map)->findOrEmpty();
-            $order->isExists() && OrderService::payment($order, $data);
+            $order->isExists() && UserOrderService::payment($order, $data);
         });
 
         // 注册支付完成事件
         $this->app->event->listen('PluginPaymentSuccess', function (array $data) {
             $this->app->log->notice("Event PluginPaymentSuccess {$data['order_no']}");
-            // 更新支付状态
             $map = ['order_no' => $data['order_no']];
             $order = PluginWemallOrder::mk()->where($map)->findOrEmpty();
-            $order->isExists() && OrderService::payment($order, $data);
+            $order->isExists() && UserOrderService::payment($order, $data);
+        });
+
+        // 注册支付取消事件
+        $this->app->event->listen('PluginPaymentCancel', function (array $data) {
+            $this->app->log->notice("Event PluginPaymentCancel {$data['order_no']}");
+            $map = ['order_no' => $data['order_no']];
+            $order = PluginWemallOrder::mk()->where($map)->findOrEmpty();
+            $order->isExists() && UserOrderService::payment($order, $data);
         });
 
         // 注册订单确认事件
@@ -116,7 +121,7 @@ class Service extends Plugin
                     ['name' => '用户折扣方案', 'icon' => 'layui-icon layui-icon-set', 'node' => "{$code}/base.discount/index"],
                     ['name' => '店铺页面装修', 'icon' => 'layui-icon layui-icon-screen-restore', 'node' => "{$code}/base.design/index"],
                     // ['name' => '邀请二维码设置', 'icon' => 'layui-icon layui-icon-cols', 'node' => "{$name}/base.config/cropper"],
-                    ['name' => '微信小程序配置', 'icon' => 'layui-icon layui-icon-login-wechat', 'node' => "{$code}/base.config/wxapp"],
+//                    ['name' => '微信小程序配置', 'icon' => 'layui-icon layui-icon-login-wechat', 'node' => "{$code}/base.config/wxapp"],
                 ],
             ],
             [

@@ -23,7 +23,6 @@ use plugin\wemall\model\PluginWemallOrder;
 use plugin\wemall\model\PluginWemallOrderCart;
 use plugin\wemall\model\PluginWemallOrderItem;
 use think\admin\Exception;
-use think\admin\Service;
 use think\Model;
 
 /**
@@ -31,7 +30,7 @@ use think\Model;
  * @class GoodsService
  * @package plugin\wemall\service
  */
-class GoodsService extends Service
+class GoodsService
 {
     /**
      * 更新商品库存数据

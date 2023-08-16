@@ -19,7 +19,8 @@
             $.form.load(this.dataset.tableLoad, {}, 'get', function (ret) {
                 return $('.laytable-pagination').html(ret) && false;
             });
-        }) && $('.laytable-links [data-table-load]:first').trigger('click');
+        });
+        $('.laytable-links [data-table-load]:first').trigger('click');
     });
 </script>
 
