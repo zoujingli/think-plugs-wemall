@@ -16,6 +16,8 @@
 
 namespace plugin\wemall\service;
 
+use plugin\payment\service\Balance;
+use plugin\payment\service\Integral;
 use plugin\wemall\model\PluginWemallConfigLevel;
 use plugin\wemall\model\PluginWemallOrder;
 use plugin\wemall\model\PluginWemallOrderItem;
@@ -186,5 +188,26 @@ class UserUpgradeService
             ]);
         }
         return !($parent && $relation['puid1'] > 0) || static::upgrade($relation['puid1'], false);
+    }
+
+    /**
+     * 同步重算用户数据
+     * @param integer $unid 指定用户UID
+     * @param boolean $sync 同步更新状态
+     * @return void
+     * @throws \think\admin\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    public static function recount(int $unid, bool $sync = false)
+    {
+        if ($sync) {
+            PluginWemallUserRelation::sync($unid);
+            static::upgrade($unid);
+        }
+        Balance::recount($unid); // 重算余额
+        Integral::recount($unid); // 重算积分
+        UserRebateService::amount($unid); // 重算返利
     }
 }

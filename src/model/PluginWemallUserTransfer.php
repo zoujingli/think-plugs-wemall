@@ -16,6 +16,8 @@
 
 namespace plugin\wemall\model;
 
+use plugin\wemall\service\UserTransferService;
+
 /**
  * 用户提现模型
  * @class PluginWemallUserTransfer
@@ -23,4 +25,14 @@ namespace plugin\wemall\model;
  */
 class PluginWemallUserTransfer extends Abs
 {
+    /**
+     * 自动显示类型名称
+     * @return array
+     */
+    public function toArray(): array
+    {
+        $data = parent::toArray();
+        $data['type_name'] = UserTransferService::types($data['type']);
+        return $data;
+    }
 }

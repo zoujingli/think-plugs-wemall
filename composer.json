@@ -2,7 +2,7 @@
   "type": "think-admin-plugin",
   "name": "zoujingli/think-plugs-wemall",
   "homepage": "https://thinkadmin.top",
-  "description": "WeMall for ThinkAdmin",
+  "description": "WeMall Plugin for ThinkAdmin",
   "authors": [
     {
       "name": "Anyon",
@@ -12,9 +12,9 @@
   "require": {
     "php": ">=7.1",
     "ext-json": "*",
-    "zoujingli/think-plugs-admin": "^1.0|dev-master",
-    "zoujingli/think-plugs-account": "^1.0|dev-master",
-    "zoujingli/think-plugs-payment": "^1.0|dev-master"
+    "zoujingli/think-plugs-admin": "^1.0|@dev",
+    "zoujingli/think-plugs-account": "^1.0|@dev",
+    "zoujingli/think-plugs-payment": "^1.0|@dev"
   },
   "autoload": {
     "files": [

@@ -16,10 +16,9 @@
 
 namespace plugin\wemall\controller\api\auth;
 
-use plugin\payment\service\Balance;
-use plugin\payment\service\Integral;
 use plugin\wemall\controller\api\Auth;
 use plugin\wemall\service\UserOrderService;
+use plugin\wemall\service\UserUpgradeService;
 
 class Center extends Auth
 {
@@ -33,13 +32,15 @@ class Center extends Auth
      * 获取会员资料
      * @return void
      * @throws \think\admin\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
      */
     public function get()
     {
         $account = $this->account->get();
         if (empty($account['user']['extra'])) {
-            Balance::recount($this->unid);
-            Integral::recount($this->unid);
+            UserUpgradeService::recount($this->unid);
             $account = $this->account->get();
         }
         $this->success('获取资料成功', [

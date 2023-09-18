@@ -92,24 +92,13 @@ class Transfer extends Controller
         PluginWemallUserTransfer::mQuery()->layTable(function () {
             $this->title = '用户提现管理';
             $this->transfer = UserTransferService::amount(0);
-        }, function (QueryHelper $query) {
+        }, static function (QueryHelper $query) {
             // 用户条件搜索
             $db = PluginAccountUser::mQuery()->like('phone,username|nickname#nickname')->db();
             if ($db->getOptions('where')) $query->whereRaw("unid in {$db->field('id')->buildSql()}");
             // 数据列表处理
             $query->equal('type,status')->dateBetween('create_at');
         });
-    }
-
-    /**
-     * 数据列表处理
-     * @param array $data
-     */
-    protected function _page_filter(array &$data)
-    {
-        foreach ($data as &$vo) {
-            $vo['type_name'] = UserTransferService::types($vo['type']);
-        }
     }
 
     /**

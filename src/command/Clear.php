@@ -60,8 +60,8 @@ class Clear extends Command
     {
         try {
             $where = [['status', '<', 3], ['create_time', '<', date('Y-m-d H:i:s', strtotime('-30 minutes'))]];
-            [$count, $total] = [0, ($result = PluginWemallOrder::mk()->where($where)->select())->count()];
-            $result->map(function (PluginWemallOrder $order) use ($total, &$count) {
+            [$count, $total] = [0, ($items = PluginWemallOrder::mk()->where($where)->select())->count()];
+            $items->map(function (PluginWemallOrder $order) use ($total, &$count) {
                 if ($order->payment()->findOrEmpty()->isExists()) {
                     $this->queue->message($total, ++$count, "订单 {$order->getAttr('order_no')} 存在支付记录");
                 } else {
@@ -85,8 +85,8 @@ class Clear extends Command
     {
         try {
             $where = [['status', '=', 0], ['create_time', '<', date('Y-m-d H:i:s', strtotime('-3 days'))]];
-            [$count, $total] = [0, ($result = PluginWemallOrder::mk()->where($where)->select())->count()];
-            $result->map(function (PluginWemallOrder $order) use ($total, &$count) {
+            [$count, $total] = [0, ($items = PluginWemallOrder::mk()->where($where)->select())->count()];
+            $items->map(function (PluginWemallOrder $order) use ($total, &$count) {
                 if ($order->payment()->findOrEmpty()->isExists()) {
                     $this->queue->message($total, ++$count, "订单 {$order->getAttr('order_no')} 存在支付记录");
                 } else {

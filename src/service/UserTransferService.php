@@ -107,7 +107,7 @@ class UserTransferService
     }
 
     /**
-     * 获取转账类型
+     * 获取转账类型名称
      * @param string|null $name
      * @return array|string
      */

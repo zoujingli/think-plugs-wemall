@@ -19,10 +19,6 @@ declare (strict_types=1);
 namespace plugin\wemall\command;
 
 use plugin\account\model\PluginAccountUser;
-use plugin\payment\service\Balance;
-use plugin\payment\service\Integral;
-use plugin\wemall\model\PluginWemallUserRelation;
-use plugin\wemall\service\UserRebateService;
 use plugin\wemall\service\UserUpgradeService;
 use think\admin\Command;
 use think\console\Input;
@@ -53,10 +49,7 @@ class Users extends Command
         [$total, $count] = [PluginAccountUser::mk()->count(), 0];
         foreach (PluginAccountUser::mk()->field('id')->cursor() as $user) try {
             $this->queue->message($total, ++$count, "刷新用户 [{$user['id']}] 数据...");
-            PluginWemallUserRelation::sync($user['id']);
-            UserUpgradeService::upgrade($user['id']);
-            UserRebateService::amount($user['id']);
-            Balance::recount($user['id']) && Integral::recount($user['id']);
+            UserUpgradeService::recount(intval($user['id']), true);
             $this->queue->message($total, $count, "刷新用户 [{$user['id']}] 数据成功", 1);
         } catch (\Exception $exception) {
             $this->queue->message($total, $count, "刷新用户 [{$user['id']}] 数据失败, {$exception->getMessage()}", 1);

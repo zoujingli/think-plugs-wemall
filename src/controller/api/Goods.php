@@ -40,7 +40,15 @@ class Goods extends Controller
             } else {
                 $query->withoutField('content');
             }
-            $query->where(['status' => 1, 'deleted' => 0])->order('sort desc,id desc');
+            $sort = intval(input('sort', 0));
+            if ($sort === 1) {
+                $query->order('num_read desc,sort desc,id desc');
+            } elseif ($sort === 2) {
+                $query->order('price_selling desc,sort desc,id desc');
+            } else {
+                $query->order('sort desc,id desc');
+            }
+            $query->where(['status' => 1, 'deleted' => 0]);
             $this->success('获取商品数据', $query->page(intval(input('page', 1)), false, false, 10));
         });
     }

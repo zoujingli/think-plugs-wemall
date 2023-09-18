@@ -47,9 +47,9 @@
 
                 <div v-else-if="x.type==='BaseSearch'" :style="showStyle(x.outerStyle)" class="flex-center">
                     <div class="flex-x-center" :style="showStyle(x.interStyle||{})">
-                        <label class="flex-1 BaseSearchInput">
+                        <label class="flex-1 BaseSearchInput" :style="showStyle(x.inputStyle||{})">
                             <span v-if="x.interStyle.vLogo" :style="showBgimg(x.interStyle.vLogo)" data-lazy-src="__ROOT__/static/theme/img/headimg.png" class="headimg shadow-none"></span>
-                            <input class="layui-input border-0" :placeholder="x.inputStyle.vPlaceholder" :style="showStyle(x.inputStyle||{})">
+                            <input class="layui-input border-0" :placeholder="x.inputStyle.vPlaceholder" style="background:none">
                         </label>
                     </div>
                 </div>
