@@ -52,6 +52,9 @@ abstract class Auth extends AccountAuth
         $this->relation = $relation->toArray();
         $this->levelCode = intval($relation->getAttr('level_code'));
         $this->levelName = $relation->getAttr('level_name') ?: '普通用户';
+        $relation->getAttr('level_name') || $relation->save([
+            'level_name' => $this->levelName
+        ]);
         return $this;
     }
 }

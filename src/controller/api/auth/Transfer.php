@@ -36,12 +36,10 @@ class Transfer extends Auth
      */
     public function add()
     {
-        // 检查用户状态
-        $this->checkUserStatus();
-        // 接收输入数据
+        // 检查用户状态，接收输入数据
         $data = $this->_vali([
-            'type.require'   => '提现方式不能为空！',
-            'amount.require' => '提现金额不能为空！',
+            'type.require'   => '提现方式为空！',
+            'amount.require' => '提现金额为空！',
             'remark.default' => '用户提交提现申请！',
         ]);
         $state = UserTransferService::config('status');
@@ -59,7 +57,7 @@ class Transfer extends Auth
         } else {
             $data['status'] = 3;
             $data['audit_status'] = 1;
-            $data['audit_remark'] = '提现免审核';
+            $data['audit_remark'] = '提现免审核！';
             $data['audit_time'] = date('Y-m-d H:i:s');
         }
         // 扣除手续费
@@ -72,8 +70,8 @@ class Transfer extends Auth
         // 提现方式处理
         if ($data['type'] == 'alipay_account') {
             $data = array_merge($data, $this->_vali([
-                'alipay_user.require' => '开户姓名不能为空！',
-                'alipay_code.require' => '支付账号不能为空！',
+                'alipay_user.require' => '开户姓名为空！',
+                'alipay_code.require' => '支付账号为空！',
             ]));
         } elseif (in_array($data['type'], ['wechat_qrcode', 'alipay_qrcode'])) {
             $data = array_merge($data, $this->_vali([
@@ -81,11 +79,11 @@ class Transfer extends Auth
             ]));
         } elseif (in_array($data['type'], ['wechat_banks', 'transfer_banks'])) {
             $data = array_merge($data, $this->_vali([
-                'bank_wseq.require' => '银行编号不能为空！',
-                'bank_name.require' => '银行名称不能为空！',
-                'bank_user.require' => '开户账号不能为空！',
-                'bank_bran.require' => '银行分行不能为空！',
-                'bank_code.require' => '银行卡号不能为空！',
+                'bank_wseq.require' => '银行编号为空！',
+                'bank_name.require' => '银行名称为空！',
+                'bank_user.require' => '开户账号为空！',
+                'bank_bran.require' => '银行分行为空！',
+                'bank_code.require' => '银行卡号为空！',
             ]));
         } elseif ($data['type'] != 'wechat_wallet') {
             $this->error('转账方式不存在！');

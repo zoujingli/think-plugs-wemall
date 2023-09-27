@@ -20,8 +20,17 @@ use plugin\wemall\controller\api\Auth;
 use plugin\wemall\service\UserOrderService;
 use plugin\wemall\service\UserUpgradeService;
 
+/**
+ * 会员中心
+ * @class Center
+ * @package plugin\wemall\controller\api\auth
+ */
 class Center extends Auth
 {
+    /**
+     * 控制器初始化
+     * @return void
+     */
     protected function initialize()
     {
         parent::initialize();
@@ -43,31 +52,10 @@ class Center extends Auth
             UserUpgradeService::recount($this->unid);
             $account = $this->account->get();
         }
-        $this->success('获取资料成功', [
+        $this->success('获取资料成功！', [
             'account'  => $account,
             'relation' => $this->relation,
         ]);
-    }
-
-    /**
-     * 绑定手机号
-     * @return void
-     */
-    public function bind()
-    {
-        $bind = $this->account->get();
-        if (empty($bind['unionid'])) {
-            $this->error('无效终端用户！');
-        } elseif ($this->account->isBind()) {
-            $this->success('已经绑定成功！');
-        } else {
-            $this->account->bind(['unionid' => $bind['unionid']], [
-                'phone'    => $bind['phone'],
-                'headimg'  => $bind['headimg'],
-                'nickname' => $bind['nickname'],
-            ]);
-            $this->success('绑定账号成功！');
-        }
     }
 
     /**
@@ -78,6 +66,6 @@ class Center extends Auth
     {
         $data = $this->_vali(['discount.require' => '折扣编号不能为空！']);
         [, $rate] = UserOrderService::discount(intval($data['discount']), $this->levelCode);
-        $this->success('会员折扣', ['rate' => floatval($rate)]);
+        $this->success('获取会员折扣！', ['rate' => floatval($rate)]);
     }
 }

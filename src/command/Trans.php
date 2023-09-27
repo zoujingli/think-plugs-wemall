@@ -56,9 +56,9 @@ class Trans extends Command
         $map = [['type', 'in', ['wechat_banks', 'wechat_wallet']], ['status', 'in', [3, 4]]];
         [$total, $count, $error] = [PluginWemallUserTransfer::mk()->where($map)->count(), 0, 0];
         foreach (PluginWemallUserTransfer::mk()->where($map)->cursor() as $vo) try {
-            $this->queue->message($total, ++$count, "开始处理订单 {$vo['code']} 提现");
+            $this->queue->message($total, ++$count, sprintf('开始处理订单 %s 提现', $vo['code']));
             if ($vo['status'] === 3) {
-                $this->queue->message($total, $count, "尝试处理订单 {$vo['code']} 打款", 1);
+                $this->queue->message($total, $count, sprintf('尝试处理订单 %s 打款', $vo['code']), 1);
                 if ($vo['type'] === 'wechat_banks') {
                     [$config, $result] = $this->createTransferBank($vo);
                 } else {
@@ -80,17 +80,17 @@ class Trans extends Command
                     ]);
                 }
             } elseif ($vo['status'] === 4) {
-                $this->queue->message($total, $count, "刷新提现订单 {$vo['code']} 状态", 1);
+                $this->queue->message($total, $count, sprintf('刷新提现订单 %s 状态', $vo['code']), 1);
                 $vo['type'] === 'wechat_banks' ? $this->queryTransferBank($vo) : $this->queryTransferWallet($vo);
             }
         } catch (\Exception $exception) {
             $error++;
-            $this->queue->message($total, $count, "处理提现订单 {$vo['code']} 失败, {$exception->getMessage()}", 1);
+            $this->queue->message($total, $count, sprintf('处理提现订单 %s 失败, %s', $vo['code'], $exception->getMessage()), 1);
             PluginWemallUserTransfer::mk()->where(['code' => $vo['code']])->update([
                 'change_time' => date('Y-m-d H:i:s'), 'change_desc' => $exception->getMessage(),
             ]);
         }
-        $this->setQueueSuccess("此次共处理 {$total} 笔提现操作, 其中有 {$error} 笔处理失败。");
+        $this->setQueueSuccess(sprintf('此次共处理 %d 笔提现操作, 其中有 %d 笔处理失败。', $total, $error));
     }
 
     /**
@@ -124,7 +124,7 @@ class Trans extends Command
     private function getConfig(int $unid): array
     {
         $data = sysdata('plugin.wemall.transfer.wxpay');
-        if (empty($data)) throw new Exception('未配置微信提现商户');
+        if (empty($data)) throw new Exception('未配置微信提现商户！');
         // 商户证书文件处理
         $local = LocalStorage::instance();
         if (!$local->has($file1 = "{$data['wechat_mch_id']}_key.pem", true)) {
@@ -163,7 +163,7 @@ class Trans extends Command
             $map[] = ['openid', '<>', ''];
         }
         $openid = PluginWemallUserRelation::mk()->where($map)->value('openid');
-        if (empty($openid)) throw new Exception("无法读取打款数据");
+        if (empty($openid)) throw new Exception("无法读取打款数据！");
 
         // 获取公众号 Appid
         $appid1 = WechatService::getAppid();
@@ -190,7 +190,7 @@ class Trans extends Command
             'partner_trade_no' => $item['code'],
             'spbill_create_ip' => '127.0.0.1',
             'check_name'       => 'NO_CHECK',
-            'desc'             => '微信余额提现',
+            'desc'             => '微信余额提现！',
         ])];
     }
 
@@ -248,7 +248,7 @@ class Trans extends Command
                 'openid'      => $config['openid'],
                 'trade_time'  => $result['payment_time'],
                 'change_time' => date('Y-m-d H:i:s'),
-                'change_desc' => '微信提现打款成功',
+                'change_desc' => '微信提现打款成功！',
             ]);
         }
     }
