@@ -10,7 +10,7 @@
     }
   ],
   "require": {
-    "php": ">=7.1",
+    "php": ">7.1",
     "ext-json": "*",
     "zoujingli/think-plugs-admin": "^1.0|*",
     "zoujingli/think-plugs-account": "^1.0|*",
@@ -32,15 +32,12 @@
     },
     "config": {
       "type": "module",
-      "name": "多端商城系统",
-      "icon": "https://static.cdn.cuci.cc/bd/2a2f272511ee7216cdec6cf3843a38.png",
+      "name": "分销商城管理",
       "cover": "https://static.cdn.cuci.cc/bd/2a2f272511ee7216cdec6cf3843a38.png",
+      "document": "https://thinkadmin.top/plugin/think-plugs-wemall.html",
       "license": [
         "VIP"
-      ],
-      "homepage": "https://thinkadmin.top",
-      "document": "https://thinkadmin.top/plugin/think-plugs-wemall.html",
-      "description": "多端商城系统，极简分销商城。"
+      ]
     },
     "plugin": {
       "copy": {

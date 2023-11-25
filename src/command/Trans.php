@@ -224,7 +224,7 @@ class Trans extends Command
                     'change_desc' => '微信提现打款失败',
                 ]);
                 // 刷新用户可提现余额
-                UserRebateService::amount($item['unid']);
+                UserRebateService::recount($item['unid']);
             }
         }
     }

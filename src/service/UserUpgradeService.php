@@ -14,8 +14,11 @@
 // | github 代码仓库：https://github.com/zoujingli/think-plugs-wemall
 // +----------------------------------------------------------------------
 
+declare (strict_types=1);
+
 namespace plugin\wemall\service;
 
+use plugin\account\model\PluginAccountUser;
 use plugin\payment\service\Balance;
 use plugin\payment\service\Integral;
 use plugin\wemall\model\PluginWemallConfigLevel;
@@ -53,7 +56,7 @@ class UserUpgradeService
         $puid2 = $relation['puid2'] ?? 0; // 上2级代理
         if (empty($agent) && empty($puid1) && $puid0 > 0) {
             $puid1 = $puid0;
-            $puid2 = intval(PluginWemallUserRelation::mk()->findOrEmpty($puid0)->getAttr('puid1'));
+            $puid2 = intval(PluginWemallUserRelation::mk()->where(['unid' => $puid0])->value('puid1'));
         } elseif ($agent > 0 && empty($puid1)) {
             $puid1 = $agent;
             $puid2 = self::bindAgent($unid, $puid1, 0)['puid1'] ?? 0;
@@ -117,8 +120,10 @@ class UserUpgradeService
      */
     public static function upgrade(int $unid, bool $parent = true, ?string $orderNo = null): bool
     {
+        $user = PluginAccountUser::mk()->findOrEmpty($unid);
         $relation = PluginWemallUserRelation::mk()->where(['unid' => $unid])->findOrEmpty();
-        if ($relation->isEmpty()) return true;
+        if ($user->isEmpty() || $relation->isEmpty()) return true;
+        $levelCurr = $relation['level_code'];
         // 初始化等级参数
         $levels = PluginWemallConfigLevel::mk()->where(['status' => 1])->select()->toArray();
         [$levelName, $levelCode, $levelTeams] = [$levels[0]['name'] ?? '普通用户', 0, []];
@@ -161,53 +166,56 @@ class UserUpgradeService
         $orderAmountTotal = PluginWemallOrder::mk()->whereRaw("unid={$unid} and status>=4")->sum('amount_goods');
         $teamsAmountDirect = PluginWemallOrder::mk()->whereRaw("puid1={$unid} and status>=4")->sum('amount_goods');
         $teamsAmountIndirect = PluginWemallOrder::mk()->whereRaw("puid2={$unid} and status>=4")->sum('amount_goods');
-        // 更新用户团队数据
-        $data = [
-            'level_name' => $levelName,
-            'level_code' => $levelCode,
-            'extra'      => [
-                'teams_users_total'     => $teamsUsers,
-                'teams_users_direct'    => $teamsDirect,
-                'teams_users_indirect'  => $teamsIndirect,
-                'teams_amount_total'    => $teamsAmountDirect + $teamsAmountIndirect,
-                'teams_amount_direct'   => $teamsAmountDirect,
-                'teams_amount_indirect' => $teamsAmountIndirect,
-                'order_amount_total'    => $orderAmountTotal,
-            ]
+        // 收集用户团队数据
+        $extra = [
+            'teams_users_total'     => $teamsUsers,
+            'teams_users_direct'    => $teamsDirect,
+            'teams_users_indirect'  => $teamsIndirect,
+            'teams_amount_total'    => $teamsAmountDirect + $teamsAmountIndirect,
+            'teams_amount_direct'   => $teamsAmountDirect,
+            'teams_amount_indirect' => $teamsAmountIndirect,
+            'order_amount_total'    => $orderAmountTotal,
         ];
-        if (!empty($orderNo)) {
-            $data['extra']['level_order'] = $orderNo;
-        }
-        if ($data['level_code'] !== $relation['level_code']) {
-            $data['extra']['level_time'] = date('Y-m-d H:i:s');
-        }
-        if ($relation->save($data) && $relation['level_code'] < $levelCode) {
-            Library::$sapp->event->trigger('PluginWemallUpgradeLevel', [
-                'unid'           => $relation['unid'], 'order_no' => $orderNo,
-                'level_code_old' => $relation['level_code'], 'level_code_new' => $levelCode,
-            ]);
-        }
+        if (!empty($orderNo)) $extra['level_order'] = $orderNo;
+        if ($levelCode !== $levelCurr) $extra['level_change_time'] = date('Y-m-d H:i:s');
+        // 更新用户扩展数据
+        $user->save(['extra' => array_merge($user->getAttr('extra'), $extra)]);
+        // 用户用户等级数据
+        $relation->save(['level_name' => $levelName, 'level_code' => $levelCode]);
+        $levelCurr < $levelCode && Library::$sapp->event->trigger('PluginWemallUpgradeLevel', [
+            'unid'           => $relation['unid'],
+            'order_no'       => $orderNo,
+            'level_code_old' => $levelCurr,
+            'level_code_new' => $levelCode,
+        ]);
         return !($parent && $relation['puid1'] > 0) || static::upgrade($relation['puid1'], false);
     }
 
     /**
      * 同步重算用户数据
      * @param integer $unid 指定用户UID
-     * @param boolean $sync 同步更新状态
+     * @param boolean $syncRelation 同步更新状态
      * @return void
      * @throws \think\admin\Exception
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\DbException
      * @throws \think\db\exception\ModelNotFoundException
      */
-    public static function recount(int $unid, bool $sync = false)
+    public static function recount(int $unid, bool $syncRelation = false)
     {
-        if ($sync) {
+        if ($syncRelation) {
             PluginWemallUserRelation::sync($unid);
             static::upgrade($unid);
         }
-        Balance::recount($unid); // 重算余额
-        Integral::recount($unid); // 重算积分
-        UserRebateService::amount($unid); // 重算返利
+        $data = [];
+        // 重算用户余额 & 重算积分
+        Balance::recount($unid, $data);
+        Integral::recount($unid, $data);
+        // 重算行为统计 & 订单返利
+        UserActionService::recount($unid, $data);
+        UserRebateService::recount($unid, $data);
+        if (($user = PluginAccountUser::mk()->findOrEmpty($unid))->isExists()) {
+            $user->save(['extra' => array_merge($user->getAttr('extra'), $data)]);
+        }
     }
 }

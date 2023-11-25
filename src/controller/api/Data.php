@@ -1,5 +1,6 @@
 <?php
 
+
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
@@ -14,8 +15,11 @@
 // | github 代码仓库：https://github.com/zoujingli/think-plugs-wemall
 // +----------------------------------------------------------------------
 
+declare (strict_types=1);
+
 namespace plugin\wemall\controller\api;
 
+use plugin\wemall\service\ConfigService;
 use think\admin\Controller;
 use think\admin\model\SystemBase;
 
@@ -64,5 +68,17 @@ class Data extends Controller
         } else {
             $this->error('获取图片失败', []);
         }
+    }
+
+    /**
+     * 获取协议内容
+     * @return void
+     * @throws \think\admin\Exception
+     */
+    public function agreement()
+    {
+        $this->success('获取协议成功！',
+            ConfigService::getPage('user_agreement')
+        );
     }
 }

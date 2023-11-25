@@ -14,6 +14,8 @@
 // | github 代码仓库：https://github.com/zoujingli/think-plugs-wemall
 // +----------------------------------------------------------------------
 
+declare (strict_types=1);
+
 namespace plugin\wemall\model;
 
 /**
@@ -28,12 +30,15 @@ class PluginWemallConfigDiscount extends Abs
      * 获取折扣方案
      * @param boolean $allow
      * @return array[]
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
      */
     public static function items(bool $allow = false): array
     {
         $query = self::mk()->where(['status' => 1, 'deleted' => 0]);
         $items = $allow ? ['0' => ['id' => '0', 'name' => '无折扣']] : [];
-        return $items + $query->order('sort desc,id desc')->column('id,name,items', 'id');
+        return $items + $query->order('sort desc,id desc')->field('id,name,items')->select()->toArray();
     }
 
     /**

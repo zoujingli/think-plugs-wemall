@@ -24,6 +24,7 @@ use think\migration\Migrator;
  */
 class InstallWemall extends Migrator
 {
+
     /**
      * 创建数据库
      */
@@ -31,6 +32,8 @@ class InstallWemall extends Migrator
     {
         $this->_create_plugin_wemall_config_discount();
         $this->_create_plugin_wemall_config_level();
+        $this->_create_plugin_wemall_config_notify();
+        $this->_create_plugin_wemall_config_poster();
         $this->_create_plugin_wemall_express_company();
         $this->_create_plugin_wemall_express_template();
         $this->_create_plugin_wemall_goods();
@@ -42,6 +45,9 @@ class InstallWemall extends Migrator
         $this->_create_plugin_wemall_order_cart();
         $this->_create_plugin_wemall_order_item();
         $this->_create_plugin_wemall_order_send();
+        $this->_create_plugin_wemall_user_action_collect();
+        $this->_create_plugin_wemall_user_action_history();
+        $this->_create_plugin_wemall_user_action_search();
         $this->_create_plugin_wemall_user_rebate();
         $this->_create_plugin_wemall_user_relation();
         $this->_create_plugin_wemall_user_transfer();
@@ -74,9 +80,9 @@ class InstallWemall extends Migrator
             ->addColumn('deleted', 'integer', ['limit' => 1, 'default' => 0, 'null' => true, 'comment' => '删除状态(1已删,0未删)'])
             ->addColumn('create_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '创建时间'])
             ->addColumn('update_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '更新时间'])
+            ->addIndex('sort', ['name' => 'idx_plugin_wemall_config_discount_sort'])
             ->addIndex('status', ['name' => 'idx_plugin_wemall_config_discount_status'])
             ->addIndex('deleted', ['name' => 'idx_plugin_wemall_config_discount_deleted'])
-            ->addIndex('sort', ['name' => 'idx_plugin_wemall_config_discount_sort'])
             ->addIndex('create_time', ['name' => 'idx_plugin_wemall_config_discount_create_time'])
             ->create();
 
@@ -105,6 +111,7 @@ class InstallWemall extends Migrator
         ])
             ->addColumn('name', 'string', ['limit' => 180, 'default' => '', 'null' => true, 'comment' => '用户级别名称'])
             ->addColumn('cover', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '用户等级图标'])
+            ->addColumn('cardbg', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '用户等级卡片'])
             ->addColumn('number', 'integer', ['limit' => 2, 'default' => 0, 'null' => true, 'comment' => '用户级别序号'])
             ->addColumn('upgrade_type', 'integer', ['limit' => 1, 'default' => 0, 'null' => true, 'comment' => '会员升级规则(0单个,1同时)'])
             ->addColumn('upgrade_team', 'integer', ['limit' => 1, 'default' => 1, 'null' => true, 'comment' => '团队人数统计(0不计,1累计)'])
@@ -122,10 +129,96 @@ class InstallWemall extends Migrator
             ->addColumn('status', 'integer', ['limit' => 1, 'default' => 1, 'null' => true, 'comment' => '用户等级状态(1使用,0禁用)'])
             ->addColumn('create_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '创建时间'])
             ->addColumn('update_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '更新时间'])
+            ->addIndex('utime', ['name' => 'idx_plugin_wemall_config_level_utime'])
             ->addIndex('status', ['name' => 'idx_plugin_wemall_config_level_status'])
             ->addIndex('number', ['name' => 'idx_plugin_wemall_config_level_number'])
-            ->addIndex('utime', ['name' => 'idx_plugin_wemall_config_level_utime'])
             ->addIndex('create_time', ['name' => 'idx_plugin_wemall_config_level_create_time'])
+            ->create();
+
+        // 修改主键长度
+        $this->table($table)->changeColumn('id', 'integer', ['limit' => 11, 'identity' => true]);
+    }
+
+    /**
+     * 创建数据对象
+     * @class PluginWemallConfigNotify
+     * @table plugin_wemall_config_notify
+     * @return void
+     */
+    private function _create_plugin_wemall_config_notify()
+    {
+
+        // 当前数据表
+        $table = 'plugin_wemall_config_notify';
+
+        // 存在则跳过
+        if ($this->hasTable($table)) return;
+
+        // 创建数据表
+        $this->table($table, [
+            'engine' => 'InnoDB', 'collation' => 'utf8mb4_general_ci', 'comment' => '商城-配置-通知',
+        ])
+            ->addColumn('code', 'string', ['limit' => 50, 'default' => '', 'null' => true, 'comment' => '通知编号'])
+            ->addColumn('name', 'string', ['limit' => 180, 'default' => '', 'null' => true, 'comment' => '通知标题'])
+            ->addColumn('cover', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '通知图片'])
+            ->addColumn('levels', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '用户等级'])
+            ->addColumn('content', 'text', ['default' => NULL, 'null' => true, 'comment' => '通知内容'])
+            ->addColumn('remark', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '通知描述'])
+            ->addColumn('tips', 'integer', ['limit' => 1, 'default' => 0, 'null' => true, 'comment' => 'TIPS显示'])
+            ->addColumn('sort', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '排序权重'])
+            ->addColumn('status', 'integer', ['limit' => 1, 'default' => 1, 'null' => true, 'comment' => '激活状态(0无效,1有效)'])
+            ->addColumn('deleted', 'integer', ['limit' => 1, 'default' => 0, 'null' => true, 'comment' => '删除状态(1已删,0未删)'])
+            ->addColumn('create_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '创建时间'])
+            ->addColumn('update_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '更新时间'])
+            ->addIndex('code', ['name' => 'idx_plugin_wemall_config_notify_code'])
+            ->addIndex('name', ['name' => 'idx_plugin_wemall_config_notify_name'])
+            ->addIndex('sort', ['name' => 'idx_plugin_wemall_config_notify_sort'])
+            ->addIndex('tips', ['name' => 'idx_plugin_wemall_config_notify_tips'])
+            ->addIndex('status', ['name' => 'idx_plugin_wemall_config_notify_status'])
+            ->addIndex('deleted', ['name' => 'idx_plugin_wemall_config_notify_deleted'])
+            ->addIndex('create_time', ['name' => 'idx_plugin_wemall_config_notify_create_time'])
+            ->create();
+
+        // 修改主键长度
+        $this->table($table)->changeColumn('id', 'integer', ['limit' => 11, 'identity' => true]);
+    }
+
+    /**
+     * 创建数据对象
+     * @class PluginWemallConfigPoster
+     * @table plugin_wemall_config_poster
+     * @return void
+     */
+    private function _create_plugin_wemall_config_poster()
+    {
+
+        // 当前数据表
+        $table = 'plugin_wemall_config_poster';
+
+        // 存在则跳过
+        if ($this->hasTable($table)) return;
+
+        // 创建数据表
+        $this->table($table, [
+            'engine' => 'InnoDB', 'collation' => 'utf8mb4_general_ci', 'comment' => '商城-配置-海报',
+        ])
+            ->addColumn('code', 'string', ['limit' => 50, 'default' => '', 'null' => true, 'comment' => '推广编号'])
+            ->addColumn('name', 'string', ['limit' => 180, 'default' => '', 'null' => true, 'comment' => '推广标题'])
+            ->addColumn('levels', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '用户等级'])
+            ->addColumn('image', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '推广图片'])
+            ->addColumn('content', 'text', ['default' => NULL, 'null' => true, 'comment' => '二维位置'])
+            ->addColumn('remark', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '推广描述'])
+            ->addColumn('sort', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '排序权重'])
+            ->addColumn('status', 'integer', ['limit' => 1, 'default' => 1, 'null' => true, 'comment' => '激活状态(0无效,1有效)'])
+            ->addColumn('deleted', 'integer', ['limit' => 1, 'default' => 0, 'null' => true, 'comment' => '删除状态(1已删,0未删)'])
+            ->addColumn('create_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '创建时间'])
+            ->addColumn('update_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '更新时间'])
+            ->addIndex('code', ['name' => 'idx_plugin_wemall_config_poster_code'])
+            ->addIndex('sort', ['name' => 'idx_plugin_wemall_config_poster_sort'])
+            ->addIndex('name', ['name' => 'idx_plugin_wemall_config_poster_name'])
+            ->addIndex('status', ['name' => 'idx_plugin_wemall_config_poster_status'])
+            ->addIndex('deleted', ['name' => 'idx_plugin_wemall_config_poster_deleted'])
+            ->addIndex('create_time', ['name' => 'idx_plugin_wemall_config_poster_create_time'])
             ->create();
 
         // 修改主键长度
@@ -159,11 +252,11 @@ class InstallWemall extends Migrator
             ->addColumn('deleted', 'integer', ['limit' => 1, 'default' => 0, 'null' => true, 'comment' => '删除状态(1已删,0未删)'])
             ->addColumn('create_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '创建时间'])
             ->addColumn('update_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '更新时间'])
-            ->addIndex('status', ['name' => 'idx_plugin_wemall_express_company_status'])
-            ->addIndex('deleted', ['name' => 'idx_plugin_wemall_express_company_deleted'])
             ->addIndex('code', ['name' => 'idx_plugin_wemall_express_company_code'])
             ->addIndex('sort', ['name' => 'idx_plugin_wemall_express_company_sort'])
             ->addIndex('name', ['name' => 'idx_plugin_wemall_express_company_name'])
+            ->addIndex('status', ['name' => 'idx_plugin_wemall_express_company_status'])
+            ->addIndex('deleted', ['name' => 'idx_plugin_wemall_express_company_deleted'])
             ->addIndex('create_time', ['name' => 'idx_plugin_wemall_express_company_create_time'])
             ->create();
 
@@ -201,10 +294,10 @@ class InstallWemall extends Migrator
             ->addColumn('create_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '创建时间'])
             ->addColumn('update_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '更新时间'])
             ->addIndex('code', ['name' => 'idx_plugin_wemall_express_template_code'])
+            ->addIndex('name', ['name' => 'idx_plugin_wemall_express_template_name'])
             ->addIndex('sort', ['name' => 'idx_plugin_wemall_express_template_sort'])
             ->addIndex('status', ['name' => 'idx_plugin_wemall_express_template_status'])
             ->addIndex('deleted', ['name' => 'idx_plugin_wemall_express_template_deleted'])
-            ->addIndex('name', ['name' => 'idx_plugin_wemall_express_template_name'])
             ->addIndex('create_time', ['name' => 'idx_plugin_wemall_express_template_create_time'])
             ->create();
 
@@ -260,12 +353,12 @@ class InstallWemall extends Migrator
             ->addColumn('create_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '创建时间'])
             ->addColumn('update_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '更新时间'])
             ->addIndex('code', ['name' => 'idx_plugin_wemall_goods_code'])
-            ->addIndex('status', ['name' => 'idx_plugin_wemall_goods_status'])
-            ->addIndex('deleted', ['name' => 'idx_plugin_wemall_goods_deleted'])
             ->addIndex('rebate_type', ['name' => 'idx_plugin_wemall_goods_rebate_type'])
             ->addIndex('discount_id', ['name' => 'idx_plugin_wemall_goods_discount_id'])
             ->addIndex('level_upgrade', ['name' => 'idx_plugin_wemall_goods_level_upgrade'])
             ->addIndex('sort', ['name' => 'idx_plugin_wemall_goods_sort'])
+            ->addIndex('status', ['name' => 'idx_plugin_wemall_goods_status'])
+            ->addIndex('deleted', ['name' => 'idx_plugin_wemall_goods_deleted'])
             ->addIndex('create_time', ['name' => 'idx_plugin_wemall_goods_create_time'])
             ->create();
 
@@ -338,6 +431,7 @@ class InstallWemall extends Migrator
             ->addColumn('gimage', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '商品图片'])
             ->addColumn('stock_sales', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '销售数量'])
             ->addColumn('stock_total', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '商品库存'])
+            ->addColumn('price_cost', 'decimal', ['precision' => 20, 'scale' => 2, 'default' => '0.00', 'null' => true, 'comment' => '进货成本'])
             ->addColumn('price_selling', 'decimal', ['precision' => 20, 'scale' => 2, 'default' => '0.00', 'null' => true, 'comment' => '销售价格'])
             ->addColumn('price_market', 'decimal', ['precision' => 20, 'scale' => 2, 'default' => '0.00', 'null' => true, 'comment' => '市场价格'])
             ->addColumn('allow_integral', 'decimal', ['precision' => 20, 'scale' => 2, 'default' => '0.00', 'null' => true, 'comment' => '兑换积分'])
@@ -420,9 +514,9 @@ class InstallWemall extends Migrator
             ->addColumn('deleted', 'integer', ['limit' => 1, 'default' => 0, 'null' => true, 'comment' => '删除状态(0未删,1已删)'])
             ->addColumn('create_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '创建时间'])
             ->addColumn('update_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '更新时间'])
+            ->addIndex('ghash', ['name' => 'idx_plugin_wemall_goods_stock_ghash'])
             ->addIndex('status', ['name' => 'idx_plugin_wemall_goods_stock_status'])
             ->addIndex('deleted', ['name' => 'idx_plugin_wemall_goods_stock_deleted'])
-            ->addIndex('ghash', ['name' => 'idx_plugin_wemall_goods_stock_ghash'])
             ->create();
 
         // 修改主键长度
@@ -453,9 +547,11 @@ class InstallWemall extends Migrator
             ->addColumn('puid2', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '推荐代理2'])
             ->addColumn('order_no', 'string', ['limit' => 20, 'default' => '', 'null' => true, 'comment' => '订单单号'])
             ->addColumn('order_ps', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '订单备注'])
+            ->addColumn('amount_cost', 'decimal', ['precision' => 20, 'scale' => 2, 'default' => '0.00', 'null' => true, 'comment' => '商品成本'])
             ->addColumn('amount_real', 'decimal', ['precision' => 20, 'scale' => 2, 'default' => '0.00', 'null' => true, 'comment' => '实际金额'])
             ->addColumn('amount_total', 'decimal', ['precision' => 20, 'scale' => 2, 'default' => '0.00', 'null' => true, 'comment' => '订单金额'])
             ->addColumn('amount_goods', 'decimal', ['precision' => 20, 'scale' => 2, 'default' => '0.00', 'null' => true, 'comment' => '商品金额'])
+            ->addColumn('amount_profit', 'decimal', ['precision' => 20, 'scale' => 2, 'default' => '0.00', 'null' => true, 'comment' => '销售利润'])
             ->addColumn('amount_reduct', 'decimal', ['precision' => 20, 'scale' => 2, 'default' => '0.00', 'null' => true, 'comment' => '随机减免'])
             ->addColumn('amount_balance', 'decimal', ['precision' => 20, 'scale' => 2, 'default' => '0.00', 'null' => true, 'comment' => '余额支付'])
             ->addColumn('amount_integral', 'decimal', ['precision' => 20, 'scale' => 2, 'default' => '0.00', 'null' => true, 'comment' => '积分抵扣'])
@@ -487,10 +583,10 @@ class InstallWemall extends Migrator
             ->addIndex('puid2', ['name' => 'idx_plugin_wemall_order_puid2'])
             ->addIndex('status', ['name' => 'idx_plugin_wemall_order_status'])
             ->addIndex('order_no', ['name' => 'idx_plugin_wemall_order_order_no'])
-            ->addIndex('cancel_status', ['name' => 'idx_plugin_wemall_order_cancel_status'])
-            ->addIndex('deleted_status', ['name' => 'idx_plugin_wemall_order_deleted_status'])
             ->addIndex('create_time', ['name' => 'idx_plugin_wemall_order_create_time'])
             ->addIndex('delivery_type', ['name' => 'idx_plugin_wemall_order_delivery_type'])
+            ->addIndex('cancel_status', ['name' => 'idx_plugin_wemall_order_cancel_status'])
+            ->addIndex('deleted_status', ['name' => 'idx_plugin_wemall_order_deleted_status'])
             ->create();
 
         // 修改主键长度
@@ -562,8 +658,10 @@ class InstallWemall extends Migrator
             ->addColumn('gcover', 'string', ['limit' => 999, 'default' => '', 'null' => true, 'comment' => '商品封面'])
             ->addColumn('order_no', 'string', ['limit' => 20, 'default' => '', 'null' => true, 'comment' => '订单单号'])
             ->addColumn('stock_sales', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '包含商品数量'])
+            ->addColumn('amount_cost', 'decimal', ['precision' => 20, 'scale' => 2, 'default' => '0.00', 'null' => true, 'comment' => '商品成本单价'])
             ->addColumn('price_market', 'decimal', ['precision' => 20, 'scale' => 2, 'default' => '0.00', 'null' => true, 'comment' => '商品市场单价'])
             ->addColumn('price_selling', 'decimal', ['precision' => 20, 'scale' => 2, 'default' => '0.00', 'null' => true, 'comment' => '商品销售单价'])
+            ->addColumn('total_price_cost', 'decimal', ['precision' => 20, 'scale' => 2, 'default' => '0.00', 'null' => true, 'comment' => '商品成本总价'])
             ->addColumn('total_price_market', 'decimal', ['precision' => 20, 'scale' => 2, 'default' => '0.00', 'null' => true, 'comment' => '商品市场总价'])
             ->addColumn('total_price_selling', 'decimal', ['precision' => 20, 'scale' => 2, 'default' => '0.00', 'null' => true, 'comment' => '商品销售总价'])
             ->addColumn('total_allow_balance', 'decimal', ['precision' => 20, 'scale' => 2, 'default' => '0.00', 'null' => true, 'comment' => '最大余额支付'])
@@ -585,15 +683,15 @@ class InstallWemall extends Migrator
             ->addColumn('create_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '创建时间'])
             ->addColumn('update_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '更新时间'])
             ->addIndex('unid', ['name' => 'idx_plugin_wemall_order_item_unid'])
+            ->addIndex('gsku', ['name' => 'idx_plugin_wemall_order_item_gsku'])
+            ->addIndex('gcode', ['name' => 'idx_plugin_wemall_order_item_gcode'])
+            ->addIndex('gspec', ['name' => 'idx_plugin_wemall_order_item_gspec'])
+            ->addIndex('ghash', ['name' => 'idx_plugin_wemall_order_item_ghash'])
             ->addIndex('status', ['name' => 'idx_plugin_wemall_order_item_status'])
             ->addIndex('deleted', ['name' => 'idx_plugin_wemall_order_item_deleted'])
             ->addIndex('order_no', ['name' => 'idx_plugin_wemall_order_item_order_no'])
             ->addIndex('rebate_type', ['name' => 'idx_plugin_wemall_order_item_rebate_type'])
             ->addIndex('discount_id', ['name' => 'idx_plugin_wemall_order_item_discount_id'])
-            ->addIndex('gsku', ['name' => 'idx_plugin_wemall_order_item_gsku'])
-            ->addIndex('gcode', ['name' => 'idx_plugin_wemall_order_item_gcode'])
-            ->addIndex('gspec', ['name' => 'idx_plugin_wemall_order_item_gspec'])
-            ->addIndex('ghash', ['name' => 'idx_plugin_wemall_order_item_ghash'])
             ->addIndex('delivery_code', ['name' => 'idx_plugin_wemall_order_item_delivery_code'])
             ->create();
 
@@ -642,7 +740,7 @@ class InstallWemall extends Migrator
             ->addColumn('company_code', 'string', ['limit' => 20, 'default' => '', 'null' => true, 'comment' => '快递公司编码'])
             ->addColumn('company_name', 'string', ['limit' => 100, 'default' => '', 'null' => true, 'comment' => '快递公司名称'])
             ->addColumn('extra', 'text', ['default' => NULL, 'null' => true, 'comment' => '原始数据'])
-            ->addColumn('status', 'integer', ['limit' => 1, 'default' => 1, 'null' => true, 'comment' => '商品状态(1使用,0禁用)'])
+            ->addColumn('status', 'integer', ['limit' => 1, 'default' => 1, 'null' => true, 'comment' => '发货状态(1待发货,2已发货,3已收货)'])
             ->addColumn('deleted', 'integer', ['limit' => 1, 'default' => 0, 'null' => true, 'comment' => '删除状态(0未删,1已删)'])
             ->addColumn('create_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '创建时间'])
             ->addColumn('update_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '更新时间'])
@@ -651,6 +749,108 @@ class InstallWemall extends Migrator
             ->addIndex('deleted', ['name' => 'idx_plugin_wemall_order_send_deleted'])
             ->addIndex('order_no', ['name' => 'idx_plugin_wemall_order_send_order_no'])
             ->addIndex('create_time', ['name' => 'idx_plugin_wemall_order_send_create_time'])
+            ->create();
+
+        // 修改主键长度
+        $this->table($table)->changeColumn('id', 'integer', ['limit' => 11, 'identity' => true]);
+    }
+
+    /**
+     * 创建数据对象
+     * @class PluginWemallUserActionCollect
+     * @table plugin_wemall_user_action_collect
+     * @return void
+     */
+    private function _create_plugin_wemall_user_action_collect()
+    {
+
+        // 当前数据表
+        $table = 'plugin_wemall_user_action_collect';
+
+        // 存在则跳过
+        if ($this->hasTable($table)) return;
+
+        // 创建数据表
+        $this->table($table, [
+            'engine' => 'InnoDB', 'collation' => 'utf8mb4_general_ci', 'comment' => '商城-用户-收藏',
+        ])
+            ->addColumn('unid', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '用户编号'])
+            ->addColumn('gcode', 'string', ['limit' => 32, 'default' => '', 'null' => true, 'comment' => '商品编号'])
+            ->addColumn('times', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '记录次数'])
+            ->addColumn('sort', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '排序权重'])
+            ->addColumn('create_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '创建时间'])
+            ->addColumn('update_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '更新时间'])
+            ->addIndex('unid', ['name' => 'idx_plugin_wemall_user_action_collect_unid'])
+            ->addIndex('gcode', ['name' => 'idx_plugin_wemall_user_action_collect_gcode'])
+            ->addIndex('sort', ['name' => 'idx_plugin_wemall_user_action_collect_sort'])
+            ->create();
+
+        // 修改主键长度
+        $this->table($table)->changeColumn('id', 'integer', ['limit' => 11, 'identity' => true]);
+    }
+
+    /**
+     * 创建数据对象
+     * @class PluginWemallUserActionHistory
+     * @table plugin_wemall_user_action_history
+     * @return void
+     */
+    private function _create_plugin_wemall_user_action_history()
+    {
+
+        // 当前数据表
+        $table = 'plugin_wemall_user_action_history';
+
+        // 存在则跳过
+        if ($this->hasTable($table)) return;
+
+        // 创建数据表
+        $this->table($table, [
+            'engine' => 'InnoDB', 'collation' => 'utf8mb4_general_ci', 'comment' => '商城-用户-足迹',
+        ])
+            ->addColumn('unid', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '用户编号'])
+            ->addColumn('gcode', 'string', ['limit' => 32, 'default' => '', 'null' => true, 'comment' => '商品编号'])
+            ->addColumn('times', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '记录次数'])
+            ->addColumn('sort', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '排序权重'])
+            ->addColumn('create_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '创建时间'])
+            ->addColumn('update_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '更新时间'])
+            ->addIndex('sort', ['name' => 'idx_plugin_wemall_user_action_history_sort'])
+            ->addIndex('unid', ['name' => 'idx_plugin_wemall_user_action_history_unid'])
+            ->addIndex('gcode', ['name' => 'idx_plugin_wemall_user_action_history_gcode'])
+            ->create();
+
+        // 修改主键长度
+        $this->table($table)->changeColumn('id', 'integer', ['limit' => 11, 'identity' => true]);
+    }
+
+    /**
+     * 创建数据对象
+     * @class PluginWemallUserActionSearch
+     * @table plugin_wemall_user_action_search
+     * @return void
+     */
+    private function _create_plugin_wemall_user_action_search()
+    {
+
+        // 当前数据表
+        $table = 'plugin_wemall_user_action_search';
+
+        // 存在则跳过
+        if ($this->hasTable($table)) return;
+
+        // 创建数据表
+        $this->table($table, [
+            'engine' => 'InnoDB', 'collation' => 'utf8mb4_general_ci', 'comment' => '商城-用户-搜索',
+        ])
+            ->addColumn('unid', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '用户编号'])
+            ->addColumn('keys', 'string', ['limit' => 99, 'default' => '', 'null' => true, 'comment' => '关键词'])
+            ->addColumn('times', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '搜索次数'])
+            ->addColumn('sort', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '排序权重'])
+            ->addColumn('create_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '创建时间'])
+            ->addColumn('update_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '更新时间'])
+            ->addIndex('keys', ['name' => 'idx_plugin_wemall_user_action_search_keys'])
+            ->addIndex('unid', ['name' => 'idx_plugin_wemall_user_action_search_unid'])
+            ->addIndex('sort', ['name' => 'idx_plugin_wemall_user_action_search_sort'])
             ->create();
 
         // 修改主键长度
@@ -685,6 +885,7 @@ class InstallWemall extends Migrator
             ->addColumn('order_no', 'string', ['limit' => 20, 'default' => '', 'null' => true, 'comment' => '订单单号'])
             ->addColumn('order_unid', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '订单用户'])
             ->addColumn('order_amount', 'decimal', ['precision' => 20, 'scale' => 2, 'default' => '0.00', 'null' => true, 'comment' => '订单金额'])
+            ->addColumn('remark', 'string', ['limit' => 50, 'default' => '', 'null' => true, 'comment' => '奖励描述'])
             ->addColumn('status', 'integer', ['limit' => 1, 'default' => 1, 'null' => true, 'comment' => '生效状态(0未生效,1已生效)'])
             ->addColumn('deleted', 'integer', ['limit' => 1, 'default' => 0, 'null' => true, 'comment' => '删除状态(0未删除,1已删除)'])
             ->addColumn('create_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '创建时间'])
@@ -736,11 +937,11 @@ class InstallWemall extends Migrator
             ->addColumn('create_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '创建时间'])
             ->addColumn('update_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '更新时间'])
             ->addIndex('unid', ['name' => 'idx_plugin_wemall_user_relation_unid'])
+            ->addIndex('path', ['name' => 'idx_plugin_wemall_user_relation_path'])
             ->addIndex('puid1', ['name' => 'idx_plugin_wemall_user_relation_puid1'])
             ->addIndex('puid2', ['name' => 'idx_plugin_wemall_user_relation_puid2'])
-            ->addIndex('create_time', ['name' => 'idx_plugin_wemall_user_relation_create_time'])
             ->addIndex('level_code', ['name' => 'idx_plugin_wemall_user_relation_level_code'])
-            ->addIndex('path', ['name' => 'idx_plugin_wemall_user_relation_path'])
+            ->addIndex('create_time', ['name' => 'idx_plugin_wemall_user_relation_create_time'])
             ->addIndex('buy_vip_entry', ['name' => 'idx_plugin_wemall_user_relation_buy_vip_entry'])
             ->create();
 
@@ -809,4 +1010,5 @@ class InstallWemall extends Migrator
         // 修改主键长度
         $this->table($table)->changeColumn('id', 'integer', ['limit' => 11, 'identity' => true]);
     }
+
 }

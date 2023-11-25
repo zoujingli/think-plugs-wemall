@@ -1,5 +1,6 @@
 <?php
 
+
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
@@ -14,6 +15,8 @@
 // | github 代码仓库：https://github.com/zoujingli/think-plugs-wemall
 // +----------------------------------------------------------------------
 
+declare (strict_types=1);
+
 namespace plugin\wemall\controller\api\auth;
 
 use plugin\payment\model\PluginPaymentAddress;
@@ -27,11 +30,12 @@ use plugin\wemall\model\PluginWemallOrderCart;
 use plugin\wemall\model\PluginWemallOrderItem;
 use plugin\wemall\service\ExpressService;
 use plugin\wemall\service\GoodsService;
-use plugin\wemall\service\ImageService;
+use plugin\wemall\service\UserActionService;
 use plugin\wemall\service\UserOrderService;
 use plugin\wemall\service\UserUpgradeService;
 use think\admin\extend\CodeExtend;
 use think\admin\helper\QueryHelper;
+use think\admin\Storage;
 use think\db\Query;
 use think\exception\HttpResponseException;
 
@@ -112,16 +116,18 @@ class Order extends Auth
                     'ghash'                 => $gspec['ghash'],
                     'gspec'                 => $gspec['gspec'],
                     'gunit'                 => $gspec['gunit'],
-                    'gcover'                => $goods['cover'],
+                    'gcover'                => empty($gspec['gimage']) ? $goods['cover'] : $gspec['gimage'],
                     // 库存数量处理
                     'stock_sales'           => $count,
                     // 快递发货数据
                     'delivery_code'         => $goods['delivery_code'],
                     'delivery_count'        => $goods['rebate_type'] > 0 ? $gspec['number_express'] * $count : 0,
                     // 商品费用字段
+                    'price_cost'            => $gspec['price_cost'],
                     'price_market'          => $gspec['price_market'],
                     'price_selling'         => $gspec['price_selling'],
                     // 商品费用统计
+                    'total_price_cost'      => $gspec['price_cost'] * $count,
                     'total_price_market'    => $gspec['price_market'] * $count,
                     'total_price_selling'   => $gspec['price_selling'] * $count,
                     'total_allow_balance'   => $gspec['allow_balance'] * $count,
@@ -155,8 +161,9 @@ class Order extends Auth
             $order['number_goods'] = array_sum(array_column($items, 'stock_sales'));
             $order['number_express'] = array_sum(array_column($items, 'delivery_count'));
             // 统计商品金额
+            $order['amount_cost'] = array_sum(array_column($items, 'total_price_cost'));
             $order['amount_goods'] = array_sum(array_column($items, 'total_price_selling'));
-            // 优惠折扣金额
+            // 折扣后的金额
             $order['amount_discount'] = array_sum(array_column($items, 'discount_amount'));
             // 订单随减金额
             $order['amount_reduct'] = UserOrderService::reduct();
@@ -166,6 +173,7 @@ class Order extends Auth
             // 统计订单金额
             $order['amount_real'] = $order['amount_discount'] - $order['amount_reduct'];
             $order['amount_total'] = $order['amount_goods'];
+            $order['amount_profit'] = $order['amount_real'] - $order['amount_cost'];
             // 写入商品数据
             $this->app->db->transaction(function () use ($order, $items) {
                 ($model = PluginWemallOrder::mk())->save($order);
@@ -184,6 +192,7 @@ class Order extends Auth
             // 清理购物车数据
             if (count($carts = str2arr($input['carts'])) > 0) {
                 PluginWemallOrderCart::mk()->whereIn('id', $carts)->delete();
+                UserActionService::recount($this->unid);
             }
             // 触发订单创建事件
             $this->app->event->trigger('PluginWemallOrderCreate', $order);
@@ -329,7 +338,7 @@ class Order extends Auth
 
             // 凭证图片保存
             if (!empty($data['payment_image'])) {
-                $data['payment_image'] = ImageService::save($data['payment_image'])['url'] ?? '';
+                $data['payment_image'] = Storage::saveImage($data['payment_image'])['url'] ?? '';
             }
 
             // 创建支付订单

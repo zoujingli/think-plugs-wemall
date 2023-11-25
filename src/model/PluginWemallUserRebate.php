@@ -1,6 +1,5 @@
 <?php
 
-
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
@@ -14,6 +13,8 @@
 // | gitee 代码仓库：https://gitee.com/zoujingli/think-plugs-wemall
 // | github 代码仓库：https://github.com/zoujingli/think-plugs-wemall
 // +----------------------------------------------------------------------
+
+declare (strict_types=1);
 
 namespace plugin\wemall\model;
 

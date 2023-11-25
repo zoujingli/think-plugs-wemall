@@ -47,9 +47,10 @@ class Users extends Command
     protected function execute(Input $input, Output $output)
     {
         [$total, $count] = [PluginAccountUser::mk()->count(), 0];
-        foreach (PluginAccountUser::mk()->field('id')->cursor() as $user) try {
+        foreach (PluginAccountUser::mk()->field('id')->order('id desc')->cursor() as $user) try {
             $this->queue->message($total, ++$count, "刷新用户 [{$user['id']}] 数据...");
             UserUpgradeService::recount(intval($user['id']), true);
+            UserUpgradeService::upgrade(intval($user['id']));
             $this->queue->message($total, $count, "刷新用户 [{$user['id']}] 数据成功", 1);
         } catch (\Exception $exception) {
             $this->queue->message($total, $count, "刷新用户 [{$user['id']}] 数据失败, {$exception->getMessage()}", 1);

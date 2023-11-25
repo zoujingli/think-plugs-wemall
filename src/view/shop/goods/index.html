@@ -35,36 +35,60 @@
 <script>
     $(function () {
         $('#GoodsTable').layTable({
-            even: true, height: 'full',
+            even: true, width: 'full', height: 'full',
             sort: {field: 'sort desc,id', type: 'desc'},
+            cellExpandedMode: 'tips',
             cols: [[
-                // {checkbox: true},
                 {field: 'id', hide: true},
                 {field: 'sort', title: '排序权重', width: 100, align: 'center', sort: true, templet: '#SortInputTpl'},
-                {field: 'cover', title: '商品封面', width: 80, align: 'center', templet: '<div>{{-showTableImage(d.cover,false,"sm")}}</div>'},
-                {field: 'name', title: '商品名称', width: '15%', templet: "<div>商品名称：{{d.name}}<br>商品编号：<b class='color-blue'>{{d.code}}</b></div>"},
                 {
-                    field: '', title: '数据统计', width: '25%', templet: function (d) {
-                        let tpls = [];
-                        if (d.level_upgrade > 0) d.level_type = '入会升级';
-                        if (d.level_upgrade === 0) d.level_type = '入会礼包';
+                    field: 'name', title: '商品名称', minWidth: 220, width: '15%', templet: function (d) {
+                        d.html = showTableImage(d.cover, false, 'sm')
+                        return laytpl("<div class='flex'>{{-d.html}}<div class='padding-left-5 nowrap'>名称：{{d.name}}<br>编号：<b class='color-blue'>{{d.code}}</b></div></div>").render(d);
+                    }
+                },
+                {
+                    field: '', title: '购买权益', minWidth: 100, width: '5%', align: 'center', templet: function (d) {
+                        let tpls = ['{{d.level_type}}', '{{d.rebate_name}}'];
+                        if (d.level_upgrade > 0) d.level_type = '入会并升级';
+                        if (d.level_upgrade === 0) d.level_type = '入会不升级';
                         if (d.level_upgrade === -1) d.level_type = '非入会礼包';
-                        d.rebate_name = d.rebate_type ? '参与返利' : '不参与返利';
-                        d.limit_buyname = d.limit_maxnum ? '限购 ' + d.limit_maxnum + ' 件' : '不限购';
-                        tpls.push('{{d.level_type}}，{{d.rebate_name}}，累计库存 <b>{{d.stock_total}}</b> 件，已销售 <b>{{d.stock_sales}}</b> 件，可售库存 <b>{{d.stock_total-d.stock_sales}}</b> 件');
-                        tpls.push('{{d.limit_buyname}}，最低售价 <b>{{Math.round(d.price_selling)}}</b> 元 ( 最大可使用余额 <b>{{Math.round(d.allow_balance)}}</b> 元支付和 <b>{{Math.round(d.allow_integral)}}</b> 积分抵扣 )');
+                        d.rebate_name = d.rebate_type ? '已参与返利' : '不参与返利';
                         return laytpl('<div class="sub-strong-blue">' + tpls.join('<br>') + '</div>').render(d);
                     }
                 },
                 {
-                    field: '', title: '标签分类', width: '10%', templet: function (d) {
+                    field: '', title: '价格及库存 ', minWidth: 200, width: '15%', templet: function (d) {
+                        let tpls = [];
+                        d.limit_buyname = d.limit_maxnum ? '限购 ' + d.limit_maxnum + ' 件' : '<span class="color-desc">不限购</span>';
+                        tpls.push('{{-d.limit_buyname}}，最低售价 <b>{{Math.round(d.price_selling)}}</b> 元/件');
+                        tpls.push('总库存 <b>{{d.stock_total}}</b> 件，剩余库存 <b>{{d.stock_total-d.stock_sales}}</b> 件');
+                        return laytpl('<div class="sub-strong-blue nowrap">' + tpls.join('<br>') + '</div>').render(d);
+                    }
+                },
+                /* {if $enableBalance || $enableIntegral} */
+                {
+                    field: '', title: '余额抵扣', templet: function (d) {
+                        let tpls = [];
+                        /* {if $enableBalance} */
+                        tpls.push('最多可用 <b>{{Math.round(d.allow_balance)}}</b> 元余额');
+                        /* {/if} */
+                        /* {if $enableIntegral} */
+                        tpls.push('最多可用 <b>{{Math.round(d.allow_integral)}}</b> 个积分');
+                        /* {/if} */
+                        return laytpl(tpls.join('<br>')).render(d);
+                    }
+                },
+                /* {/if} */
+                {
+                    field: '', title: '标签分类', templet: function (d) {
                         let tpls = '标签：' + (d.marks.length > 0 ? d.marks.join('、') : '-');
                         return tpls + '<br>分类：' + ((d.cates || {}).names || ['-']).join(' ＞ ');
                     }
                 },
-                {field: 'status', title: '商品状态', minWidth: 110, align: 'center', templet: '#StatusSwitchTpl'},
+                {field: 'status', title: '商品状态', minWidth: 110, width: '5%', align: 'center', templet: '#StatusSwitchTpl'},
                 {field: 'create_time', title: '创建时间', width: '15%', templet: "<div>更新：{{d.update_time}}<br>创建：{{d.create_time}}</div>"},
-                {toolbar: '#toolbar', title: '操作面板', minWidth: 150, align: 'center', fixed: 'right'},
+                {toolbar: '#toolbar', title: '操作面板', minWidth: 150, width: '10%', align: 'center', fixed: 'right'},
             ]]
         });
 

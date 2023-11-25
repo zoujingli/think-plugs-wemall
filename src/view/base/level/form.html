@@ -24,16 +24,32 @@
         padding-left: 15px;
         border-radius: 3px;
     }
+
+    .card-bgimg .uploadimage {
+        width: 150px;
+        background-size: 100% 100%;
+    }
 </style>
 
 <form action="{:sysuri()}" class="layui-form layui-card" data-auto="true" method="post">
     <div class="layui-card-body padding-left-40">
 
         <div class="layui-form-item">
-            <span class="help-label"><b>等级图标</b>Level Cover</span>
-            <div class="relative block layui-textarea help-images">
-                <input type="hidden" name="cover" value='{$vo.cover|default=""}'>
-                <script>$('[name="cover"]').uploadOneImage()</script>
+            <div class="layui-row layui-col-space15">
+                <div class="layui-col-xs6">
+                    <span class="help-label"><b>等级图标</b>( 建议上传尺寸为 400x400 的图片或同比例图片 )</span>
+                    <div class="relative block layui-textarea help-images">
+                        <input type="hidden" name="cover" value='{$vo.cover|default=""}'>
+                        <script>$('[name="cover"]').uploadOneImage()</script>
+                    </div>
+                </div>
+                <div class="layui-col-xs6 card-bgimg">
+                    <span class="help-label"><b>卡片背景</b>( 建议上传尺寸为 650x330 的图片或同比例图片)</span>
+                    <div class="relative block layui-textarea help-images">
+                        <input type="hidden" name="cardbg" value='{$vo.cardbg|default=""}'>
+                        <script>$('[name="cardbg"]').uploadOneImage()</script>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -57,7 +73,7 @@
         <div class="layui-form-item">
             <span class="help-label label-required-prev"><b>团队计数</b>Team Count</span>
             {empty name='vo.upgrade_team'}{assign name='vo.upgrade_team' value='1'}{/empty}
-            <div class="layui-input help-checks">
+            <div class="layui-textarea help-checks">
                 {foreach ['不参与团队计数','参与团队计数'] as $k => $v}
                 <label class="think-radio">
                     {if isset($vo.upgrade_team) and $vo.upgrade_team eq $k}
@@ -71,13 +87,13 @@
         </div>
 
         <div class="layui-form-item">
-            <span class="help-label label-required-prev"><b>升级规则</b>Level Cover</span>
+            <span class="help-label label-required-prev"><b>升级规则</b>Upgrade Type</span>
             {empty name='vo.upgrade_type'}{assign name='vo.upgrade_type' value='1'}{/empty}
-            <div class="layui-input help-checks">
+            <div class="layui-textarea help-checks">
                 {foreach ['达成任意条件','达成全部条件'] as $k => $v}
                 <label class="think-radio">
                     {if isset($vo.upgrade_type) and $vo.upgrade_type eq $k}
-                    <input name="upgrade_type" type="radio" value="{$k}" checked lay-ignore> {$v}
+                    <input name="upgrade_type" type="radio" value="{$k}" lay-ignore checked> {$v}
                     {else}
                     <input name="upgrade_type" type="radio" value="{$k}" lay-ignore> {$v}
                     {/if}
@@ -87,7 +103,7 @@
         </div>
 
         <div class="layui-form-item">
-            <span class="help-label label-required-prev"><b>升级条件</b>Level Upgrade</span>
+            <span class="help-label label-required-prev"><b>升级条件</b>Upgrade Rules</span>
             <div class="font-s13 layui-bg-gray relative">
                 <div>
                     <label class="think-checkbox notselect">
@@ -151,12 +167,10 @@
             </div>
         </div>
 
-        <fieldset class="layui-form-item layui-hide">
-            <legend><span class="layui-badge layui-bg-cyan">等级描述</span></legend>
-            <label class="layui-form-item block relative">
-                <textarea class="layui-textarea" name="remark" placeholder="请输入用户等级描述">{$vo.remark|default=''}</textarea>
-            </label>
-        </fieldset>
+        <label class="layui-form-item">
+            <span class="help-label"><b>权益描述</b>Privilege Description</span>
+            <textarea class="layui-textarea" name="remark" placeholder="请输入权益描述">{$vo.remark|default=''}</textarea>
+        </label>
 
     </div>
 

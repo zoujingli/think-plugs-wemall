@@ -1,5 +1,6 @@
 <?php
 
+
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
@@ -14,6 +15,8 @@
 // | github 代码仓库：https://github.com/zoujingli/think-plugs-wemall
 // +----------------------------------------------------------------------
 
+declare (strict_types=1);
+
 namespace plugin\wemall\controller\shop;
 
 use plugin\wemall\model\PluginWemallConfigDiscount;
@@ -24,6 +27,7 @@ use plugin\wemall\model\PluginWemallGoodsCate;
 use plugin\wemall\model\PluginWemallGoodsItem;
 use plugin\wemall\model\PluginWemallGoodsMark;
 use plugin\wemall\model\PluginWemallGoodsStock;
+use plugin\wemall\service\ConfigService;
 use plugin\wemall\service\GoodsService;
 use think\admin\Controller;
 use think\admin\extend\CodeExtend;
@@ -53,8 +57,10 @@ class Goods extends Controller
             $this->title = '商品数据管理';
             $this->cates = PluginWemallGoodsCate::items();
             $this->marks = PluginWemallGoodsMark::items();
-            $this->upgrades = PluginWemallConfigLevel::items(true);
+            $this->upgrades = PluginWemallConfigLevel::items('普通商品');
             $this->deliverys = PluginWemallExpressTemplate::items(true);
+            $this->enableBalance = ConfigService::get('enable_balance');
+            $this->enableIntegral = ConfigService::get('enable_integral');
         }, function (QueryHelper $query) {
             $query->withoutField('specs,content')->like('code|name#name')->like('marks,cates', ',');
             $query->equal('status,level_upgrade,delivery_code,rebate_type')->dateBetween('create_time');
@@ -124,6 +130,7 @@ class Goods extends Controller
     /**
      * 表单数据处理
      * @param array $data
+     * @throws \think\admin\Exception
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\DbException
      * @throws \think\db\exception\ModelNotFoundException
@@ -136,21 +143,23 @@ class Goods extends Controller
         if ($this->request->isGet()) {
             $this->marks = PluginWemallGoodsMark::items();
             $this->cates = PluginWemallGoodsCate::items(true);
-            $this->upgrades = PluginWemallConfigLevel::items(true);
+            $this->upgrades = PluginWemallConfigLevel::items('普通商品');
             $this->discounts = PluginWemallConfigDiscount::items(true);
             $this->deliverys = PluginWemallExpressTemplate::items(true);
+            $this->enableBalance = ConfigService::get('enable_balance');
+            $this->enableIntegral = ConfigService::get('enable_integral');
             $data['marks'] = $data['marks'] ?? [];
             $data['cates'] = $data['cates'] ?? [];
-            $data['delivery_code'] = $data['delivery_code'] ?? 'FREE';
             $data['specs'] = json_encode($data['specs'] ?? [], 64 | 256);
             $data['items'] = PluginWemallGoodsItem::itemsJson($data['code']);
             $data['slider'] = is_array($data['slider'] ?? []) ? join('|', $data['slider'] ?? []) : '';
+            $data['delivery_code'] = $data['delivery_code'] ?? 'FREE';
         } elseif ($this->request->isPost()) try {
             if (empty($data['cover'])) $this->error('商品图片不能为空！');
             if (empty($data['slider'])) $this->error('轮播图片不能为空！');
             // 商品规格保存
-            [$count, $items] = [0, array_column(json_decode($data['items'], true), 0)];
-            foreach ($items as $item) if ($item['status'] > 0) $count++;
+            [$count, $items] = [0, json_decode($data['items'], true)];
+            foreach ($items as $item) $item['status'] > 0 && $count++;
             if (empty($count)) $this->error('无效的的商品价格信息！');
             $data['marks'] = arr2str($data['marks'] ?? []);
             $data['price_market'] = min(array_column($items, 'market'));
@@ -158,13 +167,20 @@ class Goods extends Controller
             $data['allow_balance'] = max(array_column($items, 'allow_balance'));
             $data['allow_integral'] = max(array_column($items, 'allow_integral'));
             $this->app->db->transaction(static function () use ($data, $items) {
-                PluginWemallGoods::mk()->where(['code' => $data['code']])->findOrEmpty()->save($data);
+                // 标识所有规格无效
                 PluginWemallGoodsItem::mk()->where(['gcode' => $data['code']])->update(['status' => 0]);
-                foreach ($items as $item) PluginWemallGoodsItem::mk()->where(['ghash' => $item['hash']])->findOrEmpty()->save([
+                $model = PluginWemallGoods::mk()->where(['code' => $data['code']])->findOrEmpty();
+                $model->{$model->isExists() ? 'onAdminUpdate' : 'onAdminInsert'}($data['code']);
+                $model->save($data);
+                // 更新或写入商品规格
+                foreach ($items as $item) PluginWemallGoodsItem::mUpdate([
                     'gsku'            => $item['gsku'],
                     'ghash'           => $item['hash'],
                     'gcode'           => $data['code'],
                     'gspec'           => $item['spec'],
+                    'gimage'          => $item['image'],
+                    'status'          => $item['status'] ? 1 : 0,
+                    'price_cost'      => $item['cost'],
                     'price_market'    => $item['market'],
                     'price_selling'   => $item['selling'],
                     'allow_balance'   => $item['allow_balance'],
@@ -173,8 +189,7 @@ class Goods extends Controller
                     'number_express'  => $item['express'],
                     'reward_balance'  => $item['balance'],
                     'reward_integral' => $item['integral'],
-                    'status'          => $item['status'] ? 1 : 0,
-                ]);
+                ], 'ghash', ['gcode' => $data['code']]);
             });
             // 刷新产品库存
             GoodsService::stock($data['code']);
@@ -196,7 +211,7 @@ class Goods extends Controller
      */
     public function stock()
     {
-        $map = $this->_vali(['code.require' => '商品编号不能为空哦！']);
+        $map = $this->_vali(['code.require' => '编号不能为空哦！']);
         if ($this->request->isGet()) {
             $this->vo = PluginWemallGoods::mk()->where($map)->with('items')->findOrEmpty()->toArray();
             if (empty($this->vo)) $this->error('无效的商品数据，请稍候再试！');
@@ -240,8 +255,8 @@ class Goods extends Controller
     public function remove()
     {
         PluginWemallGoods::mSave($this->_vali([
-            'deleted.in:0,1'  => '状态值范围异常！',
-            'deleted.require' => '状态值不能为空！',
+            'code.require'  => '编号不能为空！',
+            'deleted.value' => 1
         ]), 'code');
     }
 }

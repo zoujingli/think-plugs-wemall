@@ -1,5 +1,6 @@
 <?php
 
+
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
@@ -13,6 +14,8 @@
 // | gitee 代码仓库：https://gitee.com/zoujingli/think-plugs-wemall
 // | github 代码仓库：https://github.com/zoujingli/think-plugs-wemall
 // +----------------------------------------------------------------------
+
+declare (strict_types=1);
 
 namespace plugin\wemall\controller\user;
 
@@ -44,13 +47,23 @@ class Admin extends Controller
             $this->title = '用户关系管理';
             $this->upgrades = PluginWemallConfigLevel::items();
         }, function (QueryHelper $query) {
-            $query->with(['user'])->equal('level_code');
+            $query->with(['user', 'relation0', 'relation1', 'relation2'])->equal('level_code');
             // 用户内容查询
             $uq = PluginAccountUser::mQuery()->equal('status')->dateBetween('create_at');
             $uq->where(['status' => intval($this->type === 'index'), 'deleted' => 0]);
             $uq->like('code,phone,email|username|nickname#username');
             $query->whereRaw("unid in {$uq->db()->field('id')->buildSql()}");
         });
+    }
+
+    /**
+     * 刷新会员数据
+     * @auth true
+     * @return void
+     */
+    public function sync()
+    {
+        $this->_queue('刷新会员用户数据', 'xdata:mall:users');
     }
 
     /**
@@ -72,5 +85,20 @@ class Admin extends Controller
     public function remove()
     {
         PluginAccountUser::mDelete();
+    }
+
+    /**
+     * 修改用户上级
+     * @auth true
+     * @return void
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    public function parent()
+    {
+
+        $this->index();
+
     }
 }

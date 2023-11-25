@@ -14,12 +14,15 @@
 // | github 代码仓库：https://github.com/zoujingli/think-plugs-wemall
 // +----------------------------------------------------------------------
 
+declare (strict_types=1);
+
 namespace plugin\wemall\controller\api\auth;
 
 use plugin\wemall\controller\api\Auth;
 use plugin\wemall\model\PluginWemallGoods;
 use plugin\wemall\model\PluginWemallGoodsItem;
 use plugin\wemall\model\PluginWemallOrderCart;
+use plugin\wemall\service\UserActionService;
 use think\admin\helper\QueryHelper;
 use think\db\Query;
 
@@ -52,6 +55,7 @@ class Cart extends Auth
     /**
      * 修改购买车数据
      * @return void
+     * @throws \think\db\exception\DbException
      */
     public function set()
     {
@@ -64,6 +68,7 @@ class Cart extends Auth
         $map = ['unid' => $this->unid, 'ghash' => $data['ghash']];
         if ($data['number'] < 1) {
             PluginWemallOrderCart::mk()->where($map)->delete();
+            UserActionService::recount($this->unid);
             $this->success('移除成功！');
         }
         // 检查商品是否存在
@@ -73,6 +78,7 @@ class Cart extends Auth
         // 保存商品数据
         $data += ['gcode' => $gspec['gcode'], 'gspec' => $gspec['gspec']];
         if (($cart = PluginWemallOrderCart::mk()->where($map)->findOrEmpty())->save($data)) {
+            UserActionService::recount($this->unid);
             $this->success('保存成功！', $cart->refresh()->toArray());
         } else {
             $this->error('保存失败！');

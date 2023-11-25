@@ -1,5 +1,6 @@
 <?php
 
+
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
@@ -14,8 +15,11 @@
 // | github 代码仓库：https://github.com/zoujingli/think-plugs-wemall
 // +----------------------------------------------------------------------
 
+declare (strict_types=1);
+
 namespace plugin\wemall\controller\base;
 
+use plugin\wemall\service\ConfigService;
 use think\admin\Controller;
 
 /**
@@ -27,52 +31,55 @@ class Config extends Controller
 {
 
     /**
-     * 微信小程序配置
+     * 商城参数配置
      * @auth true
      * @menu true
+     * @return void
      * @throws \think\admin\Exception
      */
-//    public function wxapp()
-//    {
-//        $this->skey = 'wxapp';
-//        $this->title = '微信小程序配置';
-//        $this->__sysdata('wxapp');
-//    }
-
-    /**
-     * 邀请二维码设置
-     * @auth true
-     * @menu true
-     * @throws \think\admin\Exception
-     */
-    public function cropper()
+    public function index()
     {
-        $this->skey = 'plugin.wemall.cropper';
-        $this->title = '邀请二维码设置';
-        $this->__sysdata('cropper');
+        $this->title = '商城参数配置';
+        $this->data = ConfigService::get();
+        $this->pages = ConfigService::$pageTypes;
+        $this->fetch();
     }
 
     /**
-     * 显示并保存数据
-     * @param string $template 模板文件
+     * 修改参数配置
+     * @auth true
+     * @return void
      * @throws \think\admin\Exception
      */
-    private function __sysdata(string $template)
+    public function params()
     {
         if ($this->request->isGet()) {
-            $this->data = sysdata($this->skey);
-            $this->fetch($template);
+            $this->vo = ConfigService::get();
+            $this->fetch('index_params');
+        } else {
+            ConfigService::set($this->request->post());
+            $this->success('配置更新成功！');
+        }
+    }
+
+    /**
+     * 修改协议内容
+     * @auth true
+     * @return void
+     * @throws \think\admin\Exception
+     */
+    public function content()
+    {
+        $input = $this->_vali(['code.require' => '编号不能为空！']);
+        $title = ConfigService::$pageTypes[$input['code']] ?? null;
+        if (empty($title)) $this->error('无效的内容编号！');
+        if ($this->request->isGet()) {
+            $this->title = "编辑{$title}";
+            $this->data = ConfigService::getPage($input['code']);
+            $this->fetch('index_content');
         } elseif ($this->request->isPost()) {
-            if (is_string(input('data'))) {
-                $data = json_decode(input('data'), true) ?: [];
-            } else {
-                $data = $this->request->post();
-            }
-            if (sysdata($this->skey, $data) !== false) {
-                $this->success('内容保存成功！');
-            } else {
-                $this->error('内容保存失败，请稍候再试!');
-            }
+            ConfigService::setPage($input['code'], $this->request->post());
+            $this->success('内容保存成功！', 'javascript:history.back()');
         }
     }
 }

@@ -296,7 +296,7 @@
                 if (this.mtype === 'hex') conf = {format: 'hex', predefine: true};
                 if (this.mtype === 'rgb') conf = {format: 'rgb', predefine: true};
                 if (this.mtype === 'rgba') conf = {format: 'rgb', predefine: true, alpha: true};
-                let done = color => this.$set(this.mstyle, this.mfield, this.value = color) && this.$forceUpdate();
+                let done = color => this.$set(this.mstyle, this.mfield, this.value = color.replace(/\s+/gm, '')) && this.$forceUpdate();
                 this.$nextTick(() => layui.colorpicker.render(Object.assign({}, {
                     elem: '#' + this.eid, color: this.value, done: done, change: done
                 }, conf)));

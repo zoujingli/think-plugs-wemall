@@ -1,5 +1,6 @@
 <?php
 
+
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
@@ -13,6 +14,8 @@
 // | gitee 代码仓库：https://gitee.com/zoujingli/think-plugs-wemall
 // | github 代码仓库：https://github.com/zoujingli/think-plugs-wemall
 // +----------------------------------------------------------------------
+
+declare (strict_types=1);
 
 namespace plugin\wemall\controller\user;
 
@@ -44,7 +47,7 @@ class Rebate extends Controller
         PluginWemallUserRebate::mQuery()->layTable(function () {
             $this->title = '用户返利管理';
             $this->types = UserRebateService::prizes;
-            $this->rebate = UserRebateService::amount(0);
+            $this->rebate = UserRebateService::recount(0);
         }, static function (QueryHelper $query) {
             $query->equal('type')->like('name,order_no')->dateBetween('create_at');
             // 会员条件查询

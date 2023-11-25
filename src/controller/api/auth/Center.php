@@ -14,10 +14,13 @@
 // | github 代码仓库：https://github.com/zoujingli/think-plugs-wemall
 // +----------------------------------------------------------------------
 
+declare (strict_types=1);
+
 namespace plugin\wemall\controller\api\auth;
 
 use plugin\wemall\controller\api\Auth;
 use plugin\wemall\service\UserOrderService;
+use plugin\wemall\service\UserRebateService;
 use plugin\wemall\service\UserUpgradeService;
 
 /**
@@ -29,7 +32,6 @@ class Center extends Auth
 {
     /**
      * 控制器初始化
-     * @return void
      */
     protected function initialize()
     {
@@ -39,7 +41,6 @@ class Center extends Auth
 
     /**
      * 获取会员资料
-     * @return void
      * @throws \think\admin\Exception
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\DbException
@@ -48,23 +49,33 @@ class Center extends Auth
     public function get()
     {
         $account = $this->account->get();
-        if (empty($account['user']['extra'])) {
-            UserUpgradeService::recount($this->unid);
+        if (empty($account['user']['extra']['level_name'])) {
+            UserUpgradeService::recount($this->unid, true);
             $account = $this->account->get();
         }
         $this->success('获取资料成功！', [
-            'account'  => $account,
-            'relation' => $this->relation,
+            'account' => $account, 'relation' => $this->relation,
         ]);
     }
 
     /**
+     * 获取会员等级
+     * @throws \think\admin\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    public function levels()
+    {
+        $this->success('获取会员等级！', UserRebateService::levels());
+    }
+
+    /**
      * 获取会员折扣
-     * @return void
      */
     public function discount()
     {
-        $data = $this->_vali(['discount.require' => '折扣编号不能为空！']);
+        $data = $this->_vali(['discount.require' => '折扣不能为空！']);
         [, $rate] = UserOrderService::discount(intval($data['discount']), $this->levelCode);
         $this->success('获取会员折扣！', ['rate' => floatval($rate)]);
     }

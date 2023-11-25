@@ -14,6 +14,8 @@
 // | github 代码仓库：https://github.com/zoujingli/think-plugs-wemall
 // +----------------------------------------------------------------------
 
+declare (strict_types=1);
+
 namespace plugin\wemall\model;
 
 use think\model\relation\HasMany;
@@ -25,6 +27,17 @@ use think\model\relation\HasMany;
  */
 class PluginWemallGoods extends Abs
 {
+    /**
+     * 日志名称
+     * @var string
+     */
+    protected $oplogName = '商品';
+
+    /**
+     * 日志类型
+     * @var string
+     */
+    protected $oplogType = '分销商城管理';
 
     /**
      * 关联产品规格
@@ -38,6 +51,13 @@ class PluginWemallGoods extends Abs
             ->where(['status' => 1]);
     }
 
+    /**
+     * 关联产品列表
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
     public static function lists(): array
     {
         $model = static::mk()->with('items')->withoutField('specs');

@@ -4,20 +4,8 @@
 <form action="{:sysuri()}" method="post" data-auto="true" class="layui-form layui-card">
     <div class="layui-card-body">
 
-        <fieldset class="layui-form-item border-0 shadow-inset">
-            <legend><span class="layui-badge think-bg-violet">结算周期</span></legend>
-            <div class="layui-form-item">
-                {php} $data['teams_type'] = $data['teams_type'] ?? 1; {/php}
-                {foreach [1 => '实时结算'] as $key => $val}{if $data.teams_type eq $key}
-                <input class="layui-input" name="teams_type" title="{$val}" type="radio" value="{$key}" checked>
-                {else}
-                <input class="layui-input" name="teams_type" title="{$val}" type="radio" value="{$key}">
-                {/if}{/foreach}
-            </div>
-        </fieldset>
-
-        <fieldset class="layui-form-item border-0 shadow-inset">
-            <legend><span class="layui-badge think-bg-violet">到账事件</span></legend>
+        <fieldset class="layui-form-item">
+            <legend><span class="layui-badge think-bg-violet">结算方式</span></legend>
             <div class="layui-form-item">
                 {php} $data['settl_type'] = $data['settl_type'] ?? 1; {/php}
                 {foreach [1 => '支付后立即到账', 2 => '确认收货后到账'] as $key => $val}{if $data.settl_type eq $key}
@@ -40,7 +28,8 @@
                     {foreach $levels as $two}
                     <fieldset>
                         <legend>
-                            <span class="layui-badge think-bg-violet">{$one.name}</span><i class="layui-icon font-s10">&#xe602;</i>
+                            <span class="layui-badge think-bg-violet">{$one.name}</span>
+                            <span class="layui-badge think-bg-blue border-radius">推</span>
                             <span class="layui-badge think-bg-violet">{$two.name}</span>
                         </legend>
                         <div class="layu-row layui-col-space20">
@@ -48,16 +37,16 @@
                                 <fieldset class="shadow-inset border-0 margin-0">
                                     <legend><span class="layui-badge layui-bg-blue">首推奖励</span></legend>
                                     <div class="layui-form-item">
-                                        {php} $key = 'frist_type_vip_'.$one['number'].'_'.$two['number']; {/php}
+                                        {php} $key = 'first_type_vip_'.$one['number'].'_'.$two['number']; {/php}
                                         {php} $data[$key] = $data[$key] ?? 0; {/php}
-                                        {foreach ['关闭奖励', '固定金额 / 每单', '金额比例 / 每单'] as $k => $v}
+                                        {foreach ['关闭奖励', '固定金额 / 每单', '金额比例 / 每单','利润比例 / 每单'] as $k => $v}
                                         {if isset($data[$key]) and $data[$key] eq $k}
                                         <input class="layui-input" name="{$key}" title="{$v}" type="radio" value="{$k}" checked>
                                         {else}
                                         <input class="layui-input" name="{$key}" title="{$v}" type="radio" value="{$k}">
                                         {/if}{/foreach}
                                         <label class="block relative">
-                                            {php} $key = 'frist_value_vip_'.$one['number'].'_'.$two['number']; {/php}
+                                            {php} $key = 'first_value_vip_'.$one['number'].'_'.$two['number']; {/php}
                                             <span class="color-blue"><b>请输入奖励金额或返利金额比例，</b>如：比例填写 10.00 表示 10.00% 或 10.00 元</span>
                                             <input type="number" step="0.0001" min="0.0000" class="layui-input" data-blur-number="4" name="{$key}" placeholder="请输入奖励金额或返利金额比例" value="{$data[$key]??'0.0000'}">
                                         </label>
@@ -70,7 +59,7 @@
                                     <div class="layui-form-item">
                                         {php} $key = 'repeat_type_vip_'.$one['number'].'_'.$two['number']; {/php}
                                         {php} $data[$key] = $data[$key] ?? 0; {/php}
-                                        {foreach ['关闭奖励', '固定金额 / 每单', '金额比例 / 每单'] as $k => $v}
+                                        {foreach ['关闭奖励', '固定金额 / 每单', '金额比例 / 每单','利润比例 / 每单'] as $k => $v}
                                         {if isset($data[$key]) and $data[$key] eq $k}
                                         <input class="layui-input" name="{$key}" title="{$v}" type="radio" value="{$k}" checked>
                                         {else}
@@ -95,7 +84,7 @@
                                 <div class="layui-form-item">
                                     {php} $key = 'direct_type_vip_'.$one['number']; {/php}
                                     {php} $data[$key] = $data[$key] ?? 0; {/php}
-                                    {foreach ['关闭奖励', '固定金额 / 每单', '金额比例 / 每单'] as $k => $v}
+                                    {foreach ['关闭奖励', '固定金额 / 每单', '金额比例 / 每单','利润比例 / 每单'] as $k => $v}
                                     {if isset($data[$key]) and $data[$key] eq $k}
                                     <input class="layui-input" name="{$key}" title="{$v}" type="radio" value="{$k}" checked>
                                     {else}
@@ -115,7 +104,7 @@
                                 <div class="layui-form-item">
                                     {php} $key = 'indirect_type_vip_'.$one['number']; {/php}
                                     {php} $data[$key] = $data[$key] ?? 0; {/php}
-                                    {foreach ['关闭奖励', '固定金额 / 每单', '金额比例 / 每单'] as $k => $v}
+                                    {foreach ['关闭奖励', '固定金额 / 每单', '金额比例 / 每单','利润比例 / 每单'] as $k => $v}
                                     {if isset($data[$key]) and $data[$key] eq $k}
                                     <input class="layui-input" name="{$key}" title="{$v}" type="radio" value="{$k}" checked>
                                     {else}
@@ -137,7 +126,7 @@
                                 <div class="layui-form-item">
                                     {php} $key = 'upgrade_type_vip_'.$one['number'].'_'.$two['number']; {/php}
                                     {php} $data[$key] = $data[$key] ?? 0; {/php}
-                                    {foreach ['关闭奖励', '固定金额 / 每单', '金额比例 / 每单'] as $k => $v}
+                                    {foreach ['关闭奖励', '固定金额 / 每单', '金额比例 / 每单','利润比例 / 每单'] as $k => $v}
                                     {if isset($data[$key]) and $data[$key] eq $k}
                                     <input class="layui-input" name="{$key}" title="{$v}" type="radio" value="{$k}" checked>
                                     {else}
@@ -176,7 +165,7 @@
                                 <div class="layui-form-item">
                                     {php} $key = 'manage_type_vip_'.$one['number']; {/php}
                                     {php} $data[$key] = $data[$key] ?? 0; {/php}
-                                    {foreach ['关闭奖金', '不累计未发管理奖金额', '累计未发放管理奖金'] as $k => $v}
+                                    {foreach ['关闭奖励', '不累计奖金', '累计跳级奖金'] as $k => $v}
                                     {if isset($data[$key]) and $data[$key] eq $k}
                                     <input class="layui-input" name="{$key}" title="{$v}" type="radio" value="{$k}" checked>
                                     {else}
@@ -198,7 +187,7 @@
 
         <div class="layui-form-item text-center margin-top-30">
             <button class="layui-btn" type='submit'>保存配置</button>
-            <button class="layui-btn layui-btn-danger" data-confirm="确定要取消编辑吗？" data-history-back type='button'>取消编辑</button>
+            <button class="layui-btn layui-btn-danger" data-confirm="确定要取消编辑吗？" data-target-backup type='button'>取消编辑</button>
         </div>
 
     </div>

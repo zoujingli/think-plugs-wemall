@@ -14,26 +14,27 @@
 // | github 代码仓库：https://github.com/zoujingli/think-plugs-wemall
 // +----------------------------------------------------------------------
 
+declare (strict_types=1);
+
 namespace plugin\wemall\model;
 
 /**
  * 用户等级配置模型
- * @class PluginWemallConfigUpgrade
+ * @class PluginWemallConfigLevel
  * @package plugin\wemall\model
  */
 class PluginWemallConfigLevel extends Abs
 {
     /**
      * 获取用户等级
-     * @param boolean $allow
+     * @param ?string $first 增加首项内容
+     * @param string $fields 指定查询字段
      * @return array
      */
-    public static function items(bool $allow = false): array
+    public static function items(string $first = null, string $fields = 'name,number as prefix,number,upgrade_team'): array
     {
-        $items = $allow ? [-1 => ['name' => '普通商品', 'prefix' => '-', 'number' => -1, 'upgrade_team' => 0]] : [];
-        return $items + static::mk()->where(['status' => 1])
-                ->hidden(['id', 'utime', 'status', 'create_at'])
-                ->order('number asc')->column('name,number as prefix,number,upgrade_team', 'number');
+        $items = $first ? [-1 => ['name' => $first, 'prefix' => '-', 'number' => -1, 'upgrade_team' => 0]] : [];
+        return $items + static::mk()->where(['status' => 1])->hidden(['id', 'utime', 'status', 'create_at'])->order('number asc')->column($fields, 'number');
     }
 
     /**

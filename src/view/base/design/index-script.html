@@ -56,7 +56,7 @@
             '商城首页': {name: '首页', title: '商城首页', icon: {normal: 'https://thinkadmin.top/static/shop/a-home-normal.png', active: 'https://thinkadmin.top/static/shop/a-home-active.png'}},
             '商品分类': {name: '分类', title: '商品分类', icon: {normal: 'https://thinkadmin.top/static/shop/a-cates-normal.png', active: 'https://thinkadmin.top/static/shop/a-cates-active.png'}},
             '个人中心': {name: '我的', title: '个人中心', icon: {normal: 'https://thinkadmin.top/static/shop/a-user-normal.png', active: 'https://thinkadmin.top/static/shop/a-user-active.png'}},
-        };
+        }
         // 默认外部样式参数
         let DefaultOuterStyle = {
             vTypes: '页面间距,容器宽度,上下内距,左右内距,边框位置,边框样式,边框颜色,边框宽度,边框圆角,背景颜色,背景图片,背景样式',
@@ -71,7 +71,8 @@
         };
         // 实例化验证器及 Vue 对象
         let vali = new Validate(document.forms['DesignForm']), app = new Vue({
-            el: '#TemplateApp', components: {draggable: Sortable}, data: function () {
+            el: '#TemplateApp', components: {draggable: Sortable},
+            data: function () {
                 return {
                     edit: {item: {}, unid: ''}, heigth: 0,
                     defaultCatesTypes: [{name: '默认样式', image: 'https://storage.thinkadmin.top/d/temps/a1/25cb427262b32c9eb678ad376b3501.png'}],
@@ -235,24 +236,6 @@
 
                 if (EditorData.pages) {
                     this.pages = EditorData.pages;
-                    console.log(this.pages)
-                    this.pages.map(v => {
-                        console.log(v)
-                        let tPage = CreateNewPage(v.type);
-                        v.lock = tPage.lock;
-                        v.items.map(x => {
-                            let tItem;
-                            this.tools.some(xx => {
-                                if (xx.type === x.type) {
-                                    return (tItem = xx) !== false;
-                                }
-                            })
-                            if (tItem) for (let i in tItem) {
-                                if (typeof x[i] === 'undefined') x[i] = tItem[i]
-                                if (typeof tItem[i] === 'undefined') delete x[i]
-                            }
-                        })
-                    });
                 }
 
                 if (EditorData.navbar) {

@@ -14,6 +14,8 @@
 // | github 代码仓库：https://github.com/zoujingli/think-plugs-wemall
 // +----------------------------------------------------------------------
 
+declare (strict_types=1);
+
 namespace plugin\wemall\model;
 
 use plugin\account\model\PluginAccountUser;
@@ -36,6 +38,15 @@ class PluginWemallUserRelation extends Abs
     }
 
     /**
+     * 关联临时上级
+     * @return \think\model\relation\HasOne
+     */
+    public function user0(): HasOne
+    {
+        return $this->hasOne(PluginAccountUser::class, 'id', 'puid0');
+    }
+
+    /**
      * 关联上1级用户
      * @return \think\model\relation\HasOne
      */
@@ -51,6 +62,33 @@ class PluginWemallUserRelation extends Abs
     public function user2(): HasOne
     {
         return $this->hasOne(PluginAccountUser::class, 'id', 'puid2');
+    }
+
+    /**
+     * 关联临时上级关系
+     * @return \think\model\relation\HasOne
+     */
+    public function relation0(): HasOne
+    {
+        return $this->hasOne(PluginWemallUserRelation::class, 'unid', 'puid0')->with('user');
+    }
+
+    /**
+     * 关联上1级关系
+     * @return \think\model\relation\HasOne
+     */
+    public function relation1(): HasOne
+    {
+        return $this->hasOne(PluginWemallUserRelation::class, 'unid', 'puid1')->with('user');
+    }
+
+    /**
+     * 关联上2级关系
+     * @return \think\model\relation\HasOne
+     */
+    public function relation2(): HasOne
+    {
+        return $this->hasOne(PluginWemallUserRelation::class, 'unid', 'puid2')->with('user');
     }
 
     /**
@@ -74,7 +112,7 @@ class PluginWemallUserRelation extends Abs
     }
 
     /**
-     * 同步更新数据
+     * 更新用户推荐关系
      * @param integer $unid 用户编号
      * @param integer $from 上级用户
      * @return bool|string

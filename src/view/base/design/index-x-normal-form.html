@@ -67,10 +67,13 @@
                                                 <span class="layui-form-label" style="width:3em">标 题</span>
                                                 <input placeholder="选项，请输入标题" v-model="xx.name" class="flex-1 layui-input ">
                                             </label>
-                                            <label class="flex relative margin-top-5">
+                                            <div class="flex relative margin-top-5">
                                                 <span class="layui-form-label" style="width:3em">链 接</span>
-                                                <input @click="setLink(xx)" placeholder="必选，请选择链接" readonly v-model="xx.link" class="flex-1 layui-input pointer">
-                                            </label>
+                                                <div class="layui-input-wrap pointer flex-1" @click="setLink(xx)">
+                                                    <label><input type="text" placeholder="必选，请选择链接" class="layui-input" v-model="xx.link"></label>
+                                                    <div class="layui-input-suffix"><i class="layui-icon layui-icon-down"></i></div>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div>
                                             <a @click="moveUp(item.data,$index)" style="margin:0 0 0 5px" class="block layui-btn layui-btn-primary layui-btn-xs"><i style="transform:rotate(090deg)" class="layui-icon inline-block">&#xe65c;</i></a>
@@ -140,12 +143,15 @@
                             <div class="flex-1">
                                 <label class="flex relative">
                                     <span class="layui-form-label" style="width:3em">标 题</span>
-                                    <input placeholder="选项，请输入标题" v-model="edit.item.title" class="flex-1 layui-input ">
+                                    <input placeholder="可选，请输入标题" v-model="edit.item.title" class="flex-1 layui-input ">
                                 </label>
-                                <label class="flex relative margin-top-5">
+                                <div class="flex relative margin-top-5">
                                     <span class="layui-form-label" style="width:3em">链 接</span>
-                                    <input placeholder="必选，请选择链接" readonly @click="setLink(edit.item)" v-model="edit.item.link" class="flex-1 pointer layui-input">
-                                </label>
+                                    <div class="layui-input-wrap pointer flex-1" @click="setLink(edit.item)">
+                                        <label><input type="text" placeholder="可选，请选择链接" class="layui-input" v-model="edit.item.link"></label>
+                                        <div class="layui-input-suffix"><i class="layui-icon layui-icon-down"></i></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -176,12 +182,15 @@
                                 <div class="flex-1">
                                     <label class="flex relative">
                                         <span class="layui-form-label" style="width:3em">标 题</span>
-                                        <input placeholder="选项，请输入标题" v-model="xx.title" class="flex-1 layui-input ">
+                                        <input placeholder="可选，请输入标题" v-model="xx.title" class="flex-1 layui-input ">
                                     </label>
-                                    <label class="flex relative margin-top-5">
+                                    <div class="flex relative margin-top-5">
                                         <span class="layui-form-label" style="width:3em">链 接</span>
-                                        <input placeholder="必选，请选择链接" readonly @click="setLink(xx)" v-model="xx.link" class="flex-1 layui-input pointer">
-                                    </label>
+                                        <div class="layui-input-wrap pointer flex-1" @click="setLink(xx)">
+                                            <label><input type="text" placeholder="可选，请选择链接" class="layui-input" v-model="xx.link"></label>
+                                            <div class="layui-input-suffix"><i class="layui-icon layui-icon-down"></i></div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div>
                                     <a @click="moveUp(item.data,$index)" style="margin:0 0 0 5px" class="block layui-btn layui-btn-primary layui-btn-xs"><i style="transform:rotate(090deg)" class="layui-icon inline-block">&#xe65c;</i></a>

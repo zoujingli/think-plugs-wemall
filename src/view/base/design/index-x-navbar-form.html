@@ -27,13 +27,16 @@
                             </div>
                             <div class="flex-1">
                                 <label class="relative flex">
-                                    <span class="design-form-label" style="min-width:3em">名 称</span>
+                                    <span class="design-form-label" style="min-width:2.5em">名称</span>
                                     <input class="layui-input flex-1" v-model="x.foot.name" placeholder="请输入名称">
                                 </label>
-                                <label class="relative flex margin-top-5">
-                                    <span class="design-form-label" style="min-width:3em">链 接</span>
-                                    <input class="layui-input flex-1 pointer" readonly @click="setLink(x.link,'value')" v-model="x.link.value" placeholder="请输入链接">
-                                </label>
+                                <div class="relative flex margin-top-5">
+                                    <span class="design-form-label" style="min-width:2.5em">链接</span>
+                                    <div class="layui-input-wrap pointer flex-1" @click="setLink(x.link,'value')">
+                                        <label><input type="text" placeholder="可选，请选择链接" class="layui-input" v-model="x.link.value"></label>
+                                        <div class="layui-input-suffix"><i class="layui-icon layui-icon-down"></i></div>
+                                    </div>
+                                </div>
                             </div>
                             <div>
                                 <a @click="moveUp(pages,$index)" style="margin:0 0 0 5px" class="block layui-btn layui-btn-primary layui-btn-xs"><i style="transform:rotate(090deg)" class="layui-icon inline-block">&#xe65c;</i></a>

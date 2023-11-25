@@ -1,5 +1,6 @@
 <?php
 
+
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
@@ -14,15 +15,23 @@
 // | github 代码仓库：https://github.com/zoujingli/think-plugs-wemall
 // +----------------------------------------------------------------------
 
+declare (strict_types=1);
+
 namespace plugin\wemall\controller\api;
 
 use plugin\wemall\model\PluginWemallGoods;
 use plugin\wemall\model\PluginWemallGoodsCate;
 use plugin\wemall\model\PluginWemallGoodsMark;
+use plugin\wemall\model\PluginWemallUserActionSearch;
 use plugin\wemall\service\ExpressService;
 use think\admin\Controller;
 use think\admin\helper\QueryHelper;
 
+/**
+ * 获取商品数据接口
+ * @class Goods
+ * @package plugin\wemall\controller\api
+ */
 class Goods extends Controller
 {
 
@@ -76,5 +85,18 @@ class Goods extends Controller
     public function region()
     {
         $this->success('获取配送区域', ExpressService::region(3, 1));
+    }
+
+    /**
+     * 获取搜索热词
+     * @return void
+     */
+    public function hotkeys()
+    {
+        PluginWemallUserActionSearch::mQuery(null, function (QueryHelper $query) {
+            $query->whereTime('sort', '-30 days')->like('keys');
+            $query->field('keys')->group('keys')->cache(true, 60)->order('sort desc');
+            $this->success('获取搜索热词！', ['keys' => $query->limit(0, 15)->column('keys')]);
+        });
     }
 }

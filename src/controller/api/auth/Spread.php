@@ -1,5 +1,6 @@
 <?php
 
+
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
@@ -14,10 +15,14 @@
 // | github 代码仓库：https://github.com/zoujingli/think-plugs-wemall
 // +----------------------------------------------------------------------
 
+declare (strict_types=1);
+
 namespace plugin\wemall\controller\api\auth;
 
 use plugin\wemall\controller\api\Auth;
+use plugin\wemall\model\PluginWemallConfigPoster;
 use plugin\wemall\model\PluginWemallUserRelation;
+use plugin\wemall\service\PosterService;
 use think\admin\helper\QueryHelper;
 
 /**
@@ -37,5 +42,30 @@ class Spread extends Auth
             $query->with(['user'])->where(['puid0' => $this->unid])->order('id desc');
             $this->success('获取数据成功！', $query->page(intval(input('page', 1)), false, false, 10));
         });
+    }
+
+    /**
+     * 获取我的海报
+     * @return void
+     * @throws \think\admin\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    public function poster()
+    {
+        $account = $this->account->get();
+        $data = [
+            'user.spreat'   => "/pages/home/index?from={$this->unid}",
+            'user.headimg'  => $account['user']['headimg'] ?? '',
+            'user.nickname' => $account['user']['nickname'] ?? '',
+            'user.rolename' => $this->relation['level_name'] ?? '',
+        ];
+        $items = PluginWemallConfigPoster::items($this->levelCode);
+        foreach ($items as &$item) {
+            $item['image'] = PosterService::create($item['image'], $item['content'], $data);
+            unset($item['content']);
+        }
+        $this->success('获取海报成功！', $items);
     }
 }

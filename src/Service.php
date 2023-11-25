@@ -19,6 +19,7 @@ declare (strict_types=1);
 namespace plugin\wemall;
 
 use plugin\payment\model\PluginPaymentRecord;
+use plugin\payment\Service as PaymentService;
 use plugin\wemall\command\Clear;
 use plugin\wemall\command\Trans;
 use plugin\wemall\command\Users;
@@ -39,7 +40,7 @@ class Service extends Plugin
      * 定义插件名称
      * @var string
      */
-    protected $appName = '多端商城系统';
+    protected $appName = '分销商城';
 
     /**
      * 定义安装包名
@@ -63,29 +64,29 @@ class Service extends Plugin
 
         // 注册支付审核事件
         $this->app->event->listen('PluginPaymentAudit', function (PluginPaymentRecord $payment) {
-            $this->app->log->notice("Event PluginPaymentAudit {$payment['order_no']}");
-            $order = PluginWemallOrder::mk()->where(['order_no' => $payment['order_no']])->findOrEmpty();
+            $this->app->log->notice("Event PluginPaymentAudit {$payment->getAttr('order_no')}");
+            $order = PluginWemallOrder::mk()->where(['order_no' => $payment->getAttr('order_no')])->findOrEmpty();
             $order->isExists() && UserOrderService::payment($order, $payment);
         });
 
         // 注册支付拒审事件
         $this->app->event->listen('PluginPaymentRefuse', function (PluginPaymentRecord $payment) {
-            $this->app->log->notice("Event PluginPaymentRefuse {$payment['order_no']}");
-            $order = PluginWemallOrder::mk()->where(['order_no' => $payment['order_no']])->findOrEmpty();
+            $this->app->log->notice("Event PluginPaymentRefuse {$payment->getAttr('order_no')}");
+            $order = PluginWemallOrder::mk()->where(['order_no' => $payment->getAttr('order_no')])->findOrEmpty();
             $order->isExists() && UserOrderService::payment($order, $payment);
         });
 
         // 注册支付完成事件
         $this->app->event->listen('PluginPaymentSuccess', function (PluginPaymentRecord $payment) {
-            $this->app->log->notice("Event PluginPaymentSuccess {$payment['order_no']}");
-            $order = PluginWemallOrder::mk()->where(['order_no' => $payment['order_no']])->findOrEmpty();
+            $this->app->log->notice("Event PluginPaymentSuccess {$payment->getAttr('order_no')}");
+            $order = PluginWemallOrder::mk()->where(['order_no' => $payment->getAttr('order_no')])->findOrEmpty();
             $order->isExists() && UserOrderService::payment($order, $payment);
         });
 
         // 注册支付取消事件
         $this->app->event->listen('PluginPaymentCancel', function (PluginPaymentRecord $payment) {
-            $this->app->log->notice("Event PluginPaymentCancel {$payment['order_no']}");
-            $order = PluginWemallOrder::mk()->where(['order_no' => $payment['order_no']])->findOrEmpty();
+            $this->app->log->notice("Event PluginPaymentCancel {$payment->getAttr('order_no')}");
+            $order = PluginWemallOrder::mk()->where(['order_no' => $payment->getAttr('order_no')])->findOrEmpty();
             $order->isExists() && UserOrderService::payment($order, $payment);
         });
 
@@ -107,17 +108,13 @@ class Service extends Plugin
             [
                 'name' => '商城配置',
                 'subs' => [
-                    // ['name' => '数据统计报表', 'icon' => 'layui-icon layui-icon-theme', 'node' => "{$code}/total.portal/index"],
-                    // ['name' => '轮播图片管理', 'icon' => 'layui-icon layui-icon-carousel', 'node' => "{$name}/base.slider/index"],
-                    // ['name' => '页面内容管理', 'icon' => 'layui-icon layui-icon-read', 'node' => "{$name}/base.page/index"],
-                    // ['name' => '支付参数管理', 'icon' => 'layui-icon layui-icon-rmb', 'node' => "plugin-payment/config/index"],
-                    // ['name' => '手机短信管理', 'icon' => 'layui-icon layui-icon-email', 'node' => "plugin-account/message/index"],
-                    // ['name' => '系统通知管理', 'icon' => 'layui-icon layui-icon-notice', 'node' => "{$code}/base.message/index"],
+                    ['name' => '数据统计报表', 'icon' => 'layui-icon layui-icon-theme', 'node' => "{$code}/base.report/index"],
+                    ['name' => '推广海报管理', 'icon' => 'layui-icon layui-icon-carousel', 'node' => "{$code}/base.poster/index"],
+                    ['name' => '系统通知管理', 'icon' => 'layui-icon layui-icon-notice', 'node' => "{$code}/base.notify/index"],
+                    ['name' => '商城参数管理', 'icon' => 'layui-icon layui-icon-set', 'node' => "{$code}/base.config/index"],
                     ['name' => '用户等级管理', 'icon' => 'layui-icon layui-icon-senior', 'node' => "{$code}/base.level/index"],
-                    ['name' => '用户折扣方案', 'icon' => 'layui-icon layui-icon-set', 'node' => "{$code}/base.discount/index"],
-                    ['name' => '店铺页面装修', 'icon' => 'layui-icon layui-icon-screen-restore', 'node' => "{$code}/base.design/index"],
-                    // ['name' => '邀请二维码设置', 'icon' => 'layui-icon layui-icon-cols', 'node' => "{$name}/base.config/cropper"],
-//                    ['name' => '微信小程序配置', 'icon' => 'layui-icon layui-icon-login-wechat', 'node' => "{$code}/base.config/wxapp"],
+                    ['name' => '用户折扣方案', 'icon' => 'layui-icon layui-icon-engine', 'node' => "{$code}/base.discount/index"],
+                    ['name' => '店铺页面装修', 'icon' => 'layui-icon layui-icon-code-circle', 'node' => "{$code}/base.design/index"],
                 ],
             ],
             [
@@ -140,6 +137,6 @@ class Service extends Plugin
                     ['name' => '邮费模板管理', 'icon' => 'layui-icon layui-icon-template-1', 'node' => "{$code}/base.express.template/index"],
                 ],
             ],
-        ], \plugin\payment\Service::menu());
+        ], PaymentService::menu());
     }
 }
