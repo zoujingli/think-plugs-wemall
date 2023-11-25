@@ -45,6 +45,6 @@ class PluginWemallConfigLevel extends Abs
     public static function maxNumber(): int
     {
         if (static::mk()->count() < 1) return 0;
-        return static::mk()->max('number') + 1;
+        return intval(static::mk()->max('number') + 1);
     }
 }
