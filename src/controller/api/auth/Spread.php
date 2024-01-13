@@ -4,7 +4,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -23,7 +23,9 @@ use plugin\wemall\controller\api\Auth;
 use plugin\wemall\model\PluginWemallConfigPoster;
 use plugin\wemall\model\PluginWemallUserRelation;
 use plugin\wemall\service\PosterService;
+use plugin\wemall\service\UserUpgrade;
 use think\admin\helper\QueryHelper;
+use think\exception\HttpResponseException;
 
 /**
  * 推广用户管理
@@ -45,8 +47,26 @@ class Spread extends Auth
     }
 
     /**
+     * 临时绑定推荐人
+     * @return void
+     */
+    public function spread()
+    {
+        try {
+            $input = $this->_vali(['from.require' => '推荐人不能为空！']);
+            $this->success('绑定推荐人成功！', UserUpgrade::bindAgent($this->unid, intval($input['from']), 0));
+        } catch (HttpResponseException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->error($exception->getMessage());
+        }
+    }
+
+    /**
      * 获取我的海报
      * @return void
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      * @throws \think\admin\Exception
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\DbException
@@ -61,7 +81,7 @@ class Spread extends Auth
             'user.nickname' => $account['user']['nickname'] ?? '',
             'user.rolename' => $this->relation['level_name'] ?? '',
         ];
-        $items = PluginWemallConfigPoster::items($this->levelCode);
+        $items = PluginWemallConfigPoster::items($this->levelCode, $this->type);
         foreach ($items as &$item) {
             $item['image'] = PosterService::create($item['image'], $item['content'], $data);
             unset($item['content']);

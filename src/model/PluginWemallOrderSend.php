@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -18,6 +18,7 @@ declare (strict_types=1);
 
 namespace plugin\wemall\model;
 
+use plugin\account\model\Abs;
 use plugin\account\model\PluginAccountUser;
 use think\model\relation\HasOne;
 
@@ -44,15 +45,5 @@ class PluginWemallOrderSend extends Abs
     public function main(): HasOne
     {
         return $this->hasOne(PluginWemallOrder::class, 'order_no', 'order_no')->with(['items']);
-    }
-
-    public function setExtraAttr($value): string
-    {
-        return is_array($value) ? json_encode($value, 64 | 256) : (string)$value;
-    }
-
-    public function getExtraAttr($value): array
-    {
-        return is_string($value) ? json_decode($value, true) : [];
     }
 }

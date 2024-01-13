@@ -23,7 +23,7 @@
                 <a class="absolute" style="right:20px;top:20px" @click="show()">预 览</a>
 
                 <label class="layui-form-item block relative">
-                    <span class="help-label label-required-prev"><b>推广海报编号</b>Code</span>
+                    <span class="help-label label-required-prev"><b>推广海报编号</b><code>Code</code></span>
                     <input class="layui-input think-bg-gray" name="code" readonly required placeholder="请输入推广海报编号" value='{$vo.code|default=""}'>
                 </label>
 
@@ -31,6 +31,22 @@
                     <span class="help-label label-required-prev"><b>推广海报标题</b><code>Title</code></span>
                     <input class="layui-input" name="name" required placeholder="请输入推广海报标题" value='{$vo.name|default=""}'>
                 </label>
+
+                <div class="layui-form-item block relative">
+                    <span class="help-label label-required-prev"><b>授权终端类型</b><code>Device</code></span>
+                    <div class="layui-textarea help-checks">
+                        {empty name='vo.devices'}{php}$vo['devices']=[];{/php}{/empty}
+                        {foreach $devices as $k=>$l}
+                        <label class="think-checkbox">
+                            {if in_array($k,$vo.devices)}
+                            <input type="checkbox" name="devices[]" value="{$k}" lay-ignore checked> {$l.name}
+                            {else}
+                            <input type="checkbox" name="devices[]" value="{$k}" lay-ignore> {$l.name}
+                            {/if}
+                        </label>
+                        {/foreach}
+                    </div>
+                </div>
 
                 <div class="layui-form-item block relative">
                     <span class="help-label label-required-prev"><b>授权用户等级</b><code>Level</code></span>
@@ -57,32 +73,34 @@
                 </div>
 
                 <div class="layui-row layui-col-space15">
-                    <div class="layui-col-xs6" v-for="(x,k) in items">
+                    <div class="layui-col-md4 layui-col-sm6 layui-col-xs6" v-for="(x,k) in items">
                         <span class="help-label label-required-prev"><b>邀请人{{x.name}}</b></span>
                         <div class="layui-textarea">
-                            <div class="flex flex-align-center margin-bottom-5">
-                                <div class="nowrap padding-row-5 color-desc">是否显示</div>
+                            <div class="layui-input-group">
+                                <div class="layui-input-prefix nowrap">是否显示</div>
                                 <label class="think-radio"><input type="radio" v-model="x.state" value="1" lay-ignore> 是</label>
                                 <label class="think-radio"><input type="radio" v-model="x.state" value="0" lay-ignore> 否</label>
                             </div>
-                            <div v-if="x.type==='ximg'" class="flex flex-align-center">
-                                <div class="nowrap padding-row-5 color-desc">图片尺寸</div>
-                                <label class="block" style="width:100px">
-                                    <input class="layui-input text-center" type="number" v-model="x.size" min="12" max="200" value="12">
-                                </label>
-                                <div class="padding-left-10 color-desc">px</div>
+                            <div v-if="x.type==='ximg'" class="layui-input-group ta-mt-10">
+                                <div class="layui-input-prefix nowrap">图片尺寸</div>
+                                <label><input type="number" v-model="x.size" min="12" max="200" value="12" class="layui-input ta-pr-0"></label>
+                                <div class="layui-input-suffix">px</div>
                             </div>
-                            <div v-if="x.type=='text'" class="flex flex-align-center">
-                                <div class="nowrap padding-row-5 color-desc">文字大小</div>
-                                <label class="block" style="width:100px">
-                                    <input class="layui-input text-center ta-pr0" type="number" v-model="x.size" min="12" max="50" value="12">
-                                </label>
-                                <span :data-color-picker="k" class="margin-0 margin-left-10"></span>
+                            <div v-if="x.type=='text'" class="layui-input-group ta-mt-10">
+                                <div class="layui-input-prefix nowrap">文字大小</div>
+                                <label><input type="number" v-model="x.size" min="12" max="99" value="12" class="layui-input ta-pr-0"></label>
+                                <div class="layui-input-suffix"><span :data-color-picker="k" class="margin-0"></span></div>
                             </div>
-                            <div v-if="x.rule=='item.value'" class="flex flex-align-center margin-top-10">
-                                <div class="nowrap padding-row-5 color-desc">文字内容</div>
-                                <label class="block" style="width:200px">
+                            <div v-if="x.rule=='item.value'" class="layui-input-group ta-mt-10">
+                                <div class="layui-input-prefix nowrap">文字内容</div>
+                                <label class="block">
                                     <input class="layui-input" placeholder="请输入文字内容" v-model="x.value">
+                                </label>
+                            </div>
+                            <div v-if="x.rule=='user.spreat'" class="layui-input-group ta-mt-10">
+                                <div class="layui-input-prefix nowrap">入口链接</div>
+                                <label class="block">
+                                    <input class="layui-input" placeholder="请输入入口链接" v-model="x.value">
                                 </label>
                             </div>
                         </div>
@@ -117,7 +135,7 @@
                     {type: 'ximg', name: '用户头像', rule: 'user.headimg', value: '', size: 100, state: 1, point: {x: 30, y: 80}, color: 'rgba(51,51,51,1)'},
                     {type: 'text', name: '用户昵称', rule: 'user.nickname', value: '用户昵称', size: 14, state: 1, point: {x: 55, y: 82}, color: 'rgba(51,51,51,1)'},
                     {type: 'text', name: '等级身份', rule: 'user.rolename', value: '推广专员', size: 14, state: 1, point: {x: 55, y: 88}, color: 'rgba(51,51,51,1)'},
-                    {type: 'ximg', name: '邀请二维码', rule: 'user.spreat', value: '', size: 100, state: 1, point: {x: 70, y: 80}, color: 'rgba(51,51,51,1)'},
+                    {type: 'ximg', name: '邀请二维码', rule: 'user.spreat', value: '/pages/home/index', size: 100, state: 1, point: {x: 70, y: 80}, color: 'rgba(51,51,51,1)'},
                     {type: 'text', name: '推广短语', rule: 'item.value', value: '推广短语', size: 14, state: 1, point: {x: 30, y: 75}, color: 'rgba(51,51,51,1)'},
                 ]
             }, methods: {

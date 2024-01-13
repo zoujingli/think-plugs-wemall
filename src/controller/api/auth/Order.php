@@ -4,7 +4,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -30,9 +30,9 @@ use plugin\wemall\model\PluginWemallOrderCart;
 use plugin\wemall\model\PluginWemallOrderItem;
 use plugin\wemall\service\ExpressService;
 use plugin\wemall\service\GoodsService;
-use plugin\wemall\service\UserActionService;
-use plugin\wemall\service\UserOrderService;
-use plugin\wemall\service\UserUpgradeService;
+use plugin\wemall\service\UserAction;
+use plugin\wemall\service\UserOrder;
+use plugin\wemall\service\UserUpgrade;
 use think\admin\extend\CodeExtend;
 use think\admin\helper\QueryHelper;
 use think\admin\Storage;
@@ -80,7 +80,7 @@ class Order extends Auth
             $input = $this->_vali(['carts.default' => '', 'rules.default' => '', 'agent.default' => '0']);
             if (empty($input['rules']) && empty($input['carts'])) $this->error('参数无效！');
             // 绑定代理数据
-            $order = UserUpgradeService::withAgent($this->unid, intval($input['agent']), $this->relation);
+            $order = UserUpgrade::withAgent($this->unid, intval($input['agent']), $this->relation);
             // 生成统一编号
             do $extra = ['order_no' => $order['order_no'] = CodeExtend::uniqidNumber(16, 'N')];
             while (PluginWemallOrder::mk()->master()->where($extra)->findOrEmpty()->isExists());
@@ -104,7 +104,7 @@ class Order extends Auth
                 // 商品库存检查
                 if ($gspec['stock_sales'] + $count > $gspec['stock_total']) $this->error('库存不足！');
                 // 商品折扣处理
-                [$discountId, $discountRate] = UserOrderService::discount($goods['discount_id'], $this->levelCode);
+                [$discountId, $discountRate] = UserOrder::discount($goods['discount_id'], $this->levelCode);
                 // 订单详情处理
                 $items[] = [
                     'unid'                  => $order['unid'],
@@ -138,7 +138,7 @@ class Order extends Auth
                     'level_code'            => $this->levelCode,
                     'level_name'            => $this->levelName,
                     'level_upgrade'         => $goods['level_upgrade'],
-                    // 是否参与返利
+                    // 是否参与返佣
                     'rebate_type'           => $goods['rebate_type'],
                     'rebate_amount'         => $goods['rebate_type'] > 0 ? $gspec['price_selling'] * $count : 0,
                     // 等级优惠方案
@@ -166,7 +166,7 @@ class Order extends Auth
             // 折扣后的金额
             $order['amount_discount'] = array_sum(array_column($items, 'discount_amount'));
             // 订单随减金额
-            $order['amount_reduct'] = UserOrderService::reduct();
+            $order['amount_reduct'] = UserOrder::reduct();
             if ($order['amount_reduct'] > $order['amount_goods']) {
                 $order['amount_reduct'] = $order['amount_goods'];
             }
@@ -182,7 +182,7 @@ class Order extends Auth
                 if ($order['delivery_type']) {
                     $where = ['unid' => $this->unid, 'deleted' => 0];
                     $address = PluginPaymentAddress::mk()->where($where)->order('type desc,id desc')->findOrEmpty();
-                    $address->isExists() && UserOrderService::perfect($model->refresh(), $address);
+                    $address->isExists() && UserOrder::perfect($model->refresh(), $address);
                 }
             });
             // 同步库存销量
@@ -192,7 +192,7 @@ class Order extends Auth
             // 清理购物车数据
             if (count($carts = str2arr($input['carts'])) > 0) {
                 PluginWemallOrderCart::mk()->whereIn('id', $carts)->delete();
-                UserActionService::recount($this->unid);
+                UserAction::recount($this->unid);
             }
             // 触发订单创建事件
             $this->app->event->trigger('PluginWemallOrderCreate', $order);
@@ -230,7 +230,7 @@ class Order extends Auth
 
         // 订单状态检查
         $map = ['unid' => $this->unid, 'order_no' => $data['order_no']];
-        $tCount = PluginWemallOrderItem::mk()->where($map)->sum('delivery_count');
+        $tCount = intval(PluginWemallOrderItem::mk()->where($map)->sum('delivery_count'));
 
         // 根据地址计算运费
         $map = ['status' => 1, 'deleted' => 0, 'order_no' => $data['order_no']];
@@ -263,7 +263,7 @@ class Order extends Auth
         if ($order->isEmpty()) $this->error('不能修改！');
 
         // 更新订单收货地址
-        if (UserOrderService::perfect($order, $address)) {
+        if (UserOrder::perfect($order, $address)) {
             $this->success('确认成功！', $order->refresh()->toArray());
         } else {
             $this->error('确认失败！');
@@ -380,7 +380,7 @@ class Order extends Auth
                 'cancel_status' => 1,
                 'cancel_remark' => '用户主动取消订单！',
             ];
-            if ($order->save($data) && UserOrderService::stock($order->getAttr('order_no'))) {
+            if ($order->save($data) && UserOrder::stock($order->getAttr('order_no'))) {
                 // 触发订单取消事件
                 Payment::refund($order->getAttr('order_no'));
                 $this->app->event->trigger('PluginWemallOrderCancel', $order);

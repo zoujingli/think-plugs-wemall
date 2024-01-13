@@ -1,5 +1,10 @@
 {extend name="main"}
 
+{block name="button"}
+<button data-target-submit class='layui-btn layui-btn-sm'>保存数据</button>
+<button data-target-backup class="layui-btn layui-btn-sm layui-btn-danger" data-confirm="确认要取消编辑吗？">取消编辑</button>
+{/block}
+
 {block name='content'}
 <form action="{:sysuri()}" method="post" data-auto="true" class="layui-form layui-card">
     <div class="layui-card-body">
@@ -47,8 +52,8 @@
                                         {/if}{/foreach}
                                         <label class="block relative">
                                             {php} $key = 'first_value_vip_'.$one['number'].'_'.$two['number']; {/php}
-                                            <span class="color-blue"><b>请输入奖励金额或返利金额比例，</b>如：比例填写 10.00 表示 10.00% 或 10.00 元</span>
-                                            <input type="number" step="0.0001" min="0.0000" class="layui-input" data-blur-number="4" name="{$key}" placeholder="请输入奖励金额或返利金额比例" value="{$data[$key]??'0.0000'}">
+                                            <span class="color-blue"><b>请输入奖励金额或返佣金额比例，</b>如：比例填写 10.00 表示 10.00% 或 10.00 元</span>
+                                            <input type="number" step="0.0001" min="0.0000" class="layui-input" data-blur-number="4" name="{$key}" placeholder="请输入奖励金额或返佣金额比例" value="{$data[$key]??'0.0000'}">
                                         </label>
                                     </div>
                                 </fieldset>
@@ -67,8 +72,8 @@
                                         {/if}{/foreach}
                                         <label class="block relative">
                                             {php} $key = 'repeat_value_vip_'.$one['number'].'_'.$two['number']; {/php}
-                                            <span class="color-blue"><b>请输入奖励金额或返利金额比例</b>，如：比例填写 10.00 表示 10.00% 或 10.00 元</span>
-                                            <input type="number" step="0.0001" min="0.0000" class="layui-input" data-blur-number="4" name="{$key}" placeholder="请输入奖励金额或返利金额比例" value="{$data[$key]??'0.0000'}">
+                                            <span class="color-blue"><b>请输入奖励金额或返佣金额比例</b>，如：比例填写 10.00 表示 10.00% 或 10.00 元</span>
+                                            <input type="number" step="0.0001" min="0.0000" class="layui-input" data-blur-number="4" name="{$key}" placeholder="请输入奖励金额或返佣金额比例" value="{$data[$key]??'0.0000'}">
                                         </label>
                                     </div>
                                 </fieldset>
@@ -92,8 +97,8 @@
                                     {/if}{/foreach}
                                     <label class="block">
                                         {php} $key = 'direct_value_vip_'.$one['number']; {/php}
-                                        <span class="color-blue"><b>请输入奖励金额或返利金额比例</b>（ 如：比例填写 10.00 表示 10.00% 或 10.00 元 ）</span>
-                                        <input type="number" step="0.0001" min="0.0000" class="layui-input" data-blur-number="4" name="{$key}" placeholder="请输入奖励金额或返利金额比例" value="{$data[$key]??'0.0000'}">
+                                        <span class="color-blue"><b>请输入奖励金额或返佣金额比例</b>（ 如：比例填写 10.00 表示 10.00% 或 10.00 元 ）</span>
+                                        <input type="number" step="0.0001" min="0.0000" class="layui-input" data-blur-number="4" name="{$key}" placeholder="请输入奖励金额或返佣金额比例" value="{$data[$key]??'0.0000'}">
                                     </label>
                                 </div>
                             </fieldset>
@@ -112,8 +117,8 @@
                                     {/if}{/foreach}
                                     <label class="block">
                                         {php} $key = 'indirect_value_vip_'.$one['number']; {/php}
-                                        <span class="color-blue"><b>请输入奖励金额或返利金额比例</b>（ 如：比例填写 10.00 表示 10.00% 或 10.00 元 ）</span>
-                                        <input type="number" step="0.0001" min="0.0000" class="layui-input" data-blur-number="4" name="{$key}" placeholder="请输入奖励金额或返利金额比例" value="{$data[$key]??'0.0000'}">
+                                        <span class="color-blue"><b>请输入奖励金额或返佣金额比例</b>（ 如：比例填写 10.00 表示 10.00% 或 10.00 元 ）</span>
+                                        <input type="number" step="0.0001" min="0.0000" class="layui-input" data-blur-number="4" name="{$key}" placeholder="请输入奖励金额或返佣金额比例" value="{$data[$key]??'0.0000'}">
                                     </label>
                                 </div>
                             </fieldset>
@@ -135,7 +140,7 @@
                                     <label class="block">
                                         {php} $key = 'upgrade_value_vip_'.$one['number']; {/php}
                                         <span class="color-blue"><b>请输入固定奖励金额</b>（ 如：比例填写 10.00 表示 10.00 元或 10.00% ）<b class="color-red">仅针对订单升级有效！</b></span>
-                                        <input type="number" step="0.0001" min="0.0000" class="layui-input" data-blur-number="4" name="{$key}" placeholder="请输入奖励金额或返利金额比例" value="{$data[$key]??'0.0000'}">
+                                        <input type="number" step="0.0001" min="0.0000" class="layui-input" data-blur-number="4" name="{$key}" placeholder="请输入奖励金额或返佣金额比例" value="{$data[$key]??'0.0000'}">
                                     </label>
                                 </div>
                             </fieldset>
@@ -174,7 +179,7 @@
                                     <label class="block">
                                         {php} $key = 'manage_value_vip_'.$one['number']; {/php}
                                         <span class="color-blue"><b>请输入固定奖励金额</b>（ 如：比例填写 10.00 表示 10.00 元 ）</span>
-                                        <input type="number" step="0.0001" min="0.0000" class="layui-input" data-blur-number="4" name="{$key}" placeholder="请输入奖励金额或返利金额比例" value="{$data[$key]??'0.0000'}">
+                                        <input type="number" step="0.0001" min="0.0000" class="layui-input" data-blur-number="4" name="{$key}" placeholder="请输入奖励金额或返佣金额比例" value="{$data[$key]??'0.0000'}">
                                     </label>
                                 </div>
                             </fieldset>

@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -22,10 +22,10 @@ use plugin\wemall\model\PluginWemallUserTransfer;
 
 /**
  * 用户提现数据服务
- * @class UserTransferService
+ * @class UserTransfer
  * @package plugin\wemall\service
  */
-class UserTransferService
+class UserTransfer
 {
     /**
      * 提现方式配置
@@ -119,7 +119,7 @@ class UserTransferService
     }
 
     /**
-     * 同步刷新用户返利
+     * 同步刷新用户返佣
      * @param integer $unid
      * @return array [total, count, audit, locks]
      */
@@ -147,9 +147,8 @@ class UserTransferService
      */
     public static function config(?string $name = null)
     {
-        if (empty($data = sysvar('plugin.wemall.transfer.config'))) {
-            $data = sysvar('plugin.wemall.transfer.config', sysdata('plugin.wemall.transfer.config'));
-        }
+        $ckey = 'plugin.wemall.transfer.config';
+        $data = sysvar($ckey) ?: sysvar($ckey, sysdata($ckey));
         return is_null($name) ? $data : ($data[$name] ?? '');
     }
 
@@ -161,8 +160,8 @@ class UserTransferService
      */
     public static function payment(?string $name = null)
     {
-        static $data = [];
-        if (empty($data)) $data = sysdata('plugin.wemall.transfer.wxpay');
+        $ckey = 'plugin.wemall.transfer.wxpay';
+        $data = sysvar($ckey) ?: sysvar($ckey, sysdata($ckey));
         return is_null($name) ? $data : ($data[$name] ?? '');
     }
 }

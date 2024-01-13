@@ -4,7 +4,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,7 +20,7 @@ declare (strict_types=1);
 namespace plugin\wemall\controller\base;
 
 use plugin\wemall\model\PluginWemallConfigLevel;
-use plugin\wemall\service\UserRebateService;
+use plugin\wemall\service\UserRebate;
 use think\admin\Controller;
 use think\admin\helper\QueryHelper;
 
@@ -81,7 +81,7 @@ class Level extends Controller
     protected function _form_filter(array &$vo)
     {
         if ($this->request->isGet()) {
-            $this->prizes = UserRebateService::prizes;
+            $this->prizes = UserRebate::prizes;
             $vo['number'] = $vo['number'] ?? PluginWemallConfigLevel::maxNumber();
         } else {
             $vo['utime'] = time();

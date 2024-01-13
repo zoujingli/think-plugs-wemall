@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -18,8 +18,10 @@ declare (strict_types=1);
 
 namespace plugin\wemall\model;
 
+use plugin\account\model\Abs;
+
 /**
- * 用户返利模型
+ * 用户返佣模型
  * @class PluginWemallUserRebate
  * @package plugin\wemall\model
  */

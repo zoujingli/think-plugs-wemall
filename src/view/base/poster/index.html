@@ -41,11 +41,30 @@
         let $table = $('#PosterTable').layTable({
             even: true, height: 'full',
             sort: {field: 'sort desc,id', type: 'desc'},
+            cellExpandedMode: 'tips',
             cols: [[
                 {checkbox: true, fixed: true},
                 {field: 'sort', title: '排序权重', width: 100, align: 'center', sort: true, templet: '#SortInputTpl'},
                 {field: 'code', title: '海报编号', align: 'center', width: 160, sort: true},
                 {field: 'name', title: '海报名称', align: 'center', minWidth: 130},
+                {
+                    field: 'levels', title: '授权等级', templet: function (d) {
+                        let tpls = [];
+                        (d.levels_names || []).map(function (v) {
+                            tpls.push('<span class="layui-badge layui-bg-blue">' + v + '</span>')
+                        });
+                        return tpls.join('');
+                    }
+                },
+                {
+                    field: 'devices', title: '授权终端', templet: function (d) {
+                        let tpls = [];
+                        (d.devices_names || []).map(function (v) {
+                            tpls.push('<span class="layui-badge layui-bg-blue">' + v + '</span>')
+                        });
+                        return tpls.join('');
+                    }
+                },
                 {field: 'status', title: '账号状态', align: 'center', minWidth: 110, templet: '#StatusSwitchTpl'},
                 {field: 'create_time', title: '创建时间', align: 'center', minWidth: 170},
                 {toolbar: '#toolbar', title: '操作面板', align: 'center', minWidth: 210, fixed: 'right'},

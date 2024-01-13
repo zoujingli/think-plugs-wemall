@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -19,9 +19,9 @@ declare (strict_types=1);
 namespace plugin\wemall\controller\api\auth;
 
 use plugin\wemall\controller\api\Auth;
-use plugin\wemall\service\UserOrderService;
-use plugin\wemall\service\UserRebateService;
-use plugin\wemall\service\UserUpgradeService;
+use plugin\wemall\service\UserOrder;
+use plugin\wemall\service\UserRebate;
+use plugin\wemall\service\UserUpgrade;
 
 /**
  * 会员中心
@@ -30,15 +30,6 @@ use plugin\wemall\service\UserUpgradeService;
  */
 class Center extends Auth
 {
-    /**
-     * 控制器初始化
-     */
-    protected function initialize()
-    {
-        parent::initialize();
-        $this->checkUserStatus(false);
-    }
-
     /**
      * 获取会员资料
      * @throws \think\admin\Exception
@@ -50,11 +41,12 @@ class Center extends Auth
     {
         $account = $this->account->get();
         if (empty($account['user']['extra']['level_name'])) {
-            UserUpgradeService::recount($this->unid, true);
+            UserUpgrade::recount($this->unid, true);
             $account = $this->account->get();
         }
         $this->success('获取资料成功！', [
-            'account' => $account, 'relation' => $this->relation,
+            'account'  => $account,
+            'relation' => $this->relation,
         ]);
     }
 
@@ -67,7 +59,7 @@ class Center extends Auth
      */
     public function levels()
     {
-        $this->success('获取会员等级！', UserRebateService::levels());
+        $this->success('获取会员等级！', UserRebate::levels());
     }
 
     /**
@@ -76,7 +68,7 @@ class Center extends Auth
     public function discount()
     {
         $data = $this->_vali(['discount.require' => '折扣不能为空！']);
-        [, $rate] = UserOrderService::discount(intval($data['discount']), $this->levelCode);
+        [, $rate] = UserOrder::discount(intval($data['discount']), $this->levelCode);
         $this->success('获取会员折扣！', ['rate' => floatval($rate)]);
     }
 }

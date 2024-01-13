@@ -4,7 +4,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -23,7 +23,7 @@ use plugin\account\model\PluginAccountUser;
 use plugin\payment\service\Payment;
 use plugin\wemall\model\PluginWemallOrder;
 use plugin\wemall\model\PluginWemallOrderSend;
-use plugin\wemall\service\UserOrderService;
+use plugin\wemall\service\UserOrder;
 use think\admin\Controller;
 use think\admin\extend\CodeExtend;
 use think\admin\helper\QueryHelper;
@@ -141,7 +141,7 @@ class Order extends Controller
                     $this->success('订单审核通过成功！');
                 } else {
                     $this->app->event->trigger('PluginWemallOrderCancel', $order);
-                    UserOrderService::stock($data['order_no']);
+                    UserOrder::stock($data['order_no']);
                     $this->success('审核驳回并取消成功！');
                 }
             } else {
@@ -180,7 +180,7 @@ class Order extends Controller
                 'cancel_time'   => date('Y-m-d H:i:s'),
             ]);
             if ($result !== false) {
-                UserOrderService::stock($order['order_no']);
+                UserOrder::stock($order['order_no']);
                 $this->app->event->trigger('PluginWemallOrderCancel', $order);
                 $this->success('取消未支付的订单成功！');
             } else {

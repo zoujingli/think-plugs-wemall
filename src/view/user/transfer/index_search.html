@@ -3,16 +3,9 @@
     <form action="{:sysuri()}" autocomplete="off" class="layui-form layui-form-pane form-search" method="get" onsubmit="return false">
 
         <div class="layui-form-item layui-inline">
-            <label class="layui-form-label">用户手机</label>
+            <label class="layui-form-label">用户账号</label>
             <label class="layui-input-inline">
-                <input class="layui-input" name="phone" placeholder="请输入用户手机" value="{$get.phone|default=''}">
-            </label>
-        </div>
-
-        <div class="layui-form-item layui-inline">
-            <label class="layui-form-label">用户昵称</label>
-            <label class="layui-input-inline">
-                <input class="layui-input" name="nickname" placeholder="请输入用户昵称" value="{$get.nickname|default=''}">
+                <input class="layui-input" name="user" placeholder="请输入用户账号" value="{$get.user|default=''}">
             </label>
         </div>
 

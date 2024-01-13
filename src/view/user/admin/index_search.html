@@ -1,23 +1,9 @@
 <form action="{:sysuri()}" autocomplete="off" class="layui-form layui-form-pane form-search" method="get" onsubmit="return false">
 
     <div class="layui-form-item layui-inline">
-        <label class="layui-form-label">用户编号</label>
+        <label class="layui-form-label">用户账号</label>
         <label class="layui-input-inline">
-            <input class="layui-input" name="code" placeholder="请输入用户编号" value="{$get.code|default=''}">
-        </label>
-    </div>
-
-    <div class="layui-form-item layui-inline">
-        <label class="layui-form-label">绑定手机</label>
-        <label class="layui-input-inline">
-            <input class="layui-input" name="phone" placeholder="请输入绑定手机" value="{$get.phone|default=''}">
-        </label>
-    </div>
-
-    <div class="layui-form-item layui-inline">
-        <label class="layui-form-label">姓名昵称</label>
-        <label class="layui-input-inline">
-            <input class="layui-input" name="username" placeholder="请输入姓名昵称" value="{$get.username|default=''}">
+            <input class="layui-input" name="user" placeholder="请输入用户账号" value="{$get.user|default=''}">
         </label>
     </div>
 
@@ -38,9 +24,9 @@
     <!--{/notempty}-->
 
     <div class="layui-form-item layui-inline">
-        <label class="layui-form-label">绑定时间</label>
+        <label class="layui-form-label">注册时间</label>
         <div class="layui-input-inline">
-            <input class="layui-input" data-date-range name="create_at" placeholder="请选择绑定时间" value="{$get.create_at|default=''}">
+            <input class="layui-input" data-date-range name="create_at" placeholder="请选择注册时间" value="{$get.create_at|default=''}">
         </div>
     </div>
 
@@ -71,7 +57,7 @@
             });
 
             // 设置表头内容
-            data.unshift(['ID', '用户编号', '用户姓名', '用户昵称', '绑定手机', '绑定邮箱', '用户等级', '绑定时间']);
+            data.unshift(['ID', '用户编号', '用户姓名', '用户昵称', '关联手机', '绑定邮箱', '用户等级', '注册时间']);
 
             // 应用表格样式
             return this.withStyle(data, {H: 120});

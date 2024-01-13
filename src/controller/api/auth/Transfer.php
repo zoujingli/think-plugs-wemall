@@ -4,7 +4,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -21,8 +21,8 @@ namespace plugin\wemall\controller\api\auth;
 
 use plugin\wemall\controller\api\Auth;
 use plugin\wemall\model\PluginWemallUserTransfer;
-use plugin\wemall\service\UserRebateService;
-use plugin\wemall\service\UserTransferService;
+use plugin\wemall\service\UserRebate;
+use plugin\wemall\service\UserTransfer;
 use think\admin\extend\CodeExtend;
 
 /**
@@ -45,9 +45,9 @@ class Transfer extends Auth
             'amount.require' => '提现金额为空！',
             'remark.default' => '用户提交提现申请！',
         ]);
-        $state = UserTransferService::config('status');
+        $state = UserTransfer::config('status');
         if (empty($state)) $this->error('提现还没有开启！');
-        $transfers = UserTransferService::config('transfer');
+        $transfers = UserTransfer::config('transfer');
         if (empty($transfers[$data['type']]['state'])) $this->error('提现方式已停用！');
         // 提现数据补充
         $data['unid'] = $this->unid;
@@ -64,11 +64,11 @@ class Transfer extends Auth
             $data['audit_time'] = date('Y-m-d H:i:s');
         }
         // 扣除手续费
-        $chargeRate = floatval(UserTransferService::config('charge'));
+        $chargeRate = floatval(UserTransfer::config('charge'));
         $data['charge_rate'] = $chargeRate;
         $data['charge_amount'] = $chargeRate * $data['amount'] / 100;
         // 检查可提现余额
-        [$total, $count] = UserRebateService::recount($this->unid);
+        [$total, $count] = UserRebate::recount($this->unid);
         if ($total - $count < $data['amount']) $this->error('可提现余额不足！');
         // 提现方式处理
         if ($data['type'] == 'alipay_account') {
@@ -104,7 +104,7 @@ class Transfer extends Auth
         }
         // 写入用户提现数据
         if (PluginWemallUserTransfer::mk()->save($data)) {
-            UserRebateService::recount($this->unid);
+            UserRebate::recount($this->unid);
             $this->success('提现申请成功');
         } else {
             $this->error('提现申请失败');
@@ -123,7 +123,7 @@ class Transfer extends Auth
         $result = $query->like('date,code')->in('status')->order('id desc')->page(true, false, false, 10);
         // 统计历史数据
         $map = [['unid', '=', $this->unid], ['status', '>', 0]];
-        [$total, $count, $locks] = UserRebateService::recount($this->unid);
+        [$total, $count, $locks] = UserRebate::recount($this->unid);
         $this->success('获取提现成功', array_merge($result, [
             'total' => [
                 '锁定' => $locks,
@@ -144,7 +144,7 @@ class Transfer extends Auth
         PluginWemallUserTransfer::mk()->where($data)->whereIn('status', [1, 2, 3])->update([
             'status' => 0, 'change_time' => date("Y-m-d H:i:s"), 'change_desc' => '用户主动取消提现',
         ]);
-        UserRebateService::recount($this->unid);
+        UserRebate::recount($this->unid);
         $this->success('取消提现成功');
     }
 
@@ -157,7 +157,7 @@ class Transfer extends Auth
         PluginWemallUserTransfer::mk()->where($data)->whereIn('status', [4])->update([
             'status' => 5, 'change_time' => date("Y-m-d H:i:s"), 'change_desc' => '用户主动确认收款',
         ]);
-        UserRebateService::recount($this->unid);
+        UserRebate::recount($this->unid);
         $this->success('确认收款成功');
     }
 
@@ -167,8 +167,8 @@ class Transfer extends Auth
      */
     public function config()
     {
-        $data = UserTransferService::config();
-        $data['banks'] = UserTransferService::banks();
+        $data = UserTransfer::config();
+        $data['banks'] = UserTransfer::banks();
         $this->success('获取用户提现配置', $data);
     }
 }

@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -21,7 +21,7 @@ namespace plugin\wemall\controller\api\auth\action;
 use plugin\wemall\controller\api\Auth;
 use plugin\wemall\model\PluginWemallGoods;
 use plugin\wemall\model\PluginWemallUserActionHistory;
-use plugin\wemall\service\UserActionService;
+use plugin\wemall\service\UserAction;
 use think\admin\helper\QueryHelper;
 
 /**
@@ -44,7 +44,7 @@ class History extends Auth
         ]);
         $map = ['code' => $data['gcode'], 'deleted' => 0];
         if (PluginWemallGoods::mk()->where($map)->findOrEmpty()->isExists()) {
-            UserActionService::set($this->unid, $data['gcode'], 'history');
+            UserAction::set($this->unid, $data['gcode'], 'history');
             $this->success('添加成功！');
         } else {
             $this->error('添加失败！');
@@ -73,7 +73,7 @@ class History extends Auth
     public function del()
     {
         $data = $this->_vali(['gcode.require' => '编号不能为空！']);
-        UserActionService::del($this->unid, $data['gcode'], 'history');
+        UserAction::del($this->unid, $data['gcode'], 'history');
         $this->success('删除记录成功！');
     }
 
@@ -84,7 +84,7 @@ class History extends Auth
      */
     public function clear()
     {
-        UserActionService::clear($this->unid, 'history');
+        UserAction::clear($this->unid, 'history');
         $this->success('清理记录成功！');
     }
 }

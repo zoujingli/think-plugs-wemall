@@ -1,6 +1,5 @@
 <?php
 
-
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
@@ -21,21 +20,21 @@ namespace plugin\wemall\controller\user;
 
 use plugin\account\model\PluginAccountUser;
 use plugin\wemall\model\PluginWemallConfigLevel;
-use plugin\wemall\model\PluginWemallOrderItem;
 use plugin\wemall\model\PluginWemallUserRebate;
-use plugin\wemall\service\UserRebateService;
+use plugin\wemall\service\UserRebate;
 use think\admin\Controller;
 use think\admin\helper\QueryHelper;
+use think\db\Query;
 
 /**
- * 用户返利管理
+ * 用户返佣管理
  * @class Rebate
  * @package plugin\wemall\controller\user
  */
 class Rebate extends Controller
 {
     /**
-     * 用户返利管理
+     * 用户返佣管理
      * @auth true
      * @menu true
      * @throws \think\db\exception\DataNotFoundException
@@ -45,63 +44,55 @@ class Rebate extends Controller
     public function index()
     {
         PluginWemallUserRebate::mQuery()->layTable(function () {
-            $this->title = '用户返利管理';
-            $this->types = UserRebateService::prizes;
-            $this->rebate = UserRebateService::recount(0);
+            $this->title = '用户返佣管理';
+            $this->rebate = UserRebate::recount(0);
         }, static function (QueryHelper $query) {
-            $query->equal('type')->like('name,order_no')->dateBetween('create_at');
+            // 数据关联
+            $query->equal('type')->like('name,order_no')->dateBetween('create_time')->with([
+                'user'  => function (Query $query) {
+                    $query->field('id,code,phone,nickname,headimg');
+                },
+                'ouser' => function (Query $query) {
+                    $query->field('id,code,phone,nickname,headimg');
+                }
+            ]);
+
             // 会员条件查询
-            $db = PluginAccountUser::mQuery()->like('nickname#order_nickname,phone#order_phone')->db();
+            $db = PluginAccountUser::mQuery()->like('nickname|phone#user')->db();
             if ($db->getOptions('where')) $query->whereRaw("order_unid in {$db->field('id')->buildSql()}");
+
             // 代理条件查询
-            $db = PluginAccountUser::mQuery()->like('nickname#agent_nickname,phone#agent_phone')->db();
+            $db = PluginAccountUser::mQuery()->like('nickname|phone#agent')->db();
             if ($db->getOptions('where')) $query->whereRaw("unid in {$db->field('id')->buildSql()}");
         });
     }
 
     /**
-     * 商城订单列表处理
-     * @param array $data
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
-     */
-    protected function _index_page_filter(array &$data)
-    {
-        $uids = array_merge(array_column($data, 'unid'), array_column($data, 'order_unid'));
-        $userItem = PluginAccountUser::mk()->whereIn('id', array_unique($uids))->select();
-        $goodsItem = PluginWemallOrderItem::mk()->whereIn('order_no', array_unique(array_column($data, 'order_no')))->select();
-        foreach ($data as &$vo) {
-            $vo['type'] = UserRebateService::name($vo['type']);
-            [$vo['user'], $vo['agent'], $vo['list']] = [[], [], []];
-            foreach ($userItem as $user) {
-                if ($user['id'] === $vo['unid']) $vo['agent'] = $user;
-                if ($user['id'] === $vo['order_unid']) $vo['user'] = $user;
-            }
-            foreach ($goodsItem as $goods) {
-                if ($goods['order_no'] === $vo['order_no']) {
-                    $vo['list'][] = $goods;
-                }
-            }
-        }
-    }
-
-    /**
-     * 用户返利配置
+     * 用户返佣配置
      * @auth true
      * @throws \think\admin\Exception
      */
     public function config()
     {
         $this->skey = 'plugin.wemall.rebate.rule';
-        $this->title = '用户返利配置';
+        $this->title = '用户返佣配置';
         if ($this->request->isGet()) {
             $this->data = sysdata($this->skey);
             $this->levels = PluginWemallConfigLevel::items();
             $this->fetch();
         } else {
             sysdata($this->skey, $this->request->post());
-            $this->success('奖励修改成功');
+            $this->success('奖励修改成功', 'javascript:history.back()');
         }
+    }
+
+    /**
+     * 刷新订单返佣
+     * @auth true
+     * @return void
+     */
+    public function sync()
+    {
+        $this->_queue('刷新订单返佣数据', 'xdata:mall:rebate');
     }
 }

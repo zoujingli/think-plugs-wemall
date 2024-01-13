@@ -1,10 +1,9 @@
 <?php
 
-
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -51,7 +50,7 @@ class Admin extends Controller
             // 用户内容查询
             $uq = PluginAccountUser::mQuery()->equal('status')->dateBetween('create_at');
             $uq->where(['status' => intval($this->type === 'index'), 'deleted' => 0]);
-            $uq->like('code,phone,email|username|nickname#username');
+            $uq->like('code|phone|username|nickname#user');
             $query->whereRaw("unid in {$uq->db()->field('id')->buildSql()}");
         });
     }
@@ -97,8 +96,6 @@ class Admin extends Controller
      */
     public function parent()
     {
-
         $this->index();
-
     }
 }

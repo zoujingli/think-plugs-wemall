@@ -42,11 +42,11 @@
     <!--{/notempty}-->
 
     <div class="layui-form-item layui-inline">
-        <label class="layui-form-label">返利状态</label>
+        <label class="layui-form-label">返佣状态</label>
         <label class="layui-input-inline">
             <select class="layui-select" name="rebate_type">
                 <option value=''>-- 全部状态 --</option>
-                {foreach ['非返利的商品','是返利的商品'] as $k=>$v}
+                {foreach ['非返佣的商品','是返佣的商品'] as $k=>$v}
                 {if input('rebate_type','-') eq $k.''}
                 <option selected value="{$k}">{$v}</option>
                 {else}

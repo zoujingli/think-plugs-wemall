@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -19,7 +19,7 @@ declare (strict_types=1);
 namespace plugin\wemall\command;
 
 use plugin\account\model\PluginAccountUser;
-use plugin\wemall\service\UserUpgradeService;
+use plugin\wemall\service\UserUpgrade;
 use think\admin\Command;
 use think\console\Input;
 use think\console\Output;
@@ -49,8 +49,8 @@ class Users extends Command
         [$total, $count] = [PluginAccountUser::mk()->count(), 0];
         foreach (PluginAccountUser::mk()->field('id')->order('id desc')->cursor() as $user) try {
             $this->queue->message($total, ++$count, "刷新用户 [{$user['id']}] 数据...");
-            UserUpgradeService::recount(intval($user['id']), true);
-            UserUpgradeService::upgrade(intval($user['id']));
+            UserUpgrade::recount(intval($user['id']), true);
+            UserUpgrade::upgrade(intval($user['id']));
             $this->queue->message($total, $count, "刷新用户 [{$user['id']}] 数据成功", 1);
         } catch (\Exception $exception) {
             $this->queue->message($total, $count, "刷新用户 [{$user['id']}] 数据失败, {$exception->getMessage()}", 1);

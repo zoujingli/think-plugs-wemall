@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -18,6 +18,7 @@ declare (strict_types=1);
 
 namespace plugin\wemall\model;
 
+use plugin\account\model\Abs;
 use plugin\account\model\PluginAccountUser;
 use plugin\payment\model\PluginPaymentRecord;
 use think\model\relation\HasMany;
@@ -38,6 +39,15 @@ class PluginWemallOrder extends Abs
     public function user(): HasOne
     {
         return $this->hasOne(PluginAccountUser::class, 'id', 'unid');
+    }
+
+    /**
+     * 关联推荐用户
+     * @return \think\model\relation\HasOne
+     */
+    public function from(): HasOne
+    {
+        return $this->hasOne(PluginAccountUser::class, 'id', 'puid1');
     }
 
     /**
@@ -111,9 +121,9 @@ class PluginWemallOrder extends Abs
     /**
      * 时间格式处理
      * @param mixed $value
-     * @return array|string|string[]
+     * @return string
      */
-    public function setPaymentTimeAttr($value)
+    public function setPaymentTimeAttr($value): string
     {
         return $this->setCreateTimeAttr($value);
     }

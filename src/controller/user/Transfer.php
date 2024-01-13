@@ -1,6 +1,5 @@
 <?php
 
-
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
@@ -21,11 +20,12 @@ namespace plugin\wemall\controller\user;
 
 use plugin\account\model\PluginAccountUser;
 use plugin\wemall\model\PluginWemallUserTransfer;
-use plugin\wemall\service\UserTransferService;
+use plugin\wemall\service\UserTransfer;
 use think\admin\Controller;
 use think\admin\extend\CodeExtend;
 use think\admin\helper\QueryHelper;
 use think\admin\service\AdminService;
+use think\db\Query;
 
 /**
  * 用户提现管理
@@ -42,7 +42,7 @@ class Transfer extends Controller
 
     protected function initialize()
     {
-        $this->types = UserTransferService::types();
+        $this->types = UserTransfer::types();
     }
 
     /**
@@ -94,13 +94,16 @@ class Transfer extends Controller
     {
         PluginWemallUserTransfer::mQuery()->layTable(function () {
             $this->title = '用户提现管理';
-            $this->transfer = UserTransferService::amount(0);
+            $this->transfer = UserTransfer::amount(0);
         }, static function (QueryHelper $query) {
+            $query->with(['relation' => function (Query $query) {
+                $query->with(['user']);
+            }]);
             // 用户条件搜索
-            $db = PluginAccountUser::mQuery()->like('phone,username|nickname#nickname')->db();
+            $db = PluginAccountUser::mQuery()->like('phone|username|nickname#user')->db();
             if ($db->getOptions('where')) $query->whereRaw("unid in {$db->field('id')->buildSql()}");
             // 数据列表处理
-            $query->equal('type,status')->dateBetween('create_at');
+            $query->equal('type,status')->dateBetween('create_time');
         });
     }
 

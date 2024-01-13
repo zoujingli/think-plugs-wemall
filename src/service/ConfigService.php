@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -30,7 +30,7 @@ class ConfigService
      * 商城配置缓存名
      * @var string
      */
-    private static $name = 'plugin.wemall.config';
+    private static $skey = 'plugin.wemall.config';
 
     /**
      * 页面类型配置
@@ -49,9 +49,8 @@ class ConfigService
      */
     public static function get(?string $name = null, $default = null)
     {
-        if (empty($syscfg = sysvar(self::$name))) {
-            $syscfg = sysvar(self::$name, sysdata(self::$name));
-        }
+        $syscfg = sysvar(self::$skey) ?: sysvar(self::$skey, sysdata(self::$skey));
+        if (empty($syscfg['domain'])) $syscfg['domain'] = sysconf('base.site_host') . '/h5';
         return is_null($name) ? $syscfg : ($syscfg[$name] ?? $default);
     }
 
@@ -63,12 +62,16 @@ class ConfigService
      */
     public static function set(array $data)
     {
+        // 修改前端域名处理
+        if (!empty($data['domain'])) {
+            $data['domain'] = rtrim($data['domain'], '\\/');
+        }
         // 自动处理减免金额范围
         if (!empty($data['enable_reduct'])) {
             $reducts = [number_format(floatval($data['reduct_min'] ?? 0), 2), number_format(floatval($data['reduct_max'] ?? 0), 2)];
             [$data['reduct_min'], $data['reduct_max']] = [min($reducts), max($reducts)];
         }
-        return sysdata(self::$name, $data);
+        return sysdata(self::$skey, $data);
     }
 
     /**

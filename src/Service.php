@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -25,8 +25,8 @@ use plugin\wemall\command\Trans;
 use plugin\wemall\command\Users;
 use plugin\wemall\model\PluginWemallOrder;
 use plugin\wemall\model\PluginWemallUserRelation;
-use plugin\wemall\service\UserOrderService;
-use plugin\wemall\service\UserRebateService;
+use plugin\wemall\service\UserOrder;
+use plugin\wemall\service\UserRebate;
 use think\admin\Plugin;
 
 /**
@@ -54,7 +54,7 @@ class Service extends Plugin
      */
     public function register(): void
     {
-        $this->commands([Users::class, Clear::class, Trans::class]);
+        $this->commands([Clear::class, Trans::class, Users::class]);
 
         // 注册用户绑定事件
         $this->app->event->listen('PluginAccountBind', function (array $data) {
@@ -66,34 +66,34 @@ class Service extends Plugin
         $this->app->event->listen('PluginPaymentAudit', function (PluginPaymentRecord $payment) {
             $this->app->log->notice("Event PluginPaymentAudit {$payment->getAttr('order_no')}");
             $order = PluginWemallOrder::mk()->where(['order_no' => $payment->getAttr('order_no')])->findOrEmpty();
-            $order->isExists() && UserOrderService::payment($order, $payment);
+            $order->isExists() && UserOrder::payment($order, $payment);
         });
 
         // 注册支付拒审事件
         $this->app->event->listen('PluginPaymentRefuse', function (PluginPaymentRecord $payment) {
             $this->app->log->notice("Event PluginPaymentRefuse {$payment->getAttr('order_no')}");
             $order = PluginWemallOrder::mk()->where(['order_no' => $payment->getAttr('order_no')])->findOrEmpty();
-            $order->isExists() && UserOrderService::payment($order, $payment);
+            $order->isExists() && UserOrder::payment($order, $payment);
         });
 
         // 注册支付完成事件
         $this->app->event->listen('PluginPaymentSuccess', function (PluginPaymentRecord $payment) {
             $this->app->log->notice("Event PluginPaymentSuccess {$payment->getAttr('order_no')}");
             $order = PluginWemallOrder::mk()->where(['order_no' => $payment->getAttr('order_no')])->findOrEmpty();
-            $order->isExists() && UserOrderService::payment($order, $payment);
+            $order->isExists() && UserOrder::payment($order, $payment);
         });
 
         // 注册支付取消事件
         $this->app->event->listen('PluginPaymentCancel', function (PluginPaymentRecord $payment) {
             $this->app->log->notice("Event PluginPaymentCancel {$payment->getAttr('order_no')}");
             $order = PluginWemallOrder::mk()->where(['order_no' => $payment->getAttr('order_no')])->findOrEmpty();
-            $order->isExists() && UserOrderService::payment($order, $payment);
+            $order->isExists() && UserOrder::payment($order, $payment);
         });
 
         // 注册订单确认事件
         $this->app->event->listen('PluginPaymentConfirm', function (array $data) {
             $this->app->log->notice("Event PluginPaymentConfirm {$data['order_no']}");
-            UserRebateService::confirm($data['order_no']);
+            UserRebate::confirm($data['order_no']);
         });
     }
 
@@ -123,7 +123,7 @@ class Service extends Plugin
                     ['name' => '用户关系管理', 'icon' => 'layui-icon layui-icon-user', 'node' => "{$code}/user.admin/index"],
                     // ['name' => '用户余额管理', 'icon' => 'layui-icon layui-icon-rmb', 'node' => "plugin-payment/balance/index"],
                     // ['name' => '用户积分管理', 'icon' => 'layui-icon layui-icon-diamond', 'node' => "plugin-payment/integral/index"],
-                    ['name' => '用户返利管理', 'icon' => 'layui-icon layui-icon-transfer', 'node' => "{$code}/user.rebate/index"],
+                    ['name' => '用户返佣管理', 'icon' => 'layui-icon layui-icon-transfer', 'node' => "{$code}/user.rebate/index"],
                     ['name' => '用户提现管理', 'icon' => 'layui-icon layui-icon-component', 'node' => "{$code}/user.transfer/index"],
                 ],
             ],

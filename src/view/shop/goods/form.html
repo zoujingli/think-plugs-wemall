@@ -139,17 +139,17 @@
                 <input type="hidden" name="discount_id" value="0">
                 <!--{/if}-->
                 <fieldset class="layui-bg-gray">
-                    <legend><span class="layui-badge think-bg-violet">商品返利配置</span></legend>
+                    <legend><span class="layui-badge think-bg-violet">商品返佣配置</span></legend>
                     <div class="padding-top-5 padding-bottom-5 nowrap">
                         {empty name='vo.rebate_type'}{assign name='vo.rebate_type' value='0'}{/empty}
-                        {foreach ['非返利商品','是返利商品'] as $k => $v}
+                        {foreach ['非返佣商品','是返佣商品'] as $k => $v}
                         {if isset($vo.rebate_type) and $vo.rebate_type eq $k}
                         <input name="rebate_type" title="{$v}" type="radio" value="{$k}" checked>
                         {else}
                         <input name="rebate_type" title="{$v}" type="radio" value="{$k}">
                         {/if}{/foreach}
                     </div>
-                    <div class="help-block nowrap">代理获得该商品线上支付部分的返利比例！</div>
+                    <div class="help-block nowrap">代理获得该商品线上支付部分的返佣比例！</div>
                 </fieldset>
             </div>
         </div>

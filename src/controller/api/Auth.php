@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -39,8 +39,7 @@ abstract class Auth extends AccountAuth
     protected function initialize()
     {
         parent::initialize();
-        $this->checkUserStatus();
-        $this->withUserRelation();
+        $this->checkUserStatus()->withUserRelation();
     }
 
     /**
@@ -49,14 +48,13 @@ abstract class Auth extends AccountAuth
      */
     protected function withUserRelation(): Auth
     {
-        $where = ['unid' => $this->unid];
-        $relation = PluginWemallUserRelation::mk()->where($where)->findOrEmpty();
+        $relation = PluginWemallUserRelation::mk()->where(['unid' => $this->unid])->findOrEmpty();
         $this->relation = $relation->toArray();
         $this->levelCode = intval($relation->getAttr('level_code'));
         $this->levelName = $relation->getAttr('level_name') ?: '普通用户';
-        $relation->getAttr('level_name') || $relation->save([
-            'level_name' => $this->levelName
-        ]);
+        if ($relation->getAttr('level_name') !== $this->levelName) {
+            $relation->save(['level_name' => $this->levelName]);
+        }
         return $this;
     }
 }

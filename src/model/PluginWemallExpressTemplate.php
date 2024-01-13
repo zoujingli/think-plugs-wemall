@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -17,6 +17,8 @@
 declare (strict_types=1);
 
 namespace plugin\wemall\model;
+
+use plugin\account\model\Abs;
 
 /**
  * 快递模板数据模型
@@ -62,9 +64,8 @@ class PluginWemallExpressTemplate extends Abs
      */
     public function getCompanyAttr($value): array
     {
-        $express = [];
-        static $companys = [];
-        if (empty($companys)) $companys = PluginWemallExpressCompany::items();
+        [$express, $skey] = [[], 'plugin.wemall.companys'];
+        $companys = sysvar($skey) ?: sysvar($skey, PluginWemallExpressCompany::items());
         foreach (is_string($value) ? str2arr($value) : (array)$value as $key) {
             if (isset($companys[$key])) $express[$key] = $companys[$key];
         }
@@ -78,7 +79,12 @@ class PluginWemallExpressTemplate extends Abs
      */
     public function getNormalAttr($value): array
     {
-        return is_string($value) ? json_decode($value, true) : $value;
+        return $this->getExtraAttr($value);
+    }
+
+    public function setNormalAttr($value): string
+    {
+        return $this->setExtraAttr($value);
     }
 
     /**
@@ -88,6 +94,11 @@ class PluginWemallExpressTemplate extends Abs
      */
     public function getContentAttr($value): array
     {
-        return is_string($value) ? json_decode($value, true) : $value;
+        return $this->getExtraAttr($value);
+    }
+
+    public function setContentAttr($value): string
+    {
+        return $this->setExtraAttr($value);
     }
 }

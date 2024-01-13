@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -17,6 +17,8 @@
 declare (strict_types=1);
 
 namespace plugin\wemall\model;
+
+use plugin\account\model\Abs;
 
 /**
  * 用户优惠方案模型
@@ -46,8 +48,13 @@ class PluginWemallConfigDiscount extends Abs
      * @param mixed $value
      * @return mixed
      */
-    public function getItemsAttr($value)
+    public function getItemsAttr($value): array
     {
-        return empty($value) ? $value : json_decode($value, true);
+        return $this->getExtraAttr($value);
+    }
+
+    public function setItemsAttr($value): string
+    {
+        return $this->setExtraAttr($value);
     }
 }

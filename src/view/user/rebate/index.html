@@ -1,92 +1,90 @@
-{extend name="main"}
+{extend name='table'}
 
 {block name="button"}
+<!--{if auth('sync')}-->
+<a data-table-id="UserTable" class="layui-btn layui-btn-sm layui-btn-primary" data-queue="{:url('sync')}">{:lang('刷新返佣')}</a>
+<!--{/if}-->
 <!--{if auth('config')}-->
-<a class="layui-btn layui-btn-sm layui-btn-primary" data-open="{:url('config')}">返利配置</a>
+<a data-table-id="UserTable" class="layui-btn layui-btn-sm layui-btn-primary" data-open="{:url('config')}">{:lang('返佣配置')}</a>
 <!--{/if}-->
 {/block}
 
 {block name="content"}
 <div class="think-box-notify sub-strong-blue">
-    <strong>返利统计：</strong>累计已产生返利 <b>{$rebate.0+$rebate.2}</b> 元 ( 含未到账 <b>{$rebate.2|default='0.00'}</b> 元 )，累计已提现 <b>{$total.1|default=0.00}</b> 元。
+    <strong>返佣统计：</strong>累计已产生返佣 <b>{$rebate.0+$rebate.2}</b> 元 ( 含未到账 <b>{$rebate.2|default='0.00'}</b> 元 )，累计已提现 <b>{$total.1|default=0.00}</b> 元。
 </div>
-<div class="think-box-shadow margin-top-10">
+<div class="think-box-shadow">
     {include file='user/rebate/index_search'}
-    <table class="layui-table" lay-skin="line">
-        {notempty name='list'}
-        <thead>
-        <tr>
-            <th class='list-table-check-td think-checkbox'>
-                <label><input data-auto-none data-check-target='.list-check-box' type='checkbox'></label>
-            </th>
-            <th class="text-left nowrap" style="width:300px">代理用户</th>
-            <th class="text-left nowrap" style="width:300px">交易用户</th>
-            <th class='text-left nowrap'>订单信息</th>
-            <th class='text-left nowrap'>商品信息</th>
-        </tr>
-        </thead>
-        {/notempty}
-        <tbody>
-        {foreach $list??[] as $key=>$vo}
-        <tr>
-            <td class='list-table-check-td think-checkbox'>
-                <label><input class="list-check-box" type='checkbox' value='{$vo.id}'></label>
-            </td>
-            <td class="text-left nowrap relative">
-                {notempty name='vo.agent.headimg'}
-                <div class="headimg headimg-md" data-lazy-src="{$vo.agent.headimg|default='__ROOT__/static/theme/img/headimg.png'}" data-tips-image></div>
-                {/notempty}
-                <div class="inline-block text-middle sub-strong-red">
-                    代理昵称：<span class="color-text">{$vo.agent.nickname|default='--'}</span><br>
-                    代理手机：<span class="color-text">{$vo.agent.phone|default='--'}</span><br>
-                    代理等级：[ <b>VIP{$vo.agent.level_code|default=0}</b> ] <b>{$vo.agent.level_name|default=''}</b>
-                </div>
-            </td>
-            <td class="text-left nowrap relative">
-                {notempty name='vo.user.headimg'}
-                <div class="headimg headimg-md" data-lazy-src="{$vo.user.headimg|default='__ROOT__/static/theme/img/headimg.png'}" data-tips-image></div>
-                {/notempty}
-                <div class="inline-block text-middle sub-strong-red">
-                    用户昵称：<span class="color-text">{$vo.user.nickname|default='--'}</span><br>
-                    用户手机：<span class="color-text">{$vo.user.phone|default='--'}</span><br>
-                    用户等级：[ <b>VIP{$vo.user.level_code|default=0}</b> ] <b>{$vo.user.level_name|default=''}</b>
-                </div>
-            </td>
-            <td class='text-left nowrap'>
-                {if $vo.type eq '管理奖励'}
-                <span class="layui-badge layui-badge-middle layui-bg-black" style="line-height:13px">{$vo.type|default=''}</span>
-                {elseif $vo.type eq '首推奖励'}
-                <span class="layui-badge layui-badge-middle layui-bg-red" style="line-height:13px">{$vo.type|default=''}</span>
-                {elseif $vo.type eq '复购奖励'}
-                <span class="layui-badge layui-badge-middle layui-bg-blue" style="line-height:13px">{$vo.type|default=''}</span>
-                {elseif $vo.type eq '直属团队'}
-                <span class="layui-badge layui-badge-middle layui-bg-green" style="line-height:13px">{$vo.type|default=''}</span>
-                {elseif $vo.type eq '间接团队'}
-                <span class="layui-badge layui-badge-middle layui-bg-orange" style="line-height:13px">{$vo.type|default=''}</span>
-                {elseif $vo.type eq '差额奖励'}
-                <span class="layui-badge layui-badge-middle think-bg-violet" style="line-height:13px">{$vo.type|default=''}</span>
-                {elseif $vo.type eq '升级奖励'}
-                <span class="layui-badge layui-badge-middle think-bg-blue" style="line-height:13px">{$vo.type|default=''}</span>
-                {else}
-                <span class="layui-badge layui-badge-middle think-bg-orig" style="line-height:13px">{$vo.type|default=''}</span>
-                {/if}
-                <div class="inline-block text-middle">
-                    <div>返利时间：<span class="color-blue">{$vo.create_time_time}</span></div>
-                    <div>返利描述：{$vo.name|default='-'} {empty name='vo.status'}<span class="layui-badge layui-bg-black margin-left-5">未到账</span>{else}<span class="layui-badge layui-bg-green margin-left-5">已到账</span>{/empty}</div>
-                    <div class="sub-strong-blue">订单 <b>{$vo.order_no|default='--'}</b> 交易 <b>{$vo.order_amount+0}</b> 元返利 <b>{$vo.amount+0}</b> 元</div>
-                </div>
-            </td>
-            <td class="text-left nowrap">
-                {foreach $vo.list as $g}
-                <div>{$g.gname|default=''}<span class="color-blue"> x </span>{$g.stock_sales|default=0}</div>
-                {/foreach}
-            </td>
-        </tr>
-        {/foreach}
-        </tbody>
-    </table>
-
-    {empty name='list'}<span class="notdata">没有记录哦</span>{else}{$pagehtml|raw|default=''}{/empty}
-
+    <table id="UserTable" data-line="3" data-url="{:request()->url()}" data-target-search="form.form-search"></table>
 </div>
+
+<script>
+    $(function () {
+        $('#UserTable').layTable({
+            even: true, height: 'full',
+            sort: {field: 'id', type: 'desc'},
+            cellExpandedMode: 'tips',
+            cols: [[
+                {field: 'id', hide: true},
+                {fixed: true, checkbox: true},
+                {
+                    title: '代理头像', width: 95, align: 'center', templet: function (d) {
+                        if (!d.user || !d.user.headimg) return '';
+                        return laytpl('<div>{{-showTableImage(d.user.headimg,true,"md")}}</div>').render(d)
+                    }
+                },
+                {
+                    title: '代理账号', templet: function (d) {
+                        let tpls = [];
+                        tpls.push('账号昵称：<b>{{d.user.nickname}}</b>')
+                        tpls.push('账号手机：<b class="color-blue">{{d.user.phone}}</b>')
+                        tpls.push('账号编号：<b>{{d.user.code}}</b>')
+                        return laytpl(tpls.join('<br>')).render(d);
+                    }
+                },
+                {
+                    title: '返佣信息', templet: function (d) {
+                        let tpls = [];
+                        tpls.push('返佣金额：<b class="color-text">{{d.amount}}</b> 元')
+                        tpls.push('返佣名称：{{d.name||"-"}}')
+                        tpls.push('返佣单号：{{d.code||"-"}}')
+                        return laytpl(tpls.join('<br>')).render(d);
+                    }
+                },
+                {
+                    title: '会员头像', width: 95, align: 'center', templet: function (d) {
+                        if (!d.ouser || !d.ouser.headimg) return '';
+                        return laytpl('<div>{{-showTableImage(d.ouser.headimg,true,"md")}}</div>').render(d)
+                    }
+                },
+                {
+                    title: '会员账号', templet: function (d) {
+                        let tpls = [];
+                        tpls.push('账号昵称：<b>{{d.ouser.nickname}}</b>')
+                        tpls.push('账号手机：<b class="color-blue">{{d.ouser.phone}}</b>')
+                        tpls.push('账号编号：<b>{{d.ouser.code}}</b>')
+                        return laytpl(tpls.join('<br>')).render(d);
+                    }
+                },
+                {
+                    title: '订单信息', templet: function (d) {
+                        let tpls = [];
+                        tpls.push('支付金额：<b class="color-text ta-mr-10">{{d.order_amount}}</b> 元')
+                        tpls.push('订单单号：{{d.order_no||"-"}}')
+                        return laytpl(tpls.join('<br>')).render(d);
+                    }
+                },
+                {
+                    title: '返佣时间', templet: function (d) {
+                        let tpls = [];
+                        tpls.push('返佣类型：{{d.type||"-"}}')
+                        tpls.push('返佣时间：{{d.create_time}}')
+                        tpls.push('更新时间：{{d.update_time}}')
+                        return laytpl(tpls.join('<br>')).render(d);
+                    }
+                },
+            ]]
+        });
+    });
+</script>
 {/block}

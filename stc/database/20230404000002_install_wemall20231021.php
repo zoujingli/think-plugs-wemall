@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -84,6 +84,7 @@ class InstallWemall20231021 extends Migrator
             ->addColumn('code', 'string', ['limit' => 50, 'default' => '', 'null' => true, 'comment' => '推广编号'])
             ->addColumn('name', 'string', ['limit' => 180, 'default' => '', 'null' => true, 'comment' => '推广标题'])
             ->addColumn('levels', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '用户等级'])
+            ->addColumn('devices', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '接口通道'])
             ->addColumn('image', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '推广图片'])
             ->addColumn('content', 'text', ['default' => NULL, 'null' => true, 'comment' => '二维位置'])
             ->addColumn('remark', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '推广描述'])
@@ -130,8 +131,8 @@ class InstallWemall20231021 extends Migrator
             ->addColumn('create_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '创建时间'])
             ->addColumn('update_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '更新时间'])
             ->addIndex('unid', ['name' => 'idx_plugin_wemall_user_action_collect_unid'])
-            ->addIndex('gcode', ['name' => 'idx_plugin_wemall_user_action_collect_gcode'])
             ->addIndex('sort', ['name' => 'idx_plugin_wemall_user_action_collect_sort'])
+            ->addIndex('gcode', ['name' => 'idx_plugin_wemall_user_action_collect_gcode'])
             ->create();
 
         // 修改主键长度

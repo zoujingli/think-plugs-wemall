@@ -80,7 +80,6 @@
                 delivery.main.items.forEach(function (item) {
                     rows.push([
                         item.order_no,
-                        item.ghash,
                         item.gname,
                         item.gsku,
                         item.gspec,
@@ -100,12 +99,12 @@
 
             // 设置表头内容
             rows.unshift([
-                '订单号', '商品哈希', '商品名称', '商品SKU编码', '商品规格', '数量', '单价', '总额',
+                '订单号', '商品名称', '商品SKU编码', '商品规格', '数量', '单价', '总额',
                 '寄件方', '收货人', '电话', '省份', '城市', '区', '地址'
             ]);
 
             // 应用表格样式
-            return this.withStyle(data);
+            return this.withStyle(rows);
 
         }, '订单发货记录' + layui.util.toDateString(Date.now(), '_yyyyMMdd_HHmmss'));
     });

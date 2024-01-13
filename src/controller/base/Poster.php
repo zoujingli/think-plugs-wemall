@@ -1,10 +1,9 @@
 <?php
 
-
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -19,6 +18,8 @@ declare (strict_types=1);
 
 namespace plugin\wemall\controller\base;
 
+use plugin\account\model\PluginAccountUser;
+use plugin\account\service\Account;
 use plugin\wemall\model\PluginWemallConfigLevel;
 use plugin\wemall\model\PluginWemallConfigPoster;
 use plugin\wemall\service\PosterService;
@@ -85,8 +86,10 @@ class Poster extends Controller
         if ($this->request->isGet()) {
             $this->levels = PluginWemallConfigLevel::items();
             array_unshift($this->levels, ['name' => '全部', 'number' => '-']);
+            $this->devices = array_merge(['-' => ['name' => '全部']], Account::types(1));
         } else {
             $data['levels'] = arr2str($data['levels'] ?? []);
+            $data['devices'] = arr2str($data['devices'] ?? []);
         }
     }
 

@@ -21,6 +21,11 @@
             </label>
             <p class="help-block">请填写商城名称，将会在前端部分内容显示。</p>
         </div>
+        <label class="layui-form-item relative block">
+            <span class="help-label"><b>{:lang('前端域名')}</b>Domain H5</span>
+            <input readonly class="layui-input layui-bg-gray" placeholder="请输入前端域名" required value='{$data.domain|default=""}'>
+            <span class="help-block"><b>必填，</b>请填写前端域名，将使用在生成移动端链接使用。</span>
+        </label>
         <div class="layui-form-item">
             <div class="help-label"><b>{:lang('账户余额')}</b>Balance</div>
             <div class="layui-input layui-bg-gray flex-x-center">

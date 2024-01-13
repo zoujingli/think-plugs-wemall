@@ -42,8 +42,7 @@
     let ostyles = ['layui-bg-gray layui-border-red', 'layui-bg-red', 'layui-bg-orange', 'layui-bg-black', 'layui-bg-blue', 'layui-bg-green', 'layui-bg-green'];
     $(function () {
         $('#OrderTable').layTable({
-            even: true, height: 'full',
-            sort: {field: 'id', type: 'desc'},
+            even: true, height: 'full', sort: {field: 'id', type: 'desc'}, cellExpandedMode: 'tips',
             cols: [[
                 {field: 'headimg', title: '头 像', width: 70, align: 'center', templet: '<div>{{-showTableImage(d.user.headimg,true,"sm")}}</div>'},
                 {

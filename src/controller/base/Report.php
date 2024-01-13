@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -56,7 +56,7 @@ class Report extends Controller
             // 统计订单数据
             $model = PluginWemallOrder::mk()->field($field + ['sum(amount_total)' => 'amount']);
             $orders = $model->whereRaw('status>=4')->whereTime('create_time', '-10 days')->group('mday')->select()->column(null, 'mday');
-            // 统计返利数据
+            // 统计返佣数据
             $model = PluginWemallUserRebate::mk()->field($field + ['sum(amount)' => 'amount']);
             $rebates = $model->whereTime('create_time', '-10 days')->group('mday')->select()->column(null, 'mday');
             // 统计余额数据
@@ -75,7 +75,7 @@ class Report extends Controller
                     '增加用户' => ($users[$date] ?? [])['count'] ?? 0,
                     '订单数量' => ($orders[$date] ?? [])['count'] ?? 0,
                     '订单金额' => ($orders[$date] ?? [])['amount'] ?? 0,
-                    '返利金额' => ($rebates[$date] ?? [])['amount'] ?? 0,
+                    '返佣金额' => ($rebates[$date] ?? [])['amount'] ?? 0,
                     '剩余余额' => PluginPaymentBalance::mk()->whereRaw("create_time<='{$date} 23:59:59' and deleted=0")->sum('amount'),
                     '充值余额' => ($balances[$date] ?? [])['amount1'] ?? 0,
                     '消费余额' => ($balances[$date] ?? [])['amount2'] ?? 0,

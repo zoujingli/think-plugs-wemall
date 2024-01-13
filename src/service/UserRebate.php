@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -31,11 +31,11 @@ use think\admin\extend\CodeExtend;
 use think\admin\Library;
 
 /**
- * 实时发放订单返利服务
- * @class UserRebateService
+ * 实时发放订单返佣服务
+ * @class UserRebate
  * @package plugin\wemall\service
  */
-class UserRebateService
+class UserRebate
 {
     public const pfirst = 'first';
     public const pRepeat = 'repeat';
@@ -55,7 +55,7 @@ class UserRebateService
         self::pMargin   => '差额奖励',
         self::pManage   => '管理奖励',
         self::pUpgrade  => '升级奖励',
-        self::pEqual    => '平推返利',
+        self::pEqual    => '平推返佣',
     ];
 
     // 奖励描述配置
@@ -105,7 +105,7 @@ class UserRebateService
     protected static $status;
 
     /**
-     * 执行订单返利处理
+     * 执行订单返佣处理
      * @param string $orderNo
      * @throws \think\admin\Exception
      * @throws \think\db\exception\DataNotFoundException
@@ -114,7 +114,7 @@ class UserRebateService
      */
     public static function create(string $orderNo)
     {
-        // 返利奖励到账时机 ( 1 支付后到账，2 确认后到账 )
+        // 返佣奖励到账时机 ( 1 支付后到账，2 确认后到账 )
         self::$status = self::config('settl_type') > 1 ? 0 : 1;
 
         // 获取订单数据
@@ -123,7 +123,7 @@ class UserRebateService
         if (self::$order->isEmpty()) throw new Exception('订单不存在');
         if (in_array(self::$order['payment_type'], ['empty', 'balance'])) return;
         if (self::$order['amount_total'] <= 0) throw new Exception('订单金额为零');
-        if (self::$order['rebate_amount'] <= 0) throw new Exception('订单返利为零');
+        if (self::$order['rebate_amount'] <= 0) throw new Exception('订单返佣为零');
 
         // 获取用户数据
         self::$unid = intval(self::$order['unid']);
@@ -150,12 +150,12 @@ class UserRebateService
             Library::$sapp->log->notice("订单 {$orderNo} 完成发放 [{$k}] {$v}");
         }
 
-        // 刷新用户返利统计
+        // 刷新用户返佣统计
         self::recount(self::$unid);
     }
 
     /**
-     * 确认收货订单返利
+     * 确认收货订单返佣
      * @param string $orderNo
      * @return array [status, message]
      * @throws \think\db\exception\DataNotFoundException
@@ -169,7 +169,7 @@ class UserRebateService
         if ($order->isEmpty()) return [0, '需处理的订单状态异常！'];
         $map = [['status', '=', 0], ['deleted', '=', 0], ['order_no', 'like', "{$orderNo}%"]];
         PluginWemallUserRebate::mk()->where($map)->update(['status' => 1, 'remark' => '订单已确认收货！']);
-        if (UserUpgradeService::upgrade($order->getAttr('unid'))) {
+        if (UserUpgrade::upgrade($order->getAttr('unid'))) {
             return [1, '重新计算用户金额成功！'];
         } else {
             return [0, '重新计算用户金额失败！'];
@@ -177,7 +177,7 @@ class UserRebateService
     }
 
     /**
-     * 取消订单发放返利
+     * 取消订单发放返佣
      * @param string $orderNo
      * @return array
      * @throws \think\admin\Exception
@@ -191,8 +191,8 @@ class UserRebateService
         $order = PluginWemallOrder::mk()->where($map)->findOrEmpty();
         if ($order->isEmpty()) throw new Exception('订单状态异常');
         $map = [['deleted', '=', 0], ['order_no', 'like', "{$orderNo}%"]];
-        PluginWemallUserRebate::mk()->where($map)->update(['status' => 0, 'deleted' => 1, 'remark' => '订单已取消退回返利！']);
-        if (UserUpgradeService::upgrade($order['unid'])) {
+        PluginWemallUserRebate::mk()->where($map)->update(['status' => 0, 'deleted' => 1, 'remark' => '订单已取消退回返佣！']);
+        if (UserUpgrade::upgrade($order['unid'])) {
             return [1, '重新计算用户金额成功！'];
         } else {
             return [0, '重新计算用户金额失败！'];
@@ -200,7 +200,7 @@ class UserRebateService
     }
 
     /**
-     * 同步刷新用户返利
+     * 同步刷新用户返佣
      * @param integer $unid 指定用户ID
      * @param array|null $data 非数组时更新数据
      * @return array [total, count, lock]
@@ -233,9 +233,8 @@ class UserRebateService
      */
     public static function config(?string $name = null)
     {
-        if (empty($data = sysvar('plugin.wemall.rebate.rule'))) {
-            $data = sysvar('plugin.wemall.rebate.rule', sysdata('plugin.wemall.rebate.rule'));
-        }
+        $ckey = 'plugin.wemall.rebate.rule';
+        $data = sysvar($ckey) ?: sysvar($ckey, sysdata($ckey));
         return is_null($name) ? $data : ($data[$name] ?? '');
     }
 
@@ -290,7 +289,7 @@ class UserRebateService
             $level['prizes'] = [];
             $disc = round(min($discs[$level['number']] ?? [100]));
             if ($disc < 100) $level['prizes'][] = ['type' => 0, 'value' => $disc, 'name' => '享折扣价', 'desc' => "最高可享受商品的 {$disc}% 折扣价购买~"];
-            foreach (UserRebateService::prizes as $t => $n) if (isset($config["{$t}_{$level['number']}"])) {
+            foreach (UserRebate::prizes as $t => $n) if (isset($config["{$t}_{$level['number']}"])) {
                 $level['prizes'][] = $config["{$t}_{$level['number']}"];
             }
         }
@@ -308,7 +307,7 @@ class UserRebateService
         if (empty(self::$rela1)) return false;
         $map = ['order_unid' => self::$unid];
         if (PluginWemallUserRebate::mk()->where($map)->findOrEmpty()->isExists()) return false;
-        // 创建返利奖励记录
+        // 创建返佣奖励记录
         $map = ['type' => self::pfirst, 'order_no' => $orderNo, 'order_unid' => self::$unid];
         $key = sprintf('vip_%d_%d', self::$rela['level_code'], self::$rela1['level_code']);
         if (self::config("first_type_{$key}") > 0 && PluginWemallUserRebate::mk()->where($map)->findOrEmpty()->isEmpty()) {
@@ -323,7 +322,7 @@ class UserRebateService
                 $val = floatval($value * self::$order['amount_profit'] / 100);
                 $name = sprintf('%s，分佣金额 %s%%', self::prizes[self::pfirst], $value);
             }
-            // 写入返利记录
+            // 写入返佣记录
             self::writeRabate(self::$rela1['unid'], $map, $name, $val);
         }
         return true;
@@ -344,7 +343,7 @@ class UserRebateService
         if (PluginWemallUserRebate::mk()->where($map)->findOrEmpty()->isExists()) return false;
         // 检查上级可否奖励
         if (empty(self::$rela1)) return false;
-        // 创建返利奖励记录
+        // 创建返佣奖励记录
         $key = sprintf('vip_%d_%d', self::$rela1['level_code'], self::$rela['level_code']);
         $map = ['type' => self::pRepeat, 'order_no' => $orderNo, 'order_unid' => self::$unid];
         if (self::config("repeat_type_{$key}") > 0 && PluginWemallUserRebate::mk()->where($map)->findOrEmpty()->isEmpty()) {
@@ -359,7 +358,7 @@ class UserRebateService
                 $val = floatval($value * self::$order['amount_profit'] / 100);
                 $name = sprintf("%s，分佣金额 %s%%", self::prizes[self::pRepeat], $value);
             }
-            // 写入返利记录
+            // 写入返佣记录
             self::writeRabate(self::$rela1['unid'], $map, $name, $val);
         }
         return true;
@@ -388,7 +387,7 @@ class UserRebateService
                 $val = floatval($value * self::$order['amount_profit'] / 100);
                 $name = sprintf("%s，分佣金额 %s%%", self::prizes[self::pRepeat], $value);
             }
-            // 写入返利记录
+            // 写入返佣记录
             self::writeRabate(self::$rela1['unid'], $map, $name, $val);
         }
         return true;
@@ -417,7 +416,7 @@ class UserRebateService
                 $val = floatval($value * self::$order['amount_profit'] / 100);
                 $name = sprintf("%s，分佣金额 %s%%", self::prizes[self::pRepeat], $value);
             }
-            // 写入返利记录
+            // 写入返佣记录
             self::writeRabate(self::$rela2['unid'], $map, $name, $val);
         }
         return true;
@@ -453,7 +452,7 @@ class UserRebateService
                             $dRate = ($rate = $tRate - $rule['discount']) / 100;
                             $name = "{$vvvv}{$tVip}#{$user['level_code']}商品市场价{$item['total_selling']}元的{$rate}%";
                             $amount = $dRate * $item['total_selling'];
-                            // 写入用户返利记录
+                            // 写入用户返佣记录
                             self::writeRabate($user['id'], $map, $name, $amount);
                         }
                         [$tVip, $tRate] = [$user['level_code'], $rule['discount']];
@@ -526,7 +525,7 @@ class UserRebateService
     {
         if (empty(self::$rela1)) return false;
         if (empty(self::$user['extra']['level_order']) || self::$user['extra']['level_order'] !== $orderNo) return false;
-        // 创建返利奖励记录
+        // 创建返佣奖励记录
         $vip = self::$rela['level_code'];
         $map = ['type' => self::pUpgrade, 'order_no' => $orderNo, 'order_unid' => self::$unid];
         if (self::config("upgrade_type_vip_{$vip}") > 0 && PluginWemallUserRebate::mk()->where($map)->findOrEmpty()->isEmpty()) {
@@ -541,7 +540,7 @@ class UserRebateService
                 $val = floatval($value * self::$order['amount_profit'] / 100);
                 $name = sprintf("%s，分佣金额 %s%%", self::prizes[self::pUpgrade], $value);
             }
-            // 写入返利记录
+            // 写入返佣记录
             self::writeRabate(self::$rela1['unid'], $map, $name, $val);
         }
         return true;
@@ -569,11 +568,11 @@ class UserRebateService
                 if (PluginWemallUserRebate::mk()->where($map)->count() < 1) {
                     // 奖励金额
                     $amount = floatval(self::config("equal_value_vip_{$layer}_" . self::$rela['level_code']));
-                    // 返利金额
+                    // 返佣金额
                     // $money = floatval($amount * self::$order['rebate_amount'] / 100);
                     // $name = sprintf("%s, 奖励订单的 %s%%", self::prizes[self::prize_08], $amount);
                     $name = sprintf("%s, 奖励每人 %s", self::prizes[self::pEqual], $amount);
-                    // 写入返利
+                    // 写入返佣
                     self::writeRabate($puid, $map, $name, $amount);
                 }
             }
@@ -592,7 +591,7 @@ class UserRebateService
     }
 
     /**
-     * 写入返利记录
+     * 写入返佣记录
      * @param int $unid 奖励用户
      * @param array $map 查询条件
      * @param string $name 奖励名称

@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -18,6 +18,7 @@ declare (strict_types=1);
 
 namespace plugin\wemall\model;
 
+use plugin\account\model\Abs;
 use think\model\relation\HasMany;
 
 /**
@@ -71,9 +72,8 @@ class PluginWemallGoods extends Abs
      */
     public function getMarksAttr($value): array
     {
-        if (empty($items = sysvar('PluginWemallGoodsMarkItems'))) {
-            $items = sysvar('PluginWemallGoodsMarkItems', PluginWemallGoodsMark::items());
-        }
+        $ckey = 'PluginWemallGoodsMarkItems';
+        $items = sysvar($ckey) ?: sysvar($ckey, PluginWemallGoodsMark::items());
         return str2arr(is_array($value) ? arr2str($value) : $value, ',', $items);
     }
 
@@ -84,9 +84,8 @@ class PluginWemallGoods extends Abs
      */
     public function getCatesAttr($value): array
     {
-        if (empty($cates = sysvar('PluginWemallGoodsCateItem'))) {
-            $cates = sysvar('PluginWemallGoodsCateItem', PluginWemallGoodsCate::items(true));
-        }
+        $ckey = 'PluginWemallGoodsCateItem';
+        $cates = sysvar($ckey) ?: sysvar($ckey, PluginWemallGoodsCate::items(true));
         $cateids = is_string($value) ? str2arr($value) : (array)$value;
         foreach ($cates as $cate) if (in_array($cate['id'], $cateids)) return $cate;
         return [];
@@ -99,11 +98,11 @@ class PluginWemallGoods extends Abs
 
     public function setSpecsAttr($value): string
     {
-        return is_array($value) ? json_encode($value, 64 | 256) : (string)$value;
+        return $this->setExtraAttr($value);
     }
 
     public function getSpecsAttr($value): array
     {
-        return is_string($value) ? json_decode($value, true) : [];
+        return $this->getExtraAttr($value);
     }
 }

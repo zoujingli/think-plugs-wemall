@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -46,7 +46,7 @@ class GoodsService
     {
         // 入库统计
         $query = PluginWemallGoodsStock::mk()->field('ghash,ifnull(sum(gstock),0) stock_total');
-        $stockList = $query->where(['gcode' => $code])->group('gcode,gspec')->select()->toArray();
+        $stockList = $query->where(['gcode' => $code])->group('gcode,ghash')->select()->toArray();
         // 销量统计
         $query = PluginWemallOrder::mk()->alias('a')->field('b.ghash,ifnull(sum(b.stock_sales),0) stock_sales');
         $query->join([PluginWemallOrderItem::mk()->getTable() => 'b'], 'a.order_no=b.order_no', 'left');

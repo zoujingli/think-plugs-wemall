@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -22,7 +22,7 @@ use app\wechat\service\WechatService;
 use plugin\account\service\Account;
 use plugin\wemall\model\PluginWemallUserRelation;
 use plugin\wemall\model\PluginWemallUserTransfer;
-use plugin\wemall\service\UserRebateService;
+use plugin\wemall\service\UserRebate;
 use think\admin\Command;
 use think\admin\Exception;
 use think\admin\storage\LocalStorage;
@@ -224,7 +224,7 @@ class Trans extends Command
                     'change_desc' => '微信提现打款失败',
                 ]);
                 // 刷新用户可提现余额
-                UserRebateService::recount($item['unid']);
+                UserRebate::recount($item['unid']);
             }
         }
     }

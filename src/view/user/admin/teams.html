@@ -19,7 +19,7 @@
                                     + "<span class='color-red'> ( <b>" + item.level_name + "</b>" + " ) </span>"
                                     + (item.pid1 > 0 ? (item.pid0 > 0 ? '<span class="color-green">永久绑定</span>' : '<span class="color-red">临时绑定</span>') : "<span class='color-desc'>无推荐人</span>")
                                     + "<span class='color-blue'>【 累计充值 <b>" + (parseFloat(item.balance_total)) + "</b> 元，已使用 <b>" + parseFloat(item.balance_used) + "</b> 元，剩余可用 <b>" + (parseFloat((parseFloat(item.balance_total) - parseFloat(item.balance_used)).toFixed(2)) + 0) + "</b> 元 】</span>"
-                                    + "<span class='color-green'>【 累计返利 <b>" + (parseFloat(item.rebate_total)) + "</b> 元（ 未到账 <b>" + parseFloat(item.rebate_lock) + "</b> 元），已提现 <b>" + parseFloat(item.rebate_used) + "</b> 元，剩余可提 <b>" + (parseFloat((parseFloat(item.rebate_total) - parseFloat(item.rebate_used)).toFixed(2)) + 0) + "</b> 元 】</span>"
+                                    + "<span class='color-green'>【 累计返佣 <b>" + (parseFloat(item.rebate_total)) + "</b> 元（ 未到账 <b>" + parseFloat(item.rebate_lock) + "</b> 元），已提现 <b>" + parseFloat(item.rebate_used) + "</b> 元，剩余可提 <b>" + (parseFloat((parseFloat(item.rebate_total) - parseFloat(item.rebate_used)).toFixed(2)) + 0) + "</b> 元 】</span>"
                                     + "</div>",
                             });
                         });

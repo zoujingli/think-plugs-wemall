@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -21,7 +21,7 @@ namespace plugin\wemall\controller\api\auth\action;
 use plugin\wemall\controller\api\Auth;
 use plugin\wemall\model\PluginWemallGoods;
 use plugin\wemall\model\PluginWemallUserActionCollect;
-use plugin\wemall\service\UserActionService;
+use plugin\wemall\service\UserAction;
 use think\admin\helper\QueryHelper;
 
 /**
@@ -45,7 +45,7 @@ class Collect extends Auth
         $map = ['code' => $data['gcode'], 'deleted' => 0];
         $goods = PluginWemallGoods::mk()->where($map)->findOrEmpty();
         if ($goods->isExists()) {
-            UserActionService::set($this->unid, $data['gcode'], 'collect');
+            UserAction::set($this->unid, $data['gcode'], 'collect');
             $this->success('收藏成功！');
         } else {
             $this->error('收藏失败！');
@@ -74,7 +74,7 @@ class Collect extends Auth
     public function del()
     {
         $data = $this->_vali(['gcode.require' => '商品不能为空！']);
-        UserActionService::del($this->unid, $data['gcode'], 'collect');
+        UserAction::del($this->unid, $data['gcode'], 'collect');
         $this->success('删除记录成功！');
     }
 
@@ -86,7 +86,7 @@ class Collect extends Auth
     public function clear()
     {
         PluginWemallUserActionCollect::mk()->where(['unid' => $this->unid])->delete();
-        UserActionService::clear($this->unid, 'collect');
+        UserAction::clear($this->unid, 'collect');
         $this->success('清理记录成功！');
     }
 }

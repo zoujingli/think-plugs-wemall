@@ -39,12 +39,10 @@
 <script>
     $(function () {
         $('#UserTable').layTable({
-            even: true, height: 'full',
-            sort: {field: 'sort desc,id', type: 'desc'},
-            cellExpandedMode: 'tips',
+            even: true, height: 'full', sort: {field: 'sort desc,id', type: 'desc'}, cellExpandedMode: 'tips',
             cols: [[
                 {field: 'id', hide: true}, {checkbox: true, fixed: true},
-                {field: 'sort', title: '排序权重', width: 100, align: 'center', sort: true, templet: '#SortInputTpl'},
+                // {field: 'sort', title: '排序权重', width: 100, align: 'center', sort: true, templet: '#SortInputTpl'},
                 {
                     field: 'headimg', title: '头 像', width: 95, align: 'center', templet: function (d) {
                         if (!d.user || !d.user.headimg) return '';
@@ -52,25 +50,25 @@
                     }
                 },
                 {
-                    field: '', title: '用户账号', minWidth: 180, templet: function (d) {
+                    title: '用户账号', minWidth: 180, templet: function (d) {
                         let tpls = [];
-                        tpls.push('绑定手机：<b class="color-blue">{{d.user.phone}}</b>')
+                        tpls.push('关联手机：<b class="color-blue">{{d.user.phone}}</b>')
                         tpls.push('用户编号：<b class="color-blue">{{d.user.code}}</b>')
                         tpls.push('用户等级：<b class="color-blue">VIP{{d.level_code}}</b> {{d.level_name||""}}')
                         return laytpl(tpls.join('<br>')).render(d);
                     }
                 },
                 {
-                    field: '', title: '用户姓名', minWidth: 120, templet: function (d) {
+                    title: '用户姓名', minWidth: 120, templet: function (d) {
                         let tpls = [];
                         tpls.push('用户姓名：{{d.user.username||"-"}}')
                         tpls.push('用户昵称：{{d.user.nickname||"-"}}')
-                        tpls.push('绑定时间：{{d.user.create_time||"-"}}')
+                        tpls.push('注册时间：{{d.user.create_time||"-"}}')
                         return laytpl(tpls.join('<br>')).render(d);
                     }
                 },
                 {
-                    field: '', title: '上1级头像', width: 95, align: 'center', templet: function (d) {
+                    title: '上1级头像', width: 95, align: 'center', templet: function (d) {
                         if (d.relation1 && d.relation1.user) {
                             return laytpl('<div>{{-showTableImage(d.relation1.user.headimg,true,"md")}}</div>').render(d);
                         } else if (d.relation0 && d.relation0.user) {
@@ -81,7 +79,7 @@
                     }
                 },
                 {
-                    field: '', title: '上1级代理', minWidth: 200, templet: function (d) {
+                    title: '上1级代理', minWidth: 200, templet: function (d) {
                         let tpls = [], left = '';
                         if (d.relation1 && d.relation1.user) {
                             left = '<span class="layui-badge layui-badge-middle layui-bg-green" style="line-height:14px;padding:3px 4px">永久绑定</span>';
@@ -109,7 +107,7 @@
                     }
                 },
                 {
-                    field: '', title: '上2级代理', minWidth: 180, templet: function (d) {
+                    title: '上2级代理', minWidth: 180, templet: function (d) {
                         let tpls = [];
                         if (d.relation2 && d.relation2.user) {
                             tpls.push('手机：<b class="color-blue">{{d.relation2.user.phone}}</b>')
@@ -162,7 +160,6 @@
     <!--{if auth('remove')}-->
     <a class="layui-btn layui-btn-sm layui-btn-danger" data-confirm="确定要永久删除此账号吗？" data-action="{:url('remove')}" data-value="id#{{d.unid}}">删 除</a>
     <!--{/if}-->
-
     <!--{if auth('parent')}-->
     <a class="layui-btn layui-btn-sm" data-modal="{:url('parent')}" data-value="id#{{d.id}}" data-title="设置上级代理">上 级</a>
     <!--{/if}-->

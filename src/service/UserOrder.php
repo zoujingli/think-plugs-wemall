@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -33,10 +33,10 @@ use think\admin\Library;
 
 /**
  * 商城订单数据服务
- * @class UserOrderService
+ * @class UserOrder
  * @package plugin\wemall\service
  */
-class UserOrderService
+class UserOrder
 {
     /**
      * 获取随减金额
@@ -91,7 +91,7 @@ class UserOrderService
         // 尝试绑定代理用户
         if (empty($user['puid1']) && ($order['puid1'] > 0 || $user['puid0'] > 0)) {
             $puid1 = $order['puid1'] > 0 ? $order['puid1'] : $user['puid0'];
-            UserUpgradeService::bindAgent($user['id'], $puid1);
+            UserUpgrade::bindAgent($user['id'], $puid1);
         }
         // 重置订单推荐关系
         $user = PluginWemallUserRelation::mk()->where(['unid' => $order['unid']])->findOrEmpty();
@@ -99,7 +99,7 @@ class UserOrderService
             $order->save(['puid1' => $user['puid1'], 'puid2' => $user['puid2']]);
         }
         // 重新计算用户等级
-        UserUpgradeService::upgrade($user['id'], true, $orderNo);
+        UserUpgrade::upgrade($user['id'], true, $orderNo);
         return [$user, $order, $entry];
     }
 
@@ -158,7 +158,7 @@ class UserOrderService
         [$amount, $tCount, $tCode, $remark] = ExpressService::amount(
             PluginWemallOrderItem::mk()->where($map1)->column('delivery_code'),
             $address->getAttr('region_prov'), $address->getAttr('region_city'),
-            PluginWemallOrderItem::mk()->where($map2)->sum('delivery_count')
+            (int)PluginWemallOrderItem::mk()->where($map2)->sum('delivery_count')
         );
         // 创建订单发货信息
         $extra = [
@@ -254,8 +254,8 @@ class UserOrderService
             } catch (\Exception $exception) {
                 trace_file($exception);
             }
-            try { /* 订单返利处理 */
-                UserRebateService::create($orderNo);
+            try { /* 订单返佣处理 */
+                UserRebate::create($orderNo);
             } catch (\Exception $exception) {
                 trace_file($exception);
             }
@@ -294,8 +294,8 @@ class UserOrderService
         if ($order['reward_balance'] > 0) Balance::cancel($code);
         // 取消积分奖励
         if ($order['reward_integral'] > 0) Integral::cancel($code);
-        // 取消订单返利
-        $syncRebate && UserRebateService::cancel($orderNo);
+        // 取消订单返佣
+        $syncRebate && UserRebate::cancel($orderNo);
         return $code;
     }
 
@@ -326,7 +326,7 @@ class UserOrderService
             Integral::create($order['unid'], $code, '购物奖励积分', $order['reward_integral'], $remark, true);
         }
         // 升级用户等级
-        UserUpgradeService::upgrade($order->getAttr('unid'), true, $orderNo);
+        UserUpgrade::upgrade($order->getAttr('unid'), true, $orderNo);
         // 返回奖励单号
         return $code;
     }

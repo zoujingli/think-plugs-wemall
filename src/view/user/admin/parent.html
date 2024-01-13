@@ -1,4 +1,4 @@
-<div class="think-box-shadow relative padding-top-0 shadow-none">
+<div class="think-box-shadow relative shadow-none">
     {include file='user/admin/parent_search'}
     <table id="UserTableSelect" data-line="3" data-url="{:request()->url()}" data-target-search="form.form-search"></table>
 </div>
@@ -8,27 +8,26 @@
     $(function () {
         $('#UserTableSelect').layTable({
             even: true, height: 'full',
-            sort: {field: 'sort desc,id', type: 'desc'},
+            sort: {field: 'id', type: 'desc'},
             cellExpandedMode: 'tips',
             cols: [[
                 {field: 'id', hide: true},
-
                 {field: 'headimg', title: '头 像', width: 95, align: 'center', templet: '<div>{{-showTableImage(d.user.headimg,true,"md")}}</div>'},
                 {
-                    field: '', title: '用户账号', templet: function (d) {
+                    title: '用户账号', templet: function (d) {
                         let tpls = [];
-                        tpls.push('绑定手机：<b class="color-blue">{{d.user.phone}}</b>')
-                        tpls.push('用户编号：<b class="color-blue">{{d.user.code}}</b>')
                         tpls.push('用户等级：<b class="color-blue">VIP{{d.level_code}}</b> {{d.level_name||""}}')
+                        tpls.push('关联手机：<b class="color-blue">{{d.user.phone}}</b>')
+                        tpls.push('用户编号：<b class="color-blue">{{d.user.code}}</b>')
                         return laytpl(tpls.join('<br>')).render(d);
                     }
                 },
                 {
-                    field: '', title: '用户姓名', templet: function (d) {
+                    title: '用户姓名', templet: function (d) {
                         let tpls = [];
                         tpls.push('用户姓名：{{d.user.username||"-"}}')
                         tpls.push('用户昵称：{{d.user.nickname||"-"}}')
-                        tpls.push('绑定时间：{{d.user.create_time||"-"}}')
+                        tpls.push('注册时间：{{d.user.create_time||"-"}}')
                         return laytpl(tpls.join('<br>')).render(d);
                     }
                 },

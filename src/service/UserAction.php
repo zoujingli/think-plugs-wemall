@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -25,10 +25,10 @@ use plugin\wemall\model\PluginWemallUserActionHistory;
 
 /**
  * 用户行为数据服务
- * @class UserActionService
+ * @class UserAction
  * @package plugin\wemall\service
  */
-class UserActionService
+class UserAction
 {
     /**
      * 设置行为数据
@@ -48,7 +48,7 @@ class UserActionService
         }
         $data['sort'] = time();
         $data['times'] = $model->isExists() ? $model->getAttr('times') + 1 : 1;
-        $model->save($data) && UserActionService::recount($unid);
+        $model->save($data) && UserAction::recount($unid);
         return $model->toArray();
     }
 

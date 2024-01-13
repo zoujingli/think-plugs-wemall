@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -22,7 +22,7 @@ use plugin\wemall\controller\api\Auth;
 use plugin\wemall\model\PluginWemallGoods;
 use plugin\wemall\model\PluginWemallGoodsItem;
 use plugin\wemall\model\PluginWemallOrderCart;
-use plugin\wemall\service\UserActionService;
+use plugin\wemall\service\UserAction;
 use think\admin\helper\QueryHelper;
 use think\db\Query;
 
@@ -68,7 +68,7 @@ class Cart extends Auth
         $map = ['unid' => $this->unid, 'ghash' => $data['ghash']];
         if ($data['number'] < 1) {
             PluginWemallOrderCart::mk()->where($map)->delete();
-            UserActionService::recount($this->unid);
+            UserAction::recount($this->unid);
             $this->success('移除成功！');
         }
         // 检查商品是否存在
@@ -78,7 +78,7 @@ class Cart extends Auth
         // 保存商品数据
         $data += ['gcode' => $gspec['gcode'], 'gspec' => $gspec['gspec']];
         if (($cart = PluginWemallOrderCart::mk()->where($map)->findOrEmpty())->save($data)) {
-            UserActionService::recount($this->unid);
+            UserAction::recount($this->unid);
             $this->success('保存成功！', $cart->refresh()->toArray());
         } else {
             $this->error('保存失败！');

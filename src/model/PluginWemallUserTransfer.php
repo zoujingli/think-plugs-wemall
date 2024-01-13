@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -18,7 +18,8 @@ declare (strict_types=1);
 
 namespace plugin\wemall\model;
 
-use plugin\wemall\service\UserTransferService;
+use plugin\account\model\Abs;
+use plugin\wemall\service\UserTransfer;
 
 /**
  * 用户提现模型
@@ -34,7 +35,9 @@ class PluginWemallUserTransfer extends Abs
     public function toArray(): array
     {
         $data = parent::toArray();
-        $data['type_name'] = UserTransferService::types($data['type']);
+        if (isset($data['type'])) {
+            $data['type_name'] = UserTransfer::types($data['type']);
+        }
         return $data;
     }
 }

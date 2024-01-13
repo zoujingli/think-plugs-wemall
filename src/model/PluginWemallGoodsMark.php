@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -18,6 +18,8 @@ declare (strict_types=1);
 
 namespace plugin\wemall\model;
 
+use plugin\account\model\Abs;
+
 /**
  * 商城商品标题模型
  * @class PluginWemallGoodsMark
@@ -31,7 +33,6 @@ class PluginWemallGoodsMark extends Abs
      */
     public static function items(): array
     {
-        $map = ['status' => 1];
-        return static::mk()->where($map)->order('sort desc,id desc')->column('name');
+        return static::mk()->where(['status' => 1])->order('sort desc,id desc')->column('name');
     }
 }

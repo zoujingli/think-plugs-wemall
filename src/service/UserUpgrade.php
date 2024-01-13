@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -30,10 +30,10 @@ use think\admin\Library;
 
 /**
  * 用户等级升级服务
- * @class UserUpgradeService
+ * @class UserUpgrade
  * @package plugin\wemall\service
  */
-class UserUpgradeService
+class UserUpgrade
 {
 
     /**
@@ -89,13 +89,26 @@ class UserUpgradeService
             Library::$sapp->db->transaction(static function () use ($user, $agent, $mode) {
                 // 更新用户代理
                 $path1 = rtrim($agent['path'] ?: ',', ',') . ",{$agent['id']},";
-                $user->save(['puid0' => $agent['id'], 'puid1' => $agent['id'], 'puid2' => $agent['puid1'], 'pids' => $mode > 0 ? 1 : 0, 'path' => $path1, 'layer' => substr_count($path1, ',')]);
+                $user->save([
+                    'pids'  => $mode > 0 ? 1 : 0,
+                    'path'  => $path1,
+                    'puid0' => $agent['id'],
+                    'puid1' => $agent['id'],
+                    'puid2' => $agent['puid1'],
+                    'layer' => substr_count($path1, ',')
+                ]);
                 // 更新下级代理
                 $path2 = ",{$user['path']}{$user['id']},";
                 if (PluginWemallUserRelation::mk()->whereLike('path', "{$path2}%")->count() > 0) {
                     foreach (PluginWemallUserRelation::mk()->whereLike('path', "{$path2}%")->order('layer desc')->select() as $item) {
                         $attr = array_reverse(str2arr($path3 = preg_replace("#^{$path2}#", "{$path1}{$user['id']},", $item['path'])));
-                        $item->save(['puid0' => $attr[0] ?? 0, 'puid1' => $attr[0] ?? 0, 'puid2' => $attr[1] ?? 0, 'path' => $path3, 'layer' => substr_count($path3, '-')]);
+                        $item->save([
+                            'path'  => $path3,
+                            'puid0' => $attr[0] ?? 0,
+                            'puid1' => $attr[0] ?? 0,
+                            'puid2' => $attr[1] ?? 0,
+                            'layer' => substr_count($path3, '-')
+                        ]);
                     }
                 }
             });
@@ -211,9 +224,9 @@ class UserUpgradeService
         // 重算用户余额 & 重算积分
         Balance::recount($unid, $data);
         Integral::recount($unid, $data);
-        // 重算行为统计 & 订单返利
-        UserActionService::recount($unid, $data);
-        UserRebateService::recount($unid, $data);
+        // 重算行为统计 & 订单返佣
+        UserAction::recount($unid, $data);
+        UserRebate::recount($unid, $data);
         if (($user = PluginAccountUser::mk()->findOrEmpty($unid))->isExists()) {
             $user->save(['extra' => array_merge($user->getAttr('extra'), $data)]);
         }

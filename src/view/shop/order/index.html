@@ -39,20 +39,35 @@
 
     $(function () {
         $('#OrderTable').layTable({
-            even: true, height: 'full',
-            sort: {field: 'id', type: 'desc'},
+            even: true, height: 'full', sort: {field: 'id', type: 'desc'}, cellExpandedMode: 'tips',
             cols: [[
                 {field: 'headimg', title: '头 像', width: 70, align: 'center', templet: '<div>{{-showTableImage(d.user.headimg,true,"sm")}}</div>'},
                 {
-                    field: '', title: '会员用户', width: 205, templet: function (d) {
+                    title: '会员用户', width: 200, templet: function (d) {
                         let tpls = [];
-                        tpls.push('用户昵称：{{d.user.nickname||d.user.username||"-"}}');
-                        tpls.push('用户编号：<b class="font-code">{{d.user.code}}</b>');
+                        if (d.user) {
+                            tpls.push('用户昵称：{{d.user.nickname||d.user.username||"-"}}');
+                            tpls.push('用户手机：<b class="font-code">{{d.user.phone}}</b>');
+                        } else {
+                            tpls.push('<div class="color-desc ta-pt-10">无用户账号</div>')
+                        }
                         return laytpl("<div class='nowrap'>" + tpls.join('<br>') + "</div>").render(d);
                     }
                 },
                 {
-                    field: '', title: '订单信息', minWidth: 220, templet: function (d) {
+                    title: '推荐用户', width: 200, templet: function (d) {
+                        let tpls = [];
+                        if (d.form) {
+                            tpls.push('用户昵称：{{d.from.nickname||d.from.username||"-"}}');
+                            tpls.push('用户手机：<b class="font-code">{{d.from.phone}}</b>');
+                        } else {
+                            tpls.push('<div class="color-desc ta-pt-10">无推荐人</div>')
+                        }
+                        return laytpl("<div class='nowrap'>" + tpls.join('<br>') + "</div>").render(d);
+                    }
+                },
+                {
+                    title: '订单信息', minWidth: 220, templet: function (d) {
                         d.showPayments = "{:url('plugin-payment/record/index')}"
                         let tpls = ' <a data-tips-text="查看支付信息" data-title="查看支付信息" class="layui-icon layui-icon-rmb font-s12 margin-right-5" data-width="999px" data-close-refresh="OrderTable"  data-modal="{{d.showPayments}}?orderinfo={{d.order_no}}"></a>';
                         tpls += '订单号 <b class="font-code">{{d.order_no}}</b>';
@@ -77,7 +92,7 @@
                     }
                 },
                 {
-                    field: '', title: '商品详情', minWidth: 220, templet: function (d) {
+                    title: '商品详情', minWidth: 220, templet: function (d) {
                         let tpls = [];
                         d.items.map(function (v) {
                             tpls.push(laytpl(
@@ -85,9 +100,8 @@
                                 '   <div>{{-showTableImage(d.gcover,false,"sm")}}</div>' +
                                 '   <div class="padding-left-5"></div>' +
                                 '   <div>' +
-                                '       <span class="layui-badge think-bg-gray">{{d.gname}}</span>' +
-                                '       <span class="layui-badge think-bg-gray">{{str2name(d.gspec)}}</span><br>' +
-                                '       <span class="layui-badge think-bg-gray">{{d.stock_sales}}{{d.gunit||"件"}} x {{str2num(d.price_selling)}}元/{{d.gunit||"件"}}，共 {{str2num(d.total_price_selling)}} 元</span> ' +
+                                '       <b class="layui-badge layui-bg-gray">{{d.gname}}</b><span class="layui-badge layui-bg-gray">{{str2name(d.gspec)}}</span><br>' +
+                                '       <span class="layui-badge layui-bg-gray">{{d.stock_sales}}{{d.gunit||"件"}} x {{str2num(d.price_selling)}}元/{{d.gunit||"件"}}，共 {{str2num(d.total_price_selling)}} 元</span> ' +
                                 '   </div>' +
                                 '</div>'
                             ).render(v));
@@ -96,7 +110,7 @@
                     }
                 },
                 {
-                    field: '', title: '收货地址', templet: function (d) {
+                    title: '收货地址', templet: function (d) {
                         if (d.address) {
                             let tpls = [];
                             tpls.push('<b class="margin-right-5">{{d.user_name}}</b><span class="color-blue font-code">{{d.user_phone}}</span>');
@@ -107,7 +121,7 @@
                         }
                     }
                 },
-                {field: 'id', sort: true, title: '创建时间', minWidth: 170, templet: "<div>更新时间：{{d.update_time}}<br>创建时间：{{d.create_time}}</div>"},
+                {field: 'id', sort: true, title: '创建时间', minWidth: 170, templet: "<div>支付时间：{{d.payment_time}}<br>下单时间：{{d.create_time}}</div>"},
                 {toolbar: '#toolbar', hide: true, title: '操作面板', width: 120, align: 'center', fixed: 'right'},
             ]]
         });
@@ -117,10 +131,8 @@
 
 <!-- 操控面板的模板 -->
 <script type="text/html" id="toolbar">
-
     <!--{if auth('remove')}-->
     <a class="layui-btn layui-btn-sm layui-btn-danger" data-confirm="确定要删除此商品吗？" data-action="{:url('remove')}" data-value="code#{{d.code}}">删 除</a>
     <!--{/if}-->
-
 </script>
 {/block}

@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2022~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2022~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -17,6 +17,8 @@
 declare (strict_types=1);
 
 namespace plugin\wemall\model;
+
+use plugin\account\model\Abs;
 
 /**
  * 用户等级配置模型
@@ -34,7 +36,7 @@ class PluginWemallConfigLevel extends Abs
     public static function items(string $first = null, string $fields = 'name,number as prefix,number,upgrade_team'): array
     {
         $items = $first ? [-1 => ['name' => $first, 'prefix' => '-', 'number' => -1, 'upgrade_team' => 0]] : [];
-        return $items + static::mk()->where(['status' => 1])->hidden(['id', 'utime', 'status', 'create_at'])->order('number asc')->column($fields, 'number');
+        return array_merge($items, static::mk()->where(['status' => 1])->withoutField('id,utime,status,update_time,create_time')->order('number asc')->column($fields, 'number'));
     }
 
     /**

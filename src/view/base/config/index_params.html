@@ -7,6 +7,12 @@
             <span class="help-block"><b>必填，</b>请填写商城名称，将会在前端部分页面显示。</span>
         </label>
 
+        <label class="layui-form-item relative block">
+            <span class="help-label"><b>移动访问</b>Domain H5</span>
+            <input class="layui-input" name="domain" placeholder="请输入移动访问" required value='{$vo.domain|default=""}'>
+            <span class="help-block"><b>必填，</b>请填写移动访问，将使用在生成移动端链接使用。</span>
+        </label>
+
         <div class="layui-form-item relative block">
             <span class="help-label label-required-prev"><b>账户余额</b>User Balance</span>
             <div class="layui-textarea help-checks">

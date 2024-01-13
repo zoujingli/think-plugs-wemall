@@ -32,7 +32,7 @@
             </span>
             <div class="layui-textarea help-checks">
                 {php} $data['status'] = $data['status'] ?? 0; {/php}
-                {foreach ['关闭返利提现', '开启返利提现'] as $k => $v}
+                {foreach ['关闭返佣提现', '开启返佣提现'] as $k => $v}
                 {if $data.status eq $k}
                 <input checked class="layui-input" name="status" title="{$v}" type="radio" value="{$k}">
                 {else}
