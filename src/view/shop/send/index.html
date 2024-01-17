@@ -49,7 +49,7 @@
                     field: 'unid', title: '会员用户', width: 180, templet: function (d) {
                         let tpls = [];
                         tpls.push('{{d.user.nickname||d.user.username||"-"}}');
-                        tpls.push('<b class="font-code">{{d.user.code}}</b>');
+                        tpls.push('<b class="font-code">{{d.user.phone||d.user.code}}</b>');
                         return laytpl("<div class='nowrap'>" + tpls.join('<br>') + "</div>").render(d);
                     }
                 },
@@ -80,7 +80,7 @@
                     }
                 },
                 {
-                    field: '', title: '商品详情', templet: function (d) {
+                    title: '商品详情', templet: function (d) {
                         let tpls = [];
                         d.main.items.forEach(function (v) {
                             tpls.push(laytpl(
@@ -99,7 +99,7 @@
                     }
                 },
                 {
-                    field: '', title: '收货地址', templet: function (d) {
+                    title: '收货地址', templet: function (d) {
                         let tpls = [];
                         tpls.push('<b>{{d.user_name}}</b> <span class="color-blue font-code margin-left-5">{{d.user_phone}}</span>');
                         tpls.push('{{d.region_prov}} {{d.region_city}} {{d.region_city}} {{d.region_addr}}');

@@ -2,10 +2,15 @@
 
 {block name="button"}
 <!--{if auth('sync')}-->
-<a data-table-id="UserTable" class="layui-btn layui-btn-sm layui-btn-primary" data-queue="{:url('sync')}">{:lang('后台打款')}</a>
+<a data-table-id="TransterTable" class="layui-btn layui-btn-sm layui-btn-primary" data-queue="{:url('sync')}">{:lang('后台打款')}</a>
 <!--{/if}-->
+
+<!--{if auth('payment')}-->
+<a data-table-id="TransterTable" class="layui-btn layui-btn-sm layui-btn-primary" data-modal="{:url('payment')}">{:lang('商户配置')}</a>
+<!--{/if}-->
+
 <!--{if auth('config')}-->
-<a class="layui-btn layui-btn-sm layui-btn-primary" data-modal="{:url('config')}" data-width="900px">提现配置</a>
+<a data-table-id="TransterTable" class="layui-btn layui-btn-sm layui-btn-primary" data-modal="{:url('config')}" data-width="900px">{:lang('提现配置')}</a>
 <!--{/if}-->
 {/block}
 
@@ -16,17 +21,16 @@
 
 <div class="think-box-shadow">
     {include file='user/transfer/index_search'}
-    <table id="UserTable" data-line="3" data-url="{:request()->url()}" data-target-search="form.form-search"></table>
+    <table id="TransterTable" data-line="3" data-url="{:request()->url()}" data-target-search="form.form-search"></table>
 </div>
 
 <script>
     $(function () {
-        $('#UserTable').layTable({
-            even: true, height: 'full',
-            sort: {field: 'id', type: 'desc'},
-            cellExpandedMode: 'tips',
+        $('#TransterTable').layTable({
+            even: true, height: 'full', sort: {field: 'id', type: 'desc'}, cellExpandedMode: 'tips',
             cols: [[
-                {field: 'id', hide: true}, {checkbox: true, fixed: true},
+                {field: 'id', hide: true},
+                {checkbox: true, fixed: true},
                 {
                     title: '代理头像', width: 95, align: 'center', templet: function (d) {
                         if (!d.relation.user || !d.relation.user.headimg) return '';
@@ -73,7 +77,6 @@
 
     <!--{if auth('auditStatus')}-->
     <a class="layui-btn layui-btn-sm layui-btn-normal" data-title="提现审核" data-modal="{:url('auditStatus')}" data-value="code#{{d.code}}">审 核</a>
-
     <!--{/if}-->
 
 </script>

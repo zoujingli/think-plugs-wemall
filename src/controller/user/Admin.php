@@ -48,10 +48,10 @@ class Admin extends Controller
         }, function (QueryHelper $query) {
             $query->with(['user', 'relation0', 'relation1', 'relation2'])->equal('level_code');
             // 用户内容查询
-            $uq = PluginAccountUser::mQuery()->equal('status')->dateBetween('create_at');
-            $uq->where(['status' => intval($this->type === 'index'), 'deleted' => 0]);
-            $uq->like('code|phone|username|nickname#user');
-            $query->whereRaw("unid in {$uq->db()->field('id')->buildSql()}");
+            $user = PluginAccountUser::mQuery()->dateBetween('create_at');
+            $user->equal('status')->like('code|phone|username|nickname#user');
+            $user->where(['status' => intval($this->type === 'index'), 'deleted' => 0]);
+            $query->whereRaw("unid in {$user->db()->field('id')->buildSql()}");
         });
     }
 

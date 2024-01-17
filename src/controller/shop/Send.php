@@ -36,10 +36,10 @@ use think\exception\HttpResponseException;
 class Send extends Controller
 {
     /**
-     * 订单静态状态
+     * 订单状态
      * @var int[]
      */
-    private $oStatus = [0, 4, 5, 6, 7];
+    private $oStatus = [4, 5, 6, 7];
 
     /**
      * 订单发货管理
@@ -95,7 +95,7 @@ class Send extends Controller
             $this->fetch();
         } else {
             sysdata('plugin.wemall.address', $this->request->post());
-            $this->success('发货地址保存成功');
+            $this->success('地址保存成功！');
         }
     }
 

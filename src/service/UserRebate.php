@@ -79,13 +79,14 @@ class UserRebate
      * 用户关系
      * @var array
      */
-    private static $rela;
+    private static $rela0;
 
     /**
      * 直接代理
      * @var array
      */
     private static $rela1;
+
     /**
      * 间接代理
      * @var array
@@ -114,32 +115,33 @@ class UserRebate
      */
     public static function create(string $orderNo)
     {
-        // 返佣奖励到账时机 ( 1 支付后到账，2 确认后到账 )
+        // 返佣奖励到账时机 ( 1.支付后到账，2.确认后到账 )
         self::$status = self::config('settl_type') > 1 ? 0 : 1;
 
         // 获取订单数据
         $map = ['order_no' => $orderNo, 'payment_status' => 1];
-        self::$order = PluginWemallOrder::mk()->where($map)->findOrEmpty();
-        if (self::$order->isEmpty()) throw new Exception('订单不存在');
-        if (in_array(self::$order['payment_type'], ['empty', 'balance'])) return;
+        self::$order = PluginWemallOrder::mk()->where($map)->findOrEmpty()->toArray();
+        if (empty(self::$order)) throw new Exception('订单不存在');
         if (self::$order['amount_total'] <= 0) throw new Exception('订单金额为零');
         if (self::$order['rebate_amount'] <= 0) throw new Exception('订单返佣为零');
 
         // 获取用户数据
         self::$unid = intval(self::$order['unid']);
         self::$user = PluginAccountUser::mk()->findOrEmpty(self::$unid)->toArray();
-        self::$rela = PluginWemallUserRelation::mk()->where(['unid' => self::$unid])->findOrEmpty()->toArray();
-        if (self::$user || self::$rela) throw new Exception('用户不存在');
+        self::$rela0 = PluginWemallUserRelation::mk()->where(['unid' => self::$unid])->findOrEmpty()->toArray();
+        if (empty(self::$user) || empty(self::$rela0)) throw new Exception('用户不存在');
 
         // 获取直接代理数据
         if (self::$order['puid1'] > 0) {
-            self::$rela1 = PluginWemallUserRelation::mk()->where(['unid' => self::$order['puid1']])->findOrEmpty()->toArray();
+            $map = ['unid' => self::$order['puid1']];
+            self::$rela1 = PluginWemallUserRelation::mk()->where($map)->findOrEmpty()->toArray();
             if (self::$rela1) throw new Exception('直接代理不存在');
         }
 
         // 获取间接代理数据
         if (self::$order['puid2'] > 0) {
-            self::$rela2 = PluginWemallUserRelation::mk()->where(['unid' => self::$order['puid2']])->findOrEmpty()->toArray();
+            $map = ['unid' => self::$order['puid2']];
+            self::$rela2 = PluginWemallUserRelation::mk()->where($map)->findOrEmpty()->toArray();
             if (self::$rela2) throw new Exception('间接代理不存在');
         }
 
@@ -190,13 +192,10 @@ class UserRebate
         $map = ['status' => 0, 'order_no' => $orderNo];
         $order = PluginWemallOrder::mk()->where($map)->findOrEmpty();
         if ($order->isEmpty()) throw new Exception('订单状态异常');
+        // 更新返利记录
         $map = [['deleted', '=', 0], ['order_no', 'like', "{$orderNo}%"]];
         PluginWemallUserRebate::mk()->where($map)->update(['status' => 0, 'deleted' => 1, 'remark' => '订单已取消退回返佣！']);
-        if (UserUpgrade::upgrade($order['unid'])) {
-            return [1, '重新计算用户金额成功！'];
-        } else {
-            return [0, '重新计算用户金额失败！'];
-        }
+        return UserUpgrade::upgrade($order['unid']) ? [1, '重新计算返利成功！'] : [0, '重新计算返利失败！'];
     }
 
     /**
@@ -309,7 +308,7 @@ class UserRebate
         if (PluginWemallUserRebate::mk()->where($map)->findOrEmpty()->isExists()) return false;
         // 创建返佣奖励记录
         $map = ['type' => self::pfirst, 'order_no' => $orderNo, 'order_unid' => self::$unid];
-        $key = sprintf('vip_%d_%d', self::$rela['level_code'], self::$rela1['level_code']);
+        $key = sprintf('vip_%d_%d', self::$rela0['level_code'], self::$rela1['level_code']);
         if (self::config("first_type_{$key}") > 0 && PluginWemallUserRebate::mk()->where($map)->findOrEmpty()->isEmpty()) {
             $value = self::config("first_value_{$key}");
             if (self::config("first_type_{$key}") == 1) {
@@ -323,7 +322,7 @@ class UserRebate
                 $name = sprintf('%s，分佣金额 %s%%', self::prizes[self::pfirst], $value);
             }
             // 写入返佣记录
-            self::writeRabate(self::$rela1['unid'], $map, $name, $val);
+            self::wRebate(self::$rela1['unid'], $map, $name, $val);
         }
         return true;
     }
@@ -344,7 +343,7 @@ class UserRebate
         // 检查上级可否奖励
         if (empty(self::$rela1)) return false;
         // 创建返佣奖励记录
-        $key = sprintf('vip_%d_%d', self::$rela1['level_code'], self::$rela['level_code']);
+        $key = sprintf('vip_%d_%d', self::$rela1['level_code'], self::$rela0['level_code']);
         $map = ['type' => self::pRepeat, 'order_no' => $orderNo, 'order_unid' => self::$unid];
         if (self::config("repeat_type_{$key}") > 0 && PluginWemallUserRebate::mk()->where($map)->findOrEmpty()->isEmpty()) {
             $value = self::config("repeat_value_{$key}");
@@ -359,7 +358,7 @@ class UserRebate
                 $name = sprintf("%s，分佣金额 %s%%", self::prizes[self::pRepeat], $value);
             }
             // 写入返佣记录
-            self::writeRabate(self::$rela1['unid'], $map, $name, $val);
+            self::wRebate(self::$rela1['unid'], $map, $name, $val);
         }
         return true;
     }
@@ -373,7 +372,7 @@ class UserRebate
     private static function _prize03(string $orderNo): bool
     {
         if (empty(self::$rela1)) return false;
-        $key = self::$rela['level_code'];
+        $key = self::$rela0['level_code'];
         $map = ['type' => self::pDirect, 'order_no' => $orderNo, 'order_unid' => self::$unid];
         if (self::config("direct_type_vip_{$key}") > 0 && PluginWemallUserRebate::mk()->where($map)->findOrEmpty()->isEmpty()) {
             $value = self::config("direct_value_vip_{$key}");
@@ -388,7 +387,7 @@ class UserRebate
                 $name = sprintf("%s，分佣金额 %s%%", self::prizes[self::pRepeat], $value);
             }
             // 写入返佣记录
-            self::writeRabate(self::$rela1['unid'], $map, $name, $val);
+            self::wRebate(self::$rela1['unid'], $map, $name, $val);
         }
         return true;
     }
@@ -402,7 +401,7 @@ class UserRebate
     private static function _prize04(string $orderNo): bool
     {
         if (empty(self::$rela2)) return false;
-        $key = self::$rela['level_code'];
+        $key = self::$rela0['level_code'];
         $map = ['type' => self::pIndirect, 'order_no' => $orderNo, 'order_unid' => self::$unid];
         if (self::config("indirect_type_vip_{$key}") > 0 && PluginWemallUserRebate::mk()->where($map)->findOrEmpty()->isEmpty()) {
             $value = self::config("indirect_value_vip_{$key}");
@@ -417,7 +416,7 @@ class UserRebate
                 $name = sprintf("%s，分佣金额 %s%%", self::prizes[self::pRepeat], $value);
             }
             // 写入返佣记录
-            self::writeRabate(self::$rela2['unid'], $map, $name, $val);
+            self::wRebate(self::$rela2['unid'], $map, $name, $val);
         }
         return true;
     }
@@ -432,7 +431,7 @@ class UserRebate
      */
     private static function _prize05(string $orderNo): bool
     {
-        $puids = array_reverse(str2arr(self::$rela['path'], '-'));
+        $puids = array_reverse(str2arr(self::$rela0['path'], '-'));
         if (empty($puids) || self::$order['amount_total'] <= 0) return false;
         // 获取可以参与奖励的代理
         $vips = PluginWemallConfigLevel::mk()->whereLike('rebate_rule', '%,' . self::pMargin . ',%')->column('number');
@@ -453,7 +452,7 @@ class UserRebate
                             $name = "{$vvvv}{$tVip}#{$user['level_code']}商品市场价{$item['total_selling']}元的{$rate}%";
                             $amount = $dRate * $item['total_selling'];
                             // 写入用户返佣记录
-                            self::writeRabate($user['id'], $map, $name, $amount);
+                            self::wRebate($user['id'], $map, $name, $amount);
                         }
                         [$tVip, $tRate] = [$user['level_code'], $rule['discount']];
                     }
@@ -472,10 +471,10 @@ class UserRebate
      */
     private static function _prize06(string $orderNo): bool
     {
-        $puids = array_reverse(str2arr(self::$rela['path'], '-'));
+        $puids = array_reverse(str2arr(self::$rela0['path'], '-'));
         if (empty($puids) || self::$order['amount_total'] <= 0) return false;
         // 记录用户原始等级
-        $prevLevel = self::$rela['level_code'];
+        $prevLevel = self::$rela0['level_code'];
         // 获取参与奖励的代理
         foreach (PluginAccountUser::mk()->whereIn('id', $puids)->orderField('id', $puids)->cursor() as $user) {
             if ($user['level_code'] > $prevLevel) {
@@ -483,7 +482,7 @@ class UserRebate
                     $map = ['unid' => $user['id'], 'type' => self::pManage, 'order_no' => $orderNo];
                     if (PluginWemallUserRebate::mk()->where($map)->count() < 1) {
                         $name = sprintf("%s，[ VIP%d > VIP%d ] 每单 %s 元", self::prizes[self::pManage], $prevLevel, $user['level_code'], $amount);
-                        self::writeRabate($user['id'], $map, $name, $amount);
+                        self::wRebate($user['id'], $map, $name, $amount);
                     }
                 }
                 $prevLevel = $user['level_code'];
@@ -526,7 +525,7 @@ class UserRebate
         if (empty(self::$rela1)) return false;
         if (empty(self::$user['extra']['level_order']) || self::$user['extra']['level_order'] !== $orderNo) return false;
         // 创建返佣奖励记录
-        $vip = self::$rela['level_code'];
+        $vip = self::$rela0['level_code'];
         $map = ['type' => self::pUpgrade, 'order_no' => $orderNo, 'order_unid' => self::$unid];
         if (self::config("upgrade_type_vip_{$vip}") > 0 && PluginWemallUserRebate::mk()->where($map)->findOrEmpty()->isEmpty()) {
             $value = self::config("upgrade_value_vip_{$vip}");
@@ -541,7 +540,7 @@ class UserRebate
                 $name = sprintf("%s，分佣金额 %s%%", self::prizes[self::pUpgrade], $value);
             }
             // 写入返佣记录
-            self::writeRabate(self::$rela1['unid'], $map, $name, $val);
+            self::wRebate(self::$rela1['unid'], $map, $name, $val);
         }
         return true;
     }
@@ -554,12 +553,12 @@ class UserRebate
     private static function _prize08(string $orderNo): bool
     {
         if (empty(self::$rela1)) return false;
-        $map = ['level_code' => self::$rela['level_code']];
-        $unids = array_reverse(str2arr(trim(self::$rela['path'], '-'), '-'));
+        $map = ['level_code' => self::$rela0['level_code']];
+        $unids = array_reverse(str2arr(trim(self::$rela0['path'], '-'), '-'));
         $puids = PluginAccountUser::mk()->whereIn('id', $unids)->orderField('id', $unids)->where($map)->column('id');
         if (count($puids) < 2) return false;
 
-        Library::$sapp->db->transaction(static function () use ($map, $puids, $orderNo) {
+        Library::$sapp->db->transaction(function () use ($map, $puids, $orderNo) {
             foreach ($puids as $key => $puid) {
                 // 最多两层
                 if (($layer = $key + 1) > 2) break;
@@ -567,13 +566,10 @@ class UserRebate
                 $map = ['unid' => $puid, 'type' => self::pEqual, 'order_no' => $orderNo];
                 if (PluginWemallUserRebate::mk()->where($map)->count() < 1) {
                     // 奖励金额
-                    $amount = floatval(self::config("equal_value_vip_{$layer}_" . self::$rela['level_code']));
-                    // 返佣金额
-                    // $money = floatval($amount * self::$order['rebate_amount'] / 100);
-                    // $name = sprintf("%s, 奖励订单的 %s%%", self::prizes[self::prize_08], $amount);
+                    $amount = floatval(self::config("equal_value_vip_{$layer}_" . self::$rela0['level_code']));
                     $name = sprintf("%s, 奖励每人 %s", self::prizes[self::pEqual], $amount);
                     // 写入返佣
-                    self::writeRabate($puid, $map, $name, $amount);
+                    self::wRebate($puid, $map, $name, $amount);
                 }
             }
         });
@@ -597,9 +593,9 @@ class UserRebate
      * @param string $name 奖励名称
      * @param float $amount 奖励金额
      */
-    private static function writeRabate(int $unid, array $map, string $name, float $amount)
+    private static function wRebate(int $unid, array $map, string $name, float $amount)
     {
-        PluginWemallUserRebate::mk()->insert(array_merge($map, [
+        PluginWemallUserRebate::mk()->save(array_merge($map, [
             'unid'         => $unid,
             'date'         => date('Y-m-d'),
             'code'         => CodeExtend::uniqidDate(16, 'R'),

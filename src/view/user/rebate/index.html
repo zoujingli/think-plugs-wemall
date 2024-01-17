@@ -2,8 +2,9 @@
 
 {block name="button"}
 <!--{if auth('sync')}-->
-<a data-table-id="UserTable" class="layui-btn layui-btn-sm layui-btn-primary" data-queue="{:url('sync')}">{:lang('刷新返佣')}</a>
+<!--<a data-table-id="UserTable" class="layui-btn layui-btn-sm layui-btn-primary" data-queue="{:url('sync')}">{:lang('刷新返佣')}</a>-->
 <!--{/if}-->
+
 <!--{if auth('config')}-->
 <a data-table-id="UserTable" class="layui-btn layui-btn-sm layui-btn-primary" data-open="{:url('config')}">{:lang('返佣配置')}</a>
 <!--{/if}-->

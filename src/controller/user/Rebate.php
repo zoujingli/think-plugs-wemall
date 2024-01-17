@@ -91,8 +91,8 @@ class Rebate extends Controller
      * @auth true
      * @return void
      */
-    public function sync()
-    {
-        $this->_queue('刷新订单返佣数据', 'xdata:mall:rebate');
-    }
+//    public function sync()
+//    {
+//        $this->_queue('刷新用户返佣数据', 'xdata:mall:rebate');
+//    }
 }

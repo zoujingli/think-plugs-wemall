@@ -28,6 +28,7 @@ use think\admin\Exception;
 use think\admin\storage\LocalStorage;
 use think\console\Input;
 use think\console\Output;
+use think\Model;
 use WePay\Transfers;
 use WePay\TransfersBank;
 
@@ -38,6 +39,10 @@ use WePay\TransfersBank;
  */
 class Trans extends Command
 {
+    /**
+     * 用户提现配置
+     * @return void
+     */
     protected function configure()
     {
         $this->setName('xdata:mall:trans');
@@ -53,64 +58,62 @@ class Trans extends Command
      */
     protected function execute(Input $input, Output $output)
     {
+        $now = date('Y-m-d H:i:s');
         $map = [['type', 'in', ['wechat_banks', 'wechat_wallet']], ['status', 'in', [3, 4]]];
         [$total, $count, $error] = [PluginWemallUserTransfer::mk()->where($map)->count(), 0, 0];
-        foreach (PluginWemallUserTransfer::mk()->where($map)->cursor() as $vo) try {
-            $this->queue->message($total, ++$count, sprintf('开始处理订单 %s 提现', $vo['code']));
-            if ($vo['status'] === 3) {
-                $this->queue->message($total, $count, sprintf('尝试处理订单 %s 打款', $vo['code']), 1);
-                if ($vo['type'] === 'wechat_banks') {
-                    [$config, $result] = $this->createTransferBank($vo);
+        /** @var PluginWemallUserTransfer $item */
+        foreach (PluginWemallUserTransfer::mk()->where($map)->cursor() as $model) try {
+            $this->queue->message($total, ++$count, sprintf('开始处理订单 %s 提现', $model->getAttr('code')));
+            if ($model->getAttr('status') === 3) {
+                $this->queue->message($total, $count, sprintf('尝试处理订单 %s 打款', $model->getAttr('code')), 1);
+                if ($model->getAttr('type') === 'wechat_banks') {
+                    [$config, $result] = $this->createTransferBank($model);
                 } else {
-                    [$config, $result] = $this->createTransferWallet($vo);
+                    [$config, $result] = $this->createTransferWallet($model);
                 }
                 if ($result['return_code'] === 'SUCCESS' && $result['result_code'] === 'SUCCESS') {
-                    PluginWemallUserTransfer::mk()->where(['code' => $vo['code']])->update([
+                    $model->save([
                         'status'      => 4,
                         'appid'       => $config['appid'],
                         'openid'      => $config['openid'],
                         'trade_no'    => $result['partner_trade_no'],
-                        'trade_time'  => $result['payment_time'] ?? date('Y-m-d H:i:s'),
-                        'change_time' => date('Y-m-d H:i:s'),
+                        'trade_time'  => $result['payment_time'] ?? $now,
+                        'change_time' => $now,
                         'change_desc' => '创建微信提现成功',
                     ]);
                 } else {
-                    PluginWemallUserTransfer::mk()->where(['code' => $vo['code']])->update([
-                        'change_time' => date('Y-m-d H:i:s'), 'change_desc' => $result['err_code_des'] ?? '线上提现失败',
-                    ]);
+                    $model->save(['change_time' => $now, 'change_desc' => $result['err_code_des'] ?? '线上提现失败']);
                 }
-            } elseif ($vo['status'] === 4) {
-                $this->queue->message($total, $count, sprintf('刷新提现订单 %s 状态', $vo['code']), 1);
-                $vo['type'] === 'wechat_banks' ? $this->queryTransferBank($vo) : $this->queryTransferWallet($vo);
+            } elseif ($model->getAttr('status') === 4) {
+                $this->queue->message($total, $count, sprintf('刷新提现订单 %s 状态', $model->getAttr('code')), 1);
+                $model->getAttr('type') === 'wechat_banks' ? $this->queryTransferBank($model) : $this->queryTransferWallet($model);
             }
         } catch (\Exception $exception) {
             $error++;
-            $this->queue->message($total, $count, sprintf('处理提现订单 %s 失败, %s', $vo['code'], $exception->getMessage()), 1);
-            PluginWemallUserTransfer::mk()->where(['code' => $vo['code']])->update([
-                'change_time' => date('Y-m-d H:i:s'), 'change_desc' => $exception->getMessage(),
-            ]);
+            $this->queue->message($total, $count, sprintf('处理提现订单 %s 失败, %s', $model->getAttr('code'), $exception->getMessage()), 1);
+            $model->save(['change_time' => $now, 'change_desc' => $exception->getMessage()]);
         }
         $this->setQueueSuccess(sprintf('此次共处理 %d 笔提现操作, 其中有 %d 笔处理失败。', $total, $error));
     }
 
     /**
      * 尝试提现转账到银行卡
-     * @param array $item
+     * @param PluginWemallUserTransfer $model
      * @return array [config, result]
      * @throws \WeChat\Exceptions\InvalidDecryptException
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      * @throws \think\admin\Exception
      */
-    private function createTransferBank(array $item): array
+    private function createTransferBank(PluginWemallUserTransfer $model): array
     {
-        $config = $this->getConfig($item['unid']);
+        $config = $this->getConfig($model->getAttr('unid'));
         return [$config, TransfersBank::instance($config)->create([
-            'partner_trade_no' => $item['code'],
-            'enc_bank_no'      => $item['bank_code'],
-            'enc_true_name'    => $item['bank_user'],
-            'bank_code'        => $item['bank_wseq'],
-            'amount'           => intval($item['amount'] - $item['charge_amount']) * 100,
+            'partner_trade_no' => $model->getAttr('code'),
+            'enc_bank_no'      => $model->getAttr('bank_code'),
+            'enc_true_name'    => $model->getAttr('bank_user'),
+            'bank_code'        => $model->getAttr('bank_wseq'),
+            'amount'           => intval($model->getAttr('amount') - $model->getAttr('charge_amount')) * 100,
             'desc'             => '微信银行卡提现',
         ])];
     }
@@ -175,19 +178,19 @@ class Trans extends Command
 
     /**
      * 尝试提现转账到微信钱包
-     * @param array $item
+     * @param PluginWemallUserTransfer $model
      * @return array [config, result]
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      * @throws \think\admin\Exception
      */
-    private function createTransferWallet(array $item): array
+    private function createTransferWallet(PluginWemallUserTransfer $model): array
     {
-        $config = $this->getConfig($item['unid']);
+        $config = $this->getConfig($model->getAttr('unid'));
         return [$config, Transfers::instance($config)->create([
             'openid'           => $config['openid'],
-            'amount'           => intval($item['amount'] - $item['charge_amount']) * 100,
-            'partner_trade_no' => $item['code'],
+            'amount'           => intval($model->getAttr('amount') - $model->getAttr('charge_amount')) * 100,
+            'partner_trade_no' => $model->getAttr('code'),
             'spbill_create_ip' => '127.0.0.1',
             'check_name'       => 'NO_CHECK',
             'desc'             => '微信余额提现！',
@@ -196,19 +199,19 @@ class Trans extends Command
 
     /**
      * 查询更新提现打款状态
-     * @param array $item
+     * @param PluginWemallUserTransfer $model
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      * @throws \think\admin\Exception
      */
-    private function queryTransferBank(array $item)
+    private function queryTransferBank(PluginWemallUserTransfer $model)
     {
-        $config = $this->getConfig($item['unid']);
-        [$config['appid'], $config['openid']] = [$item['appid'], $item['openid']];
-        $result = TransfersBank::instance($config)->query($item['trade_no']);
+        $config = $this->getConfig($model->getAttr('unid'));
+        [$config['appid'], $config['openid']] = [$model->getAttr('appid'), $model->getAttr('openid')];
+        $result = TransfersBank::instance($config)->query($model->getAttr('trade_no'));
         if ($result['return_code'] === 'SUCCESS' && $result['result_code'] === 'SUCCESS') {
             if ($result['status'] === 'SUCCESS') {
-                PluginWemallUserTransfer::mk()->where(['code' => $item['code']])->update([
+                $model->save([
                     'status'      => 5,
                     'appid'       => $config['appid'],
                     'openid'      => $config['openid'],
@@ -218,31 +221,31 @@ class Trans extends Command
                 ]);
             }
             if (in_array($result['status'], ['FAILED', 'BANK_FAIL'])) {
-                PluginWemallUserTransfer::mk()->where(['code' => $item['code']])->update([
+                $model->save([
                     'status'      => 0,
                     'change_time' => date('Y-m-d H:i:s'),
                     'change_desc' => '微信提现打款失败',
                 ]);
                 // 刷新用户可提现余额
-                UserRebate::recount($item['unid']);
+                UserRebate::recount($model->getAttr('unid'));
             }
         }
     }
 
     /**
      * 查询更新提现打款状态
-     * @param array $item
+     * @param PluginWemallUserTransfer $model
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      * @throws \think\admin\Exception
      */
-    private function queryTransferWallet(array $item)
+    private function queryTransferWallet(PluginWemallUserTransfer $model)
     {
-        $config = $this->getConfig($item['unid']);
-        [$config['appid'], $config['openid']] = [$item['appid'], $item['openid']];
-        $result = Transfers::instance($config)->query($item['trade_no']);
+        $config = $this->getConfig($model->getAttr('unid'));
+        [$config['appid'], $config['openid']] = [$model->getAttr('appid'), $model->getAttr('openid')];
+        $result = Transfers::instance($config)->query($model->getAttr('trade_no'));
         if ($result['return_code'] === 'SUCCESS' && $result['result_code'] === 'SUCCESS') {
-            PluginWemallUserTransfer::mk()->where(['code' => $item['code']])->update([
+            $model->save([
                 'status'      => 5,
                 'appid'       => $config['appid'],
                 'openid'      => $config['openid'],

@@ -83,24 +83,25 @@ class UserOrder
         $map = [['order_no', '=', $orderNo], ['status', '>=', 4]];
         $order = PluginWemallOrder::mk()->where($map)->findOrEmpty();
         if ($order->isEmpty()) return null;
-        // 订单用户数据
-        $user = PluginWemallUserRelation::mk()->where(['unid' => $order['unid']])->findOrEmpty();
+        // 会员用户数据
+        $map = ['unid' => $order['unid']];
+        $user = PluginWemallUserRelation::mk()->where($map)->findOrEmpty();
         if ($user->isEmpty()) return null;
         // 更新入会资格
-        $entry = self::vipEntry($order['unid']);
-        // 尝试绑定代理用户
+        $entry = self::_vipEntry($order['unid']);
+        // 尝试绑定代理
         if (empty($user['puid1']) && ($order['puid1'] > 0 || $user['puid0'] > 0)) {
             $puid1 = $order['puid1'] > 0 ? $order['puid1'] : $user['puid0'];
             UserUpgrade::bindAgent($user['id'], $puid1);
         }
-        // 重置订单推荐关系
-        $user = PluginWemallUserRelation::mk()->where(['unid' => $order['unid']])->findOrEmpty();
-        if ($user->isExists() && $user['puid1'] > 0) {
+        // 重置订单推荐
+        if ($user->refresh() && $user['puid1'] > 0) {
             $order->save(['puid1' => $user['puid1'], 'puid2' => $user['puid2']]);
         }
-        // 重新计算用户等级
+        // 刷新用户等级
         UserUpgrade::upgrade($user['id'], true, $orderNo);
-        return [$user, $order, $entry];
+        // 返回操作数据
+        return [$user->toArray(), $order->toArray(), $entry];
     }
 
     /**
@@ -109,16 +110,16 @@ class UserOrder
      * @return integer
      * @throws \think\db\exception\DbException
      */
-    private static function vipEntry(int $unid): int
+    private static function _vipEntry(int $unid): int
     {
-        // 检查是否购买入会礼包
+        // 检查入会礼包
         $query = PluginWemallOrder::mk()->alias('a')->join([PluginWemallOrderItem::mk()->getTable() => 'b'], 'a.order_no=b.order_no');
         $entry = $query->where("a.unid={$unid} and a.status>=4 and a.payment_status=1 and b.level_upgrade>-1")->count() ? 1 : 0;
         // 用户最后支付时间
         $lastMap = [['unid', '=', $unid], ['status', '>=', 4], ['payment_status', '=', 1]];
         $lastDate = PluginWemallOrder::mk()->where($lastMap)->order('payment_time desc')->value('payment_time');
         // 更新用户支付信息
-        PluginWemallUserRelation::mk()->where(['id' => $unid])->update(['buy_vip_entry' => $entry, 'buy_last_date' => $lastDate]);
+        PluginWemallUserRelation::mk()->where(['unid' => $unid])->update(['buy_vip_entry' => $entry, 'buy_last_date' => $lastDate]);
         return $entry;
     }
 
@@ -276,8 +277,8 @@ class UserOrder
 
     /**
      * 验证订单取消余额
-     * @param string $orderNo
-     * @param boolean $syncRebate
+     * @param string $orderNo 订单单号
+     * @param boolean $syncRebate 更新返利
      * @return string
      * @throws \think\admin\Exception
      * @throws \think\db\exception\DataNotFoundException
@@ -318,7 +319,6 @@ class UserOrder
         if ($order['reward_balance'] > 0) {
             $remark = "来自订单 {$order['order_no']} 奖励 {$order['reward_balance']} 余额";
             Balance::create($order['unid'], $code, '购物奖励余额', $order['reward_balance'], $remark, true);
-
         }
         // 确认奖励积分
         if ($order['reward_integral'] > 0) {

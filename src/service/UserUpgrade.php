@@ -38,13 +38,13 @@ class UserUpgrade
 
     /**
      * 读取用户代理编号
-     * @param integer $unid
-     * @param integer $agent
+     * @param integer $unid 会员用户
+     * @param integer $puid 代理用户
      * @param array|null $relation
      * @return array
      * @throws \think\admin\Exception
      */
-    public static function withAgent(int $unid, int $agent, ?array $relation = null): array
+    public static function withAgent(int $unid, int $puid, ?array $relation = null): array
     {
         if (empty($relation)) {
             $relation = PluginWemallUserRelation::mk()->where(['unid' => $unid])->findOrEmpty()->toArray();
@@ -54,11 +54,11 @@ class UserUpgrade
         $puid0 = $relation['puid0'] ?? 0; // 临时绑定
         $puid1 = $relation['puid1'] ?? 0; // 上1级代理
         $puid2 = $relation['puid2'] ?? 0; // 上2级代理
-        if (empty($agent) && empty($puid1) && $puid0 > 0) {
+        if (empty($puid) && empty($puid1) && $puid0 > 0) {
             $puid1 = $puid0;
             $puid2 = intval(PluginWemallUserRelation::mk()->where(['unid' => $puid0])->value('puid1'));
-        } elseif ($agent > 0 && empty($puid1)) {
-            $puid1 = $agent;
+        } elseif ($puid > 0 && empty($puid1)) {
+            $puid1 = $puid;
             $puid2 = self::bindAgent($unid, $puid1, 0)['puid1'] ?? 0;
         }
         return ['unid' => $unid, 'puid1' => $puid1, 'puid2' => $puid2];
