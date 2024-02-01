@@ -126,7 +126,7 @@ class PosterService extends Service
             // 当前访问终端
             $type = sysvar('plugin_account_user_type');
             // 动态计算推荐链接
-            $link = $item['value'] ?: ($extra['user.spreat'] ?: '/pages/home/index?from=UNID');
+            $link = $item['value'] ?: (empty($extra['user.spreat']) ? '/pages/home/index?from=UNID' : $extra['user.spreat']);
             if (stripos($link, 'from=') === false) $link .= (strpos($link, '?') === false ? '?' : '&') . 'from=UNID';
             $link = str_replace('UNID', strval(intval(sysvar('plugin_account_user_unid'))), $link);
             // 根据环境生成二维码

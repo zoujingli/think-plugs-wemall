@@ -68,7 +68,7 @@ class ConfigService
         }
         // 自动处理减免金额范围
         if (!empty($data['enable_reduct'])) {
-            $reducts = [number_format(floatval($data['reduct_min'] ?? 0), 2), number_format(floatval($data['reduct_max'] ?? 0), 2)];
+            $reducts = [floatval($data['reduct_min'] ?? 0), floatval($data['reduct_max'] ?? 0)];
             [$data['reduct_min'], $data['reduct_max']] = [min($reducts), max($reducts)];
         }
         return sysdata(self::$skey, $data);
