@@ -102,7 +102,7 @@
                     title: '收货地址', templet: function (d) {
                         let tpls = [];
                         tpls.push('<b>{{d.user_name}}</b> <span class="color-blue font-code margin-left-5">{{d.user_phone}}</span>');
-                        tpls.push('{{d.region_prov}} {{d.region_city}} {{d.region_city}} {{d.region_addr}}');
+                        tpls.push('{{d.region_prov}} {{d.region_city}} {{d.region_area}} {{d.region_addr}}');
                         return laytpl(tpls.join('<br>')).render(d);
                     }
                 },

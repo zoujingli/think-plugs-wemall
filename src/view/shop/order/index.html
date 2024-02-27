@@ -114,7 +114,7 @@
                         if (d.address) {
                             let tpls = [];
                             tpls.push('<b class="margin-right-5">{{d.user_name}}</b><span class="color-blue font-code">{{d.user_phone}}</span>');
-                            tpls.push('{{d.region_prov}} {{d.region_city}} {{d.region_city}} {{d.region_addr}}');
+                            tpls.push('{{d.region_prov}} {{d.region_city}} {{d.region_area}} {{d.region_addr}}');
                             return laytpl(tpls.join('<br>')).render(d.address);
                         } else {
                             return '<div class="padding-top-10 color-desc">无收货信息</div>';
