@@ -88,20 +88,20 @@ class UserUpgrade
             if (strpos($agent->getAttr('path'), ",{$unid},") !== false) throw new Exception('不能绑定下级');
             Library::$sapp->db->transaction(static function () use ($user, $agent, $mode) {
                 // 更新用户代理
-                $path1 = rtrim($agent['path'] ?: ',', ',') . ",{$agent['id']},";
+                $path1 = rtrim($agent['path'] ?: ',', ',') . ",{$agent['unid']},";
                 $user->save([
                     'pids'  => $mode > 0 ? 1 : 0,
                     'path'  => $path1,
-                    'puid0' => $agent['id'],
-                    'puid1' => $agent['id'],
+                    'puid0' => $agent['unid'],
+                    'puid1' => $agent['unid'],
                     'puid2' => $agent['puid1'],
                     'layer' => substr_count($path1, ',')
                 ]);
                 // 更新下级代理
-                $path2 = ",{$user['path']}{$user['id']},";
+                $path2 = ",{$user['path']}{$user['unid']},";
                 if (PluginWemallUserRelation::mk()->whereLike('path', "{$path2}%")->count() > 0) {
                     foreach (PluginWemallUserRelation::mk()->whereLike('path', "{$path2}%")->order('layer desc')->select() as $item) {
-                        $attr = array_reverse(str2arr($path3 = preg_replace("#^{$path2}#", "{$path1}{$user['id']},", $item['path'])));
+                        $attr = array_reverse(str2arr($path3 = preg_replace("#^{$path2}#", "{$path1}{$user['unid']},", $item['path'])));
                         $item->save([
                             'path'  => $path3,
                             'puid0' => $attr[0] ?? 0,
@@ -112,7 +112,7 @@ class UserUpgrade
                     }
                 }
             });
-            static::upgrade($user['id']);
+            static::upgrade($user['unid']);
             return $agent->toArray();
         } catch (Exception $exception) {
             throw $exception;
