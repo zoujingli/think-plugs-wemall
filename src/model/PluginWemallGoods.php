@@ -20,9 +20,10 @@ namespace plugin\wemall\model;
 
 use plugin\account\model\Abs;
 use think\model\relation\HasMany;
+use think\model\relation\HasOne;
 
 /**
- * 商城商品数据模型
+ * 商城商品数据数据
  * @class PluginWemallGoods
  * @package plugin\wemall\model
  */
@@ -50,6 +51,24 @@ class PluginWemallGoods extends Abs
             ->hasMany(PluginWemallGoodsItem::class, 'gcode', 'code')
             ->withoutField('id,status,create_time,update_time')
             ->where(['status' => 1]);
+    }
+
+    /**
+     * 关联商品评论数据
+     * @return \think\model\relation\HasMany
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(PluginWemallUserActionComment::class, 'gcode', 'code')->with('bindUser');
+    }
+
+    /**
+     * 关联商品折扣方案
+     * @return \think\model\relation\HasOne
+     */
+    public function discount(): HasOne
+    {
+        return $this->hasOne(PluginWemallConfigDiscount::class, 'id', 'discount_id')->where(['status' => 1, 'deleted' => 0])->field('id,name,items');
     }
 
     /**
@@ -91,16 +110,41 @@ class PluginWemallGoods extends Abs
         return [];
     }
 
+    /**
+     * 设置轮播图片
+     * @param mixed $value
+     * @return string
+     */
+    public function setSliderAttr($value): string
+    {
+        return is_string($value) ? $value : (is_array($value) ? arr2str($value) : '');
+    }
+
+    /**
+     * 获取轮播图片
+     * @param mixed $value
+     * @return array
+     */
     public function getSliderAttr($value): array
     {
         return is_string($value) ? str2arr($value, '|') : [];
     }
 
+    /**
+     * 设置规格数据
+     * @param mixed $value
+     * @return string
+     */
     public function setSpecsAttr($value): string
     {
         return $this->setExtraAttr($value);
     }
 
+    /**
+     * 获取规格数据
+     * @param mixed $value
+     * @return array
+     */
     public function getSpecsAttr($value): array
     {
         return $this->getExtraAttr($value);

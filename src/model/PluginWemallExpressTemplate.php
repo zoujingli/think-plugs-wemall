@@ -21,7 +21,7 @@ namespace plugin\wemall\model;
 use plugin\account\model\Abs;
 
 /**
- * 快递模板数据模型
+ * 商城快递模板数据
  * @class PluginWemallExpressTemplate
  * @package plugin\wemall\model
  */

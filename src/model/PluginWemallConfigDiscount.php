@@ -21,7 +21,7 @@ namespace plugin\wemall\model;
 use plugin\account\model\Abs;
 
 /**
- * 用户优惠方案模型
+ * 用户优惠方案数据
  * @class PluginWemallConfigDiscount
  * @package plugin\wemall\model
  */
@@ -39,20 +39,25 @@ class PluginWemallConfigDiscount extends Abs
     public static function items(bool $allow = false): array
     {
         $query = self::mk()->where(['status' => 1, 'deleted' => 0]);
-        $items = $allow ? ['0' => ['id' => '0', 'name' => '无折扣']] : [];
-        return $items + $query->order('sort desc,id desc')->field('id,name,items')->select()->toArray();
+        $items = $query->order('sort desc,id desc')->field('id,name,items')->select()->toArray();
+        if ($allow) array_unshift($items, ['id' => '0', 'name' => '无折扣']);
+        return $items;
     }
 
     /**
      * 格式化等级规则
      * @param mixed $value
-     * @return mixed
+     * @return array
      */
     public function getItemsAttr($value): array
     {
         return $this->getExtraAttr($value);
     }
 
+    /**
+     * @param mixed $value
+     * @return string
+     */
     public function setItemsAttr($value): string
     {
         return $this->setExtraAttr($value);

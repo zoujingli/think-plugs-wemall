@@ -18,7 +18,6 @@ declare (strict_types=1);
 
 namespace plugin\wemall\model;
 
-use plugin\account\model\Abs;
 use plugin\account\model\PluginAccountUser;
 use plugin\payment\model\PluginPaymentRecord;
 use think\model\relation\HasMany;
@@ -29,18 +28,8 @@ use think\model\relation\HasOne;
  * @class PluginWemallOrder
  * @package plugin\wemall\model
  */
-class PluginWemallOrder extends Abs
+class PluginWemallOrder extends AbsUser
 {
-
-    /**
-     * 关联用户数据
-     * @return \think\model\relation\HasOne
-     */
-    public function user(): HasOne
-    {
-        return $this->hasOne(PluginAccountUser::class, 'id', 'unid');
-    }
-
     /**
      * 关联推荐用户
      * @return \think\model\relation\HasOne
@@ -76,7 +65,7 @@ class PluginWemallOrder extends Abs
      */
     public function payments(): HasMany
     {
-        return $this->hasMany(PluginPaymentRecord::class, 'order_no', 'order_no')->order('id desc');
+        return $this->hasMany(PluginPaymentRecord::class, 'order_no', 'order_no')->order('id desc')->withoutField('payment_notify');
     }
 
     /**
@@ -85,7 +74,7 @@ class PluginWemallOrder extends Abs
      */
     public function address(): HasOne
     {
-        return $this->hasOne(PluginWemallOrderSend::class, 'order_no', 'order_no');
+        return $this->hasOne(PluginWemallOrderSender::class, 'order_no', 'order_no');
     }
 
     /**
@@ -94,7 +83,7 @@ class PluginWemallOrder extends Abs
      */
     public function sender(): HasOne
     {
-        return $this->hasOne(PluginWemallOrderSend::class, 'order_no', 'order_no');
+        return $this->hasOne(PluginWemallOrderSender::class, 'order_no', 'order_no');
     }
 
     /**
@@ -126,5 +115,15 @@ class PluginWemallOrder extends Abs
     public function setPaymentTimeAttr($value): string
     {
         return $this->setCreateTimeAttr($value);
+    }
+
+    public function setConfirmTimeAttr($value): string
+    {
+        return $this->setCreateTimeAttr($value);
+    }
+
+    public function getConfirmTimeAttr($value): string
+    {
+        return $this->getCreateTimeAttr($value);
     }
 }

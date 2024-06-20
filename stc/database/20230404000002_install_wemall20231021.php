@@ -26,10 +26,10 @@ class InstallWemall20231021 extends Migrator
 {
     public function change()
     {
-        // 检查并更新用户等级
+        // 检查并更新会员等级
         $table = $this->table('plugin_wemall_config_level');
         $table->hasColumn('cardbg') || $table->addColumn('cardbg', 'string', [
-            'limit' => 500, 'default' => '', 'null' => true, 'after' => 'cover', 'comment' => '用户等级卡片'
+            'limit' => 500, 'default' => '', 'null' => true, 'after' => 'cover', 'comment' => '会员等级卡片'
         ])->update();
 
         // 检查并更新商品规格表
@@ -83,7 +83,7 @@ class InstallWemall20231021 extends Migrator
         ])
             ->addColumn('code', 'string', ['limit' => 50, 'default' => '', 'null' => true, 'comment' => '推广编号'])
             ->addColumn('name', 'string', ['limit' => 180, 'default' => '', 'null' => true, 'comment' => '推广标题'])
-            ->addColumn('levels', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '用户等级'])
+            ->addColumn('levels', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '会员等级'])
             ->addColumn('devices', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '接口通道'])
             ->addColumn('image', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '推广图片'])
             ->addColumn('content', 'text', ['default' => NULL, 'null' => true, 'comment' => '二维位置'])
@@ -93,12 +93,12 @@ class InstallWemall20231021 extends Migrator
             ->addColumn('deleted', 'integer', ['limit' => 1, 'default' => 0, 'null' => true, 'comment' => '删除状态(1已删,0未删)'])
             ->addColumn('create_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '创建时间'])
             ->addColumn('update_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '更新时间'])
-            ->addIndex('code', ['name' => 'idx_plugin_wemall_config_poster_code'])
-            ->addIndex('sort', ['name' => 'idx_plugin_wemall_config_poster_sort'])
-            ->addIndex('name', ['name' => 'idx_plugin_wemall_config_poster_name'])
-            ->addIndex('status', ['name' => 'idx_plugin_wemall_config_poster_status'])
-            ->addIndex('deleted', ['name' => 'idx_plugin_wemall_config_poster_deleted'])
-            ->addIndex('create_time', ['name' => 'idx_plugin_wemall_config_poster_create_time'])
+            ->addIndex('code', ['name' => 'ib84148924_code'])
+            ->addIndex('sort', ['name' => 'ib84148924_sort'])
+            ->addIndex('name', ['name' => 'ib84148924_name'])
+            ->addIndex('status', ['name' => 'ib84148924_status'])
+            ->addIndex('deleted', ['name' => 'ib84148924_deleted'])
+            ->addIndex('create_time', ['name' => 'ib84148924_create_time'])
             ->create();
 
         // 修改主键长度
@@ -130,9 +130,9 @@ class InstallWemall20231021 extends Migrator
             ->addColumn('sort', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '排序权重'])
             ->addColumn('create_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '创建时间'])
             ->addColumn('update_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '更新时间'])
-            ->addIndex('unid', ['name' => 'idx_plugin_wemall_user_action_collect_unid'])
-            ->addIndex('sort', ['name' => 'idx_plugin_wemall_user_action_collect_sort'])
-            ->addIndex('gcode', ['name' => 'idx_plugin_wemall_user_action_collect_gcode'])
+            ->addIndex('unid', ['name' => 'i79fcacf4f_unid'])
+            ->addIndex('sort', ['name' => 'i79fcacf4f_sort'])
+            ->addIndex('gcode', ['name' => 'i79fcacf4f_gcode'])
             ->create();
 
         // 修改主键长度
@@ -164,9 +164,9 @@ class InstallWemall20231021 extends Migrator
             ->addColumn('sort', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '排序权重'])
             ->addColumn('create_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '创建时间'])
             ->addColumn('update_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '更新时间'])
-            ->addIndex('sort', ['name' => 'idx_plugin_wemall_user_action_history_sort'])
-            ->addIndex('unid', ['name' => 'idx_plugin_wemall_user_action_history_unid'])
-            ->addIndex('gcode', ['name' => 'idx_plugin_wemall_user_action_history_gcode'])
+            ->addIndex('unid', ['name' => 'i9bce34c4f_unid'])
+            ->addIndex('sort', ['name' => 'i9bce34c4f_sort'])
+            ->addIndex('gcode', ['name' => 'i9bce34c4f_gcode'])
             ->create();
 
         // 修改主键长度
@@ -198,9 +198,9 @@ class InstallWemall20231021 extends Migrator
             ->addColumn('sort', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '排序权重'])
             ->addColumn('create_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '创建时间'])
             ->addColumn('update_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '更新时间'])
-            ->addIndex('keys', ['name' => 'idx_plugin_wemall_user_action_search_keys'])
-            ->addIndex('unid', ['name' => 'idx_plugin_wemall_user_action_search_unid'])
-            ->addIndex('sort', ['name' => 'idx_plugin_wemall_user_action_search_sort'])
+            ->addIndex('keys', ['name' => 'i03c8b2b46_keys'])
+            ->addIndex('unid', ['name' => 'i03c8b2b46_unid'])
+            ->addIndex('sort', ['name' => 'i03c8b2b46_sort'])
             ->create();
 
         // 修改主键长度
@@ -229,22 +229,23 @@ class InstallWemall20231021 extends Migrator
             ->addColumn('code', 'string', ['limit' => 50, 'default' => '', 'null' => true, 'comment' => '通知编号'])
             ->addColumn('name', 'string', ['limit' => 180, 'default' => '', 'null' => true, 'comment' => '通知标题'])
             ->addColumn('cover', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '通知图片'])
-            ->addColumn('levels', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '用户等级'])
+            ->addColumn('levels', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '会员等级'])
             ->addColumn('content', 'text', ['default' => NULL, 'null' => true, 'comment' => '通知内容'])
             ->addColumn('remark', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '通知描述'])
+            ->addColumn('num_read', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '阅读次数'])
             ->addColumn('tips', 'integer', ['limit' => 1, 'default' => 0, 'null' => true, 'comment' => 'TIPS显示'])
             ->addColumn('sort', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '排序权重'])
             ->addColumn('status', 'integer', ['limit' => 1, 'default' => 1, 'null' => true, 'comment' => '激活状态(0无效,1有效)'])
             ->addColumn('deleted', 'integer', ['limit' => 1, 'default' => 0, 'null' => true, 'comment' => '删除状态(1已删,0未删)'])
             ->addColumn('create_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '创建时间'])
             ->addColumn('update_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '更新时间'])
-            ->addIndex('code', ['name' => 'idx_plugin_wemall_config_notify_code'])
-            ->addIndex('name', ['name' => 'idx_plugin_wemall_config_notify_name'])
-            ->addIndex('sort', ['name' => 'idx_plugin_wemall_config_notify_sort'])
-            ->addIndex('tips', ['name' => 'idx_plugin_wemall_config_notify_tips'])
-            ->addIndex('status', ['name' => 'idx_plugin_wemall_config_notify_status'])
-            ->addIndex('deleted', ['name' => 'idx_plugin_wemall_config_notify_deleted'])
-            ->addIndex('create_time', ['name' => 'idx_plugin_wemall_config_notify_create_time'])
+            ->addIndex('code', ['name' => 'i0614c3468_code'])
+            ->addIndex('sort', ['name' => 'i0614c3468_sort'])
+            ->addIndex('name', ['name' => 'i0614c3468_name'])
+            ->addIndex('tips', ['name' => 'i0614c3468_tips'])
+            ->addIndex('status', ['name' => 'i0614c3468_status'])
+            ->addIndex('deleted', ['name' => 'i0614c3468_deleted'])
+            ->addIndex('create_time', ['name' => 'i0614c3468_create_time'])
             ->create();
 
         // 修改主键长度

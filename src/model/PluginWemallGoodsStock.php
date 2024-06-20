@@ -21,7 +21,7 @@ namespace plugin\wemall\model;
 use plugin\account\model\Abs;
 
 /**
- * 商城商品库存模型
+ * 商城商品库存数据
  * @class PluginWemallGoodsStock
  * @package plugin\wemall\model
  */

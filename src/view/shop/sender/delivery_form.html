@@ -1,5 +1,5 @@
-<form action="{:sysuri()}" id="AddressConfigForm" method="post" data-auto="true" class="layui-form layui-card">
-    <div class="layui-card-body padding-left-40">
+<form action="{:sysuri()}" id="AddressConfigForm" data-table-id="SenderTable" method="post" data-auto="true" class="layui-form layui-card">
+    <div class="layui-card-body ta-pl-40">
         <fieldset class="layui-form-item layui-bg-gray">
             <legend><span class="layui-badge layui-bg-cyan">收货信息</span></legend>
             <div class="layui-form-item layui-row layui-col-space10">
@@ -84,6 +84,6 @@
 
     $('[data-express-query]').on('click', function () {
         let code = $('[data-delivery-code]').val(), number = $('[data-delivery-number]').val();
-        $.form.modal('{:url("shop.send/query")}', {code: code, number: number}, '快递追踪查询')
+        $.form.modal('{:url("shop.sender/query")}', {code: code, number: number}, '快递追踪查询')
     });
 </script>

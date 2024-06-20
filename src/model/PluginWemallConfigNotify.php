@@ -21,7 +21,7 @@ namespace plugin\wemall\model;
 use plugin\account\model\Abs;
 
 /**
- * 系统通知内容
+ * 系统通知内容数据
  * @class PluginWemallConfigNotify
  * @package plugin\wemall\model
  */

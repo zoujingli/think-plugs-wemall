@@ -22,7 +22,7 @@ use plugin\account\model\Abs;
 use think\admin\extend\DataExtend;
 
 /**
- * 商城商品分类模型
+ * 商城商品分类数据
  * @class PluginWemallGoodsCate
  * @package plugin\wemall\model
  */
@@ -38,7 +38,7 @@ class PluginWemallGoodsCate extends Abs
      * @throws \think\db\exception\DbException
      * @throws \think\db\exception\ModelNotFoundException
      */
-    public static function getParentData(int $max, array &$data, array $parent = []): array
+    public static function pdata(int $max, array &$data, array $parent = []): array
     {
         $items = static::mk()->where(['deleted' => 0])->order('sort desc,id asc')->select()->toArray();
         $cates = DataExtend::arr2table(empty($parent) ? $items : array_merge([$parent], $items));
@@ -57,10 +57,10 @@ class PluginWemallGoodsCate extends Abs
      * @throws \think\db\exception\DbException
      * @throws \think\db\exception\ModelNotFoundException
      */
-    public static function treeData(): array
+    public static function dtree(): array
     {
         $query = static::mk()->where(['status' => 1, 'deleted' => 0])->order('sort desc,id desc');
-        return DataExtend::arr2tree($query->withoutField('sort,status,deleted,create_at')->select()->toArray());
+        return DataExtend::arr2tree($query->withoutField('sort,status,deleted,create_time')->select()->toArray());
     }
 
     /**

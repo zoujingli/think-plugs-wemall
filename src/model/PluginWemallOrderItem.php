@@ -18,7 +18,6 @@ declare (strict_types=1);
 
 namespace plugin\wemall\model;
 
-use plugin\account\model\Abs;
 use think\model\relation\HasOne;
 
 /**
@@ -26,8 +25,18 @@ use think\model\relation\HasOne;
  * @class PluginWemallOrderItem
  * @package plugin\wemall\model
  */
-class PluginWemallOrderItem extends Abs
+class PluginWemallOrderItem extends AbsUser
 {
+
+    /**
+     * 关联订单信息
+     * @return \think\model\relation\HasOne
+     */
+    public function main(): HasOne
+    {
+        return $this->hasOne(PluginWemallOrder::class, 'order_no', 'order_no');
+    }
+
     /**
      * 关联商品信息
      * @return \think\model\relation\HasOne

@@ -1,4 +1,15 @@
 <style>
+    .vip-tags {
+        height: 1.5em;
+        border: 1px solid white;
+        padding: 3px;
+        font-size: 12px;
+        margin-left: 5px;
+        line-height: 1em;
+        font-weight: normal;
+        border-radius: 20px;
+    }
+
     .design-layout {
         top: 20px;
         left: 20px;
@@ -16,7 +27,7 @@
     }
 
     .design-layout-menu {
-        width: 300px;
+        width: 280px;
     }
 
     .design-layout-view {
@@ -89,6 +100,7 @@
 
     .design-layout-menu .layui-colla-content > div > a:hover {
         box-shadow: 0 0 5px 3px rgba(0, 0, 0, .1);
+        background-color: #fff;
     }
 
     .design-layout-menu .layui-colla-content > div > a:hover i.layui-icon {
@@ -117,7 +129,13 @@
         width: 1px;
     }
 
-    .design-layout-view-head > div,
+    .design-layout-view-head > div {
+        width: 400px;
+        margin: 0 auto;
+        min-height: 100%;
+    }
+
+
     .design-layout-view-body > div,
     .design-layout-view-foot > div {
         width: 400px;
@@ -153,9 +171,9 @@
     }
 
     .design-layout-view-body {
-        top: 60px;
-        bottom: 56px;
+        top: 0;
         z-index: 1;
+        bottom: 56px;
     }
 
     .design-layout-view-foot {
@@ -185,6 +203,11 @@
 
     [sv-element].active {
         z-index: 2;
+    }
+
+    [sv-element].fadeout {
+        color: rgba(255, 255, 255, 0.01) !important;
+        background-color: rgba(255, 255, 255, 0.01) !important;
     }
 
     [sv-element] .layui-tpl-btn {

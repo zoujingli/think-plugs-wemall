@@ -31,7 +31,7 @@
 {block name='script'}
 <script>
     $(function () {
-        $('#DataTable').layTable({
+        let $table = $('#DataTable').layTable({
             even: true, height: 'full',
             sort: {field: 'sort desc,id', type: 'desc'},
             cols: [[
@@ -58,11 +58,8 @@
         layui.form.on('switch(StatusSwitch)', function (obj) {
             let data = {id: obj.value, status: obj.elem.checked > 0 ? 1 : 0};
             $.form.load("{:url('state')}", data, 'post', function (ret) {
-                if (ret.code < 1) $.msg.error(ret.info, 3, function () {
-                    $('#DataTable').trigger('reload');
-                }); else {
-                    $('#DataTable').trigger('reload');
-                }
+                let fn = () => $table.trigger('reload');
+                ret.code > 0 ? fn() : $.msg.error(ret.info, 3, fn)
                 return false;
             }, false);
         });

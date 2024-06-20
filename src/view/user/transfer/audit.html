@@ -1,28 +1,39 @@
 <form action="{:sysuri()}" method="post" data-auto="true" class="layui-form layui-card">
 
-    <div class="layui-card-body padding-left-40">
+    <div class="layui-card-body ta-pl-40">
 
-        <div class="layui-row layui-form-item layui-col-space15">
-            <label class="layui-col-xs3">
+        <div class="flex layui-form-item">
+            <label class="flex-1">
                 <span class="help-label"><b>提现单号</b></span>
-                <input class='layui-input layui-disabled layui-bg-gray' disabled value='{$vo.code|default="-"}'>
+                <input class='layui-input layui-bg-gray' disabled value='{$vo.code|default="-"}'>
             </label>
-            <label class="layui-col-xs3">
-                <span class="help-label"><b>提现金额</b></span>
-                <input class='layui-input layui-disabled layui-bg-gray' disabled value='{$vo.amount|default="0.00"}'>
-            </label>
-            <label class="layui-col-xs3">
-                <span class="help-label"><b>提现手续费</b></span>
-                <input class='layui-input layui-disabled layui-bg-gray' disabled value='{$vo.charge_amount|default="0.00"}'>
-            </label>
-            <label class="layui-col-xs3">
-                <span class="help-label"><b>应打款金额</b></span>
-                <input class='layui-input layui-disabled layui-bg-gray' disabled value='{$vo.amount - $vo.charge_amount}'>
-            </label>
-            <label class="layui-col-xs3">
+            <label class="flex-1 ta-ml-10">
                 <span class="help-label"><b>提现方式</b></span>
-                <input class='layui-input layui-disabled layui-bg-gray' disabled value='{$vo.type|default="-"}'>
+                <input class='layui-input layui-bg-gray' disabled value='{$vo.type_name|default="-"}'>
             </label>
+        </div>
+        <div class="flex layui-form-item">
+            <div class="flex-1">
+                <span class="help-label"><b>提现金额</b></span>
+                <label class="layui-input-wrap block relative">
+                    <input class='layui-input layui-bg-gray' disabled value='{$vo.amount|default="0.00"}'>
+                    <span class="layui-input-suffix">元</span>
+                </label>
+            </div>
+            <div class="flex-1 ta-ml-10">
+                <span class="help-label"><b>提现手续费</b></span>
+                <label class="layui-input-wrap block relative">
+                    <input class='layui-input layui-bg-gray' disabled value='{$vo.charge_amount|default="0.00"}'>
+                    <span class="layui-input-suffix">元</span>
+                </label>
+            </div>
+            <div class="flex-1 ta-ml-10">
+                <span class="help-label"><b>应打款金额</b></span>
+                <label class="layui-input-wrap block relative">
+                    <input class='layui-input layui-bg-gray' disabled value='{$vo.amount - $vo.charge_amount}'>
+                    <span class="layui-input-suffix">元</span>
+                </label>
+            </div>
         </div>
 
         {in name='vo.type' value='wechat_qrcode,alipay_qrcode'}
@@ -69,7 +80,7 @@
         {/in}
 
         <div class="layui-form-item">
-            <span class="color-green font-w7">审核操作类型</span>
+            <span class="help-label label-required-prev"><b>审核操作类型</b></span>
 
             <!-- 提现状态(0失败, 1待审核, 2已审核, 3打款中, 4已打款, 5已收款) -->
             <!-- 'wechat_wallet'  => '转账到我的微信零钱' -->
@@ -103,7 +114,11 @@
             {php} $types =[4=>'已经打款']; {/php}
             {/if}
 
-            <div class="layui-textarea" style="min-height:auto;padding:10px 0 13px 18px">
+            {if $vo.status eq 5}
+            {php} $types =[5=>'已经完成']; {/php}
+            {/if}
+
+            <div class="layui-textarea help-checks ta-pl-10">
                 {foreach($types as $k => $v)}{if $k eq $vo.status}
                 <input checked name="status" title="{$v}" type="radio" value='{$k}'>
                 {else}
@@ -113,8 +128,8 @@
         </div>
 
         <div class="layui-form-item">
+            <span class="help-label label-required-prev"><b>审核操作描述</b></span>
             <label class="relative block">
-                <span class="color-green font-w7">审核操作描述</span>
                 <textarea class="layui-textarea" name="remark" placeholder="请输入审核描述">{$vo.remark|default=''}</textarea>
             </label>
         </div>
@@ -122,11 +137,11 @@
     </div>
 
     <div class="hr-line-dashed"></div>
+    {notempty name='vo.id'}<input name='id' type='hidden' value='{$vo.id}'>{/notempty}
     {notempty name='vo.code'}<input name='code' type='hidden' value='{$vo.code}'>{/notempty}
 
     <div class="layui-form-item text-center">
         <button class="layui-btn" type='submit'>保存数据</button>
         <button class="layui-btn layui-btn-danger" data-close data-confirm="确定要取消编辑吗？" type='button'>取消编辑</button>
     </div>
-
 </form>

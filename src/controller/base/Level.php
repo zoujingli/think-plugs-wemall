@@ -1,6 +1,5 @@
 <?php
 
-
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
@@ -20,19 +19,18 @@ declare (strict_types=1);
 namespace plugin\wemall\controller\base;
 
 use plugin\wemall\model\PluginWemallConfigLevel;
-use plugin\wemall\service\UserRebate;
 use think\admin\Controller;
 use think\admin\helper\QueryHelper;
 
 /**
- * 用户等级管理
+ * 会员等级管理
  * @class Level
  * @package plugin\wemall\controller\base
  */
 class Level extends Controller
 {
     /**
-     * 用户等级管理
+     * 会员等级管理
      * @auth true
      * @menu true
      * @return void
@@ -43,14 +41,14 @@ class Level extends Controller
     public function index()
     {
         PluginWemallConfigLevel::mQuery()->layTable(function () {
-            $this->title = '用户等级管理';
+            $this->title = '会员等级管理';
         }, static function (QueryHelper $query) {
-            $query->like('name')->equal('status')->dateBetween('create_at');
+            $query->like('name')->equal('status')->dateBetween('create_time');
         });
     }
 
     /**
-     * 添加用户等级
+     * 添加会员等级
      * @auth true
      * @return void
      * @throws \think\db\exception\DbException
@@ -62,7 +60,7 @@ class Level extends Controller
     }
 
     /**
-     * 编辑用户等级
+     * 编辑会员等级
      * @auth true
      * @return void
      * @throws \think\db\exception\DbException
@@ -80,26 +78,23 @@ class Level extends Controller
      */
     protected function _form_filter(array &$vo)
     {
+        if (empty($vo['extra'])) $vo['extra'] = [];
         if ($this->request->isGet()) {
-            $this->prizes = UserRebate::prizes;
             $vo['number'] = $vo['number'] ?? PluginWemallConfigLevel::maxNumber();
         } else {
             $vo['utime'] = time();
-            // 用户升级条件开关
-            $vo['enter_vip_status'] = isset($vo['enter_vip_status']) ? 1 : 0;
-            $vo['teams_users_status'] = isset($vo['teams_users_status']) ? 1 : 0;
-            $vo['teams_direct_status'] = isset($vo['teams_direct_status']) ? 1 : 0;
-            $vo['teams_indirect_status'] = isset($vo['teams_indirect_status']) ? 1 : 0;
-            $vo['order_amount_status'] = isset($vo['order_amount_status']) ? 1 : 0;
-            // 根据数量判断状态
-            $vo['teams_users_status'] = intval($vo['teams_users_status'] && $vo['teams_users_number'] > 0);
-            $vo['teams_direct_status'] = intval($vo['teams_direct_status'] && $vo['teams_direct_number'] > 0);
-            $vo['teams_indirect_status'] = intval($vo['teams_indirect_status'] && $vo['teams_indirect_number'] > 0);
-            $vo['order_amount_status'] = intval($vo['order_amount_status'] && $vo['order_amount_number'] > 0);
-            // 检查升级条件配置
-            $count = 0;
-            foreach ($vo as $k => $v) if (is_numeric(stripos($k, '_status'))) $count += $v;
-            if (empty($count) && $vo['number'] > 0) $this->error('升级条件不能为空！');
+            if (empty($vo['number'])) {
+                $vo['extra'] = ['enter_vip_status' => 0, 'order_amount_status' => 0, 'order_amount_number' => 0];
+            } else {
+                $count = $vo['extra']['enter_vip_status'] = empty($vo['extra']['enter_vip_status']) ? 0 : 1;
+                if (empty($vo['extra']['order_amount_status']) || floatval($vo['extra']['order_amount_number']) <= 0) {
+                    $vo['extra'] = array_merge($vo['extra'], ['order_amount_status' => 0, 'order_amount_number' => 0]);
+                } else {
+                    $count += 1;
+                    $vo['extra']['order_amount_status'] = 1;
+                }
+                if (empty($count)) $this->error('升级条件不能为空！');
+            }
         }
     }
 
@@ -131,7 +126,7 @@ class Level extends Controller
     }
 
     /**
-     * 删除用户等级
+     * 删除会员等级
      * @auth true
      */
     public function remove()

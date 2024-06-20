@@ -1,12 +1,10 @@
-{block name="content"}
-<div class="think-box-shadow relative padding-top-0 shadow-none">
+<div class="relative">
     <table id="MarkTableSelect" data-url="{:request()->url()}"></table>
 </div>
-
 <script>
     $(function () {
         $('#MarkTableSelect').layTable({
-            even: true, height: 'full', page: false,
+            even: true, width: 'full', height: 'full', page: false,
             sort: {field: 'sort desc,id', type: 'asc'},
             cols: [[
                 {checkbox: true, fixed: true, hide: true},
@@ -31,4 +29,3 @@
     <a class="layui-btn layui-btn-sm layui-btn-disabled">已 选</a>
     {{# } }}
 </script>
-{/block}

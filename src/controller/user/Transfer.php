@@ -25,7 +25,6 @@ use think\admin\Controller;
 use think\admin\extend\CodeExtend;
 use think\admin\helper\QueryHelper;
 use think\admin\service\AdminService;
-use think\db\Query;
 
 /**
  * 用户提现管理
@@ -40,9 +39,13 @@ class Transfer extends Controller
      */
     protected $types = [];
 
+    /**
+     * 控制器初始化
+     * @return void
+     */
     protected function initialize()
     {
-        $this->types = UserTransfer::types();
+        $this->types = UserTransfer::types;
     }
 
     /**
@@ -96,14 +99,11 @@ class Transfer extends Controller
             $this->title = '用户提现管理';
             $this->transfer = UserTransfer::amount(0);
         }, static function (QueryHelper $query) {
-            $query->with(['relation' => function (Query $query) {
-                $query->with(['user']);
-            }]);
+            // 数据列表处理
+            $query->with(['user'])->equal('type,status')->dateBetween('create_time');
             // 用户条件搜索
             $db = PluginAccountUser::mQuery()->like('phone|username|nickname#user')->db();
             if ($db->getOptions('where')) $query->whereRaw("unid in {$db->field('id')->buildSql()}");
-            // 数据列表处理
-            $query->equal('type,status')->dateBetween('create_time');
         });
     }
 
@@ -114,31 +114,7 @@ class Transfer extends Controller
      * @throws \think\db\exception\DbException
      * @throws \think\db\exception\ModelNotFoundException
      */
-    public function auditStatus()
-    {
-        $this->_audit();
-    }
-
-    /**
-     * 提现打款操作
-     * @auth true
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
-     */
-    public function auditPayment()
-    {
-        $this->_audit();
-    }
-
-    /**
-     * 提现审核打款
-     * @auth true
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
-     */
-    private function _audit()
+    public function audit()
     {
         if ($this->request->isGet()) {
             PluginWemallUserTransfer::mForm('audit', 'code');

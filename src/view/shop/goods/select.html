@@ -1,15 +1,12 @@
-{block name="content"}
-<div class="think-box-shadow relative padding-top-0 shadow-none">
+<div class="relative">
     {include file='shop/goods/select_search'}
     <table id="GoodsTableSelect" data-line="2" data-url="{:request()->url()}"></table>
 </div>
-{/block}
 
-{block name='script'}
 <script>
     $(function () {
         $('#GoodsTableSelect').layTable({
-            even: true, height: 'full', page: true,
+            even: true, width: 'full', height: 'full', page: true,
             sort: {field: 'sort desc,id', type: 'desc'},
             cols: [[
                 // {checkbox: true},
@@ -36,4 +33,3 @@
     <a class="layui-btn layui-btn-sm layui-btn-disabled">已 选</a>
     {{# } }}
 </script>
-{/block}

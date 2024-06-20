@@ -18,7 +18,6 @@ declare (strict_types=1);
 
 namespace plugin\wemall\controller\base;
 
-use plugin\account\model\PluginAccountUser;
 use plugin\account\service\Account;
 use plugin\wemall\model\PluginWemallConfigLevel;
 use plugin\wemall\model\PluginWemallConfigPoster;
@@ -76,6 +75,7 @@ class Poster extends Controller
 
     /**
      * 表单数据处理
+     * @param array $data
      * @return void
      */
     protected function _form_filter(array &$data)
@@ -114,11 +114,11 @@ class Poster extends Controller
      */
     public function show()
     {
-        $data = $this->_vali([
-            'image.require' => '图片不能为空！',
-            'items.require' => '规则不能为空！',
-        ]);
         try {
+            $data = $this->_vali([
+                'image.require' => '图片不能为空！',
+                'items.require' => '规则不能为空！',
+            ]);
             $items = json_decode($data['items'], true);
             $base64 = PosterService::build($data['image'], $items);
             $this->success('生成证书图片', ['base64' => $base64]);

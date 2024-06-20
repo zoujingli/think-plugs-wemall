@@ -1,6 +1,5 @@
 <?php
 
-
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
@@ -69,7 +68,7 @@ class Transfer extends Auth
         $data['charge_amount'] = $chargeRate * $data['amount'] / 100;
         // 检查可提现余额
         [$total, $count] = UserRebate::recount($this->unid);
-        if ($total - $count < $data['amount']) $this->error('可提现余额不足！');
+        if (round($total - $count, 2) < $data['amount']) $this->error('可提现余额不足！');
         // 提现方式处理
         if ($data['type'] == 'alipay_account') {
             $data = array_merge($data, $this->_vali([
@@ -88,7 +87,14 @@ class Transfer extends Auth
                 'bank_bran.require' => '银行分行为空！',
                 'bank_code.require' => '银行卡号为空！',
             ]));
-        } elseif ($data['type'] != 'wechat_wallet') {
+        } elseif ($data['type'] === 'wechat_wallet') {
+            $account = $this->account->get();
+            $data['appid'] = $account['appid'];
+            $data['openid'] = $account['openid'];
+            if (empty($data['appid']) || empty($data['openid'])) {
+                $this->error('未绑定微信！');
+            }
+        } else {
             $this->error('转账方式不存在！');
         }
         // 当日提现次数限制
@@ -120,14 +126,16 @@ class Transfer extends Auth
     public function get()
     {
         $query = PluginWemallUserTransfer::mQuery()->where(['unid' => $this->unid]);
-        $result = $query->like('date,code')->in('status')->order('id desc')->page(true, false, false, 10);
+        $result = $query->like('date,code,code#keys')->in('status')->order('id desc')->page(true, false, false, 10);
         // 统计历史数据
         $map = [['unid', '=', $this->unid], ['status', '>', 0]];
-        [$total, $count, $locks] = UserRebate::recount($this->unid);
+        [$total, $count, $locks, $usable] = UserRebate::recount($this->unid);
         $this->success('获取提现成功', array_merge($result, [
             'total' => [
+                '累计' => $total,
+                '已提' => $count,
                 '锁定' => $locks,
-                '可提' => $total - $count,
+                '可提' => $usable,
                 '上月' => PluginWemallUserTransfer::mk()->where($map)->whereLike('date', date("Y-m-%", strtotime('-1 month')))->sum('amount'),
                 '本月' => PluginWemallUserTransfer::mk()->where($map)->whereLike('date', date("Y-m-%"))->sum('amount'),
                 '全年' => PluginWemallUserTransfer::mk()->where($map)->whereLike('date', date("Y-%"))->sum('amount'),
@@ -168,7 +176,6 @@ class Transfer extends Auth
     public function config()
     {
         $data = UserTransfer::config();
-        $data['banks'] = UserTransfer::banks();
         $this->success('获取用户提现配置', $data);
     }
 }

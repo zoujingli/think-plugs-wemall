@@ -1,6 +1,5 @@
 <?php
 
-
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
@@ -33,25 +32,21 @@ class Rebate extends Auth
 {
     /**
      * 获取用户返佣记录
+     * @return void
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\DbException
      * @throws \think\db\exception\ModelNotFoundException
      */
     public function get()
     {
-        $date = trim(input('date', date('Y-m')), '-');
-        [$map, $year] = [['unid' => $this->unid], substr($date, 0, 4)];
-        $query = PluginWemallUserRebate::mQuery()->where($map)->equal('type,status')->whereLike('date', "{$date}%");
-        $this->success('获取返佣统计', array_merge($query->order('id desc')->page(true, false, false, 10), [
-            'total' => [
-                '年度' => PluginWemallUserRebate::mQuery()->where($map)->equal('type,status')->whereLike('date', "{$year}%")->db()->sum('amount'),
-                '月度' => PluginWemallUserRebate::mQuery()->where($map)->equal('type,status')->whereLike('date', "{$date}%")->db()->sum('amount'),
-            ],
-        ]));
+        $query = PluginWemallUserRebate::mQuery()->where(['unid' => $this->unid]);
+        $query->equal('type,status')->like('name|code|order_no#keys')->whereRaw('amount>0');
+        $this->success('获取返佣统计', $query->order('id desc')->page(true, false, false, 15));
     }
 
     /**
      * 获取我的奖励
+     * @return void
      */
     public function prize()
     {
@@ -67,6 +62,7 @@ class Rebate extends Auth
 
     /**
      * 获取奖励配置
+     * @return void
      */
     public function prizes()
     {

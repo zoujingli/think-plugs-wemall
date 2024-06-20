@@ -18,8 +18,11 @@ declare (strict_types=1);
 
 namespace plugin\wemall\model;
 
-use plugin\account\model\Abs;
-
-class PluginWemallUserActionSearch extends Abs
+/**
+ * 用户搜索行为数据
+ * @class PluginWemallUserActionSearch
+ * @package plugin\wemall\model
+ */
+class PluginWemallUserActionSearch extends AbsUser
 {
 }

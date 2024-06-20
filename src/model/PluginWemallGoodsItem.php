@@ -22,7 +22,7 @@ use plugin\account\model\Abs;
 use think\model\relation\HasOne;
 
 /**
- * 商城商品规格模型
+ * 商城商品规格数据
  * @class PluginWemallGoodsItem
  * @package plugin\wemall\model
  */

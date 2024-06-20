@@ -75,9 +75,8 @@
         layui.form.on('switch(StatusSwitch)', function (obj) {
             let data = {id: obj.value, status: obj.elem.checked > 0 ? 1 : 0};
             $.form.load("{:url('state')}", data, 'post', function (ret) {
-                ret.code > 0 ? $table.trigger('reload') : $.msg.error(ret.info, 3, function () {
-                    $table.trigger('reload');
-                });
+                let fn = () => $table.trigger('reload');
+                ret.code > 0 ? fn() : $.msg.error(ret.info, 3, fn)
                 return false;
             }, false);
         });

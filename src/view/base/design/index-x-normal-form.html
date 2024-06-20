@@ -5,8 +5,28 @@
         <li v-if="item.interStyle || (item.inputStyle && item.inputStyle.vTypes)">容器样式</li>
         <li v-if="item.outerStyle">组件样式</li>
     </ul>
-    <div class="layui-tab-content padding-right-30">
+    <div class="layui-tab-content ta-pr-30">
         <div class="layui-tab-item layui-show notselect">
+
+            <div v-if="item.type==='PageCate'">
+                <div class="color-desc">暂无可配置参数</div>
+            </div>
+
+            <div v-if="item.type==='PageCart'">
+                <div class="color-desc">暂无可配置参数</div>
+            </div>
+
+            <div v-if="item.type==='PageCenter'">
+                <div class="layui-form-item flex">
+                    <span class="design-form-label">我的海报</span>
+                    <div class="flex-1 flex-align-center">
+                        <button v-for="(v,k) in ['隐藏','显示']" :key="v" @click="$set(item.inputStyle,'vPoster',k)"
+                                class="layui-btn layui-btn-sm" :class="item.inputStyle.vPoster===k?'layui-btn-normal':'layui-btn-primary'"
+                                type="button">{{v}}
+                        </button>
+                    </div>
+                </div>
+            </div>
 
             <div v-if="item.type==='BaseSearch'">
                 <div class="layui-form-item flex">
@@ -24,18 +44,18 @@
                 <div class="layui-form-item flex">
                     <span class="design-form-label">搜索热词</span>
                     <div class="flex-1">
-                        <div class="margin-top-5 color-desc">( 最多支持 10 个，点击右则可移动 )</div>
-                        <div class="margin-top-5 flex" v-for="(xxx,$index) in item.data">
+                        <div class="ta-mt-5 color-desc">( 最多支持 10 个，点击右则可移动 )</div>
+                        <div class="ta-mt-5 flex" v-for="(xxx,$index) in item.data">
                             <label class="flex-1 relative">
                                 <input class="layui-input" v-model="xxx.name" required vali-name="热词" placeholder="请输入热词">
                             </label>
-                            <div class="padding-left-10">
-                                <a @click="moveUp(item.data,$index)" class="margin-5 layui-btn-primary layui-btn-md inline-block"><i style="transform:rotate(090deg)" class="layui-icon inline-block">&#xe65c;</i></a>
-                                <a @click="moveRm(item.data,$index)" class="margin-5 layui-btn-primary color-red layui-btn-md inline-block"><i class="layui-icon layui-icon-close"></i></a>
-                                <a @click="moveDn(item.data,$index)" class="margin-5 layui-btn-primary layui-btn-md inline-block"><i style="transform:rotate(270deg)" class="layui-icon inline-block">&#xe65c;</i></a>
+                            <div class="ta-pl-10">
+                                <a @click="moveUp(item.data,$index)" class="ta-m-5 layui-btn-primary layui-btn-md inline-block"><i style="transform:rotate(090deg)" class="layui-icon inline-block">&#xe65c;</i></a>
+                                <a @click="moveRm(item.data,$index)" class="ta-m-5 layui-btn-primary color-red layui-btn-md inline-block"><i class="layui-icon layui-icon-close"></i></a>
+                                <a @click="moveDn(item.data,$index)" class="ta-m-5 layui-btn-primary layui-btn-md inline-block"><i style="transform:rotate(270deg)" class="layui-icon inline-block">&#xe65c;</i></a>
                             </div>
                         </div>
-                        <div class="margin-top-5" v-if="item.data.length<10">
+                        <div class="ta-mt-5" v-if="item.data.length<10">
                             <a @click="addData(item.data)">添加热词</a>
                         </div>
                     </div>
@@ -48,7 +68,9 @@
                     <div class="layui-colla-content layui-show text-center">
                         <button v-for="(v,k) in ['x1','x2','x3','x4','x5','x6']" :key="v" @click="$set(item.inputStyle,'vType',k)"
                                 class="layui-btn layui-btn-sm" :class="item.inputStyle.vType===k?'layui-btn-normal':'layui-btn-primary'"
-                                type="button"><i class="iconfont" :class="'iconfont-'+v"></i></button>
+                                type="button">
+                            <i class="iconfont" :class="'iconfont-'+v"></i>
+                        </button>
                     </div>
                 </div>
                 <div class="layui-colla-item colla-form-group">
@@ -67,7 +89,7 @@
                                                 <span class="layui-form-label" style="width:3em">标 题</span>
                                                 <input placeholder="选项，请输入标题" v-model="xx.name" class="flex-1 layui-input ">
                                             </label>
-                                            <div class="flex relative margin-top-5">
+                                            <div class="flex relative ta-mt-5">
                                                 <span class="layui-form-label" style="width:3em">链 接</span>
                                                 <div class="layui-input-wrap pointer flex-1" @click="setLink(xx)">
                                                     <label><input type="text" placeholder="必选，请选择链接" class="layui-input" v-model="xx.link"></label>
@@ -92,7 +114,7 @@
             <div v-if="item.type==='BaseGoods'">
                 <div class="layui-form-item flex">
                     <span class="design-form-label">展示样式</span>
-                    <div class="flex-1 flex-justify-center">
+                    <div class="flex-1 flex-align-center">
                         <button v-for="(v,k) in ['x1','x2','x3','x7']" :key="v" @click="$set(item.inputStyle,'vType',k)"
                                 class="layui-btn layui-btn-sm" :class="item.inputStyle.vType===k?'layui-btn-normal':'layui-btn-primary'"
                                 type="button"><i class="iconfont" :class="'iconfont-'+v"></i></button>
@@ -101,7 +123,7 @@
 
                 <div class="layui-form-item flex">
                     <span class="design-form-label">商品排序</span>
-                    <div class="flex-1 flex-justify-center">
+                    <div class="flex-1 flex-align-center">
                         <button v-for="(v,k) in ['综合','销量','价格']" :key="v" @click="$set(item.inputStyle,'vSort',k)"
                                 :class="item.inputStyle.vSort===k?'layui-btn-normal':'layui-btn-primary'"
                                 type="button" class="layui-btn layui-btn-sm">{{v}}
@@ -109,11 +131,33 @@
                     </div>
                 </div>
 
+                <div class="layui-form-item flex">
+                    <span class="design-form-label">排序方式</span>
+                    <div class="flex-1 flex-align-center">
+                        <button v-for="(v,k) in ['倒序','升级']" :key="v" @click="$set(item.inputStyle,'vOrder',k)"
+                                :class="item.inputStyle.vOrder===k?'layui-btn-normal':'layui-btn-primary'"
+                                type="button" class="layui-btn layui-btn-sm">{{v}}
+                        </button>
+                    </div>
+                </div>
+
                 <label class="layui-form-item flex">
                     <span class="design-form-label">商品数量</span>
-                    <input type="range" min="1" step="1" v-model="item.inputStyle.vNumber" max="20">
+                    <input type="range" min="1" step="1" v-model="item.inputStyle.vNumber" max="60">
                     <span class="layui-form-label text-left flex-1" style="width:auto">{{item.inputStyle.vNumber}} 个</span>
                 </label>
+
+                <div class="layui-form-item flex">
+                    <span class="design-form-label">过滤标签</span>
+                    <div class="layui-textarea help-checks">
+                        <label class="think-checkbox">
+                            <input v-model="item.inputStyle.vMarks" type="checkbox" value="-" lay-ignore/> 全部
+                        </label>
+                        <label class="think-checkbox" v-for="x in marks">
+                            <input v-model="item.inputStyle.vMarks" type="checkbox" :value="x" lay-ignore/> {{x}}
+                        </label>
+                    </div>
+                </div>
             </div>
 
             <div v-if="item.type==='BaseIcon'">
@@ -145,7 +189,7 @@
                                     <span class="layui-form-label" style="width:3em">标 题</span>
                                     <input placeholder="可选，请输入标题" v-model="edit.item.title" class="flex-1 layui-input ">
                                 </label>
-                                <div class="flex relative margin-top-5">
+                                <div class="flex relative ta-mt-5">
                                     <span class="layui-form-label" style="width:3em">链 接</span>
                                     <div class="layui-input-wrap pointer flex-1" @click="setLink(edit.item)">
                                         <label><input type="text" placeholder="可选，请选择链接" class="layui-input" v-model="edit.item.link"></label>
@@ -174,7 +218,7 @@
             <div v-if="item.type==='BaseSlider'">
                 <draggable v-model="item.data" v-bind="{group:'BaseImageSlider',animation:200}" @start="drag=true" @end="drag=false">
                     <transition-group>
-                        <div class="layui-form-item margin-bottom-10" v-for="(xx,$index) in item.data" :key="xx.unid">
+                        <div class="layui-form-item ta-mb-10" v-for="(xx,$index) in item.data" :key="xx.unid">
                             <div class="flex">
                                 <div style="padding-top:3px">
                                     <upload-image :mstyle="xx" mfield="image" v-model="xx.image" :showinput="false"></upload-image>
@@ -184,7 +228,7 @@
                                         <span class="layui-form-label" style="width:3em">标 题</span>
                                         <input placeholder="可选，请输入标题" v-model="xx.title" class="flex-1 layui-input ">
                                     </label>
-                                    <div class="flex relative margin-top-5">
+                                    <div class="flex relative ta-mt-5">
                                         <span class="layui-form-label" style="width:3em">链 接</span>
                                         <div class="layui-input-wrap pointer flex-1" @click="setLink(xx)">
                                             <label><input type="text" placeholder="可选，请选择链接" class="layui-input" v-model="xx.link"></label>

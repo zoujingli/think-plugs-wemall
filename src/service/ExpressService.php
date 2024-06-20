@@ -27,7 +27,7 @@ use think\admin\service\InterfaceService;
  * @class ExpressService
  * @package plugin\wemall\service
  */
-class ExpressService
+abstract class ExpressService
 {
     /**
      * 模拟计算快递费用
@@ -61,7 +61,7 @@ class ExpressService
             return [$firstAmount, $deliveryCount, $template['code'], "首件计费，不超过{$firstCount}件"];
         } else {
             $amount = $repeatCount > 0 ? $repeatAmount * ceil(($deliveryCount - $firstCount) / $repeatCount) : 0;
-            return [$firstAmount + $amount, $deliveryCount, $template['code'], "续件计费，超出{$firstCount}件续件{$amount}元"];
+            return [round($firstAmount + $amount, 2), $deliveryCount, $template['code'], "续件计费，超出{$firstCount}件续件{$amount}元"];
         }
     }
 

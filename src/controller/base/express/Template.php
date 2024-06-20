@@ -1,6 +1,5 @@
 <?php
 
-
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
@@ -47,7 +46,7 @@ class Template extends Controller
         PluginWemallExpressTemplate::mQuery()->layTable(function () {
             $this->title = '快递邮费模板';
         }, function (QueryHelper $query) {
-            $query->like('code,name')->equal('status')->dateBetween('create_at');
+            $query->like('code,name')->equal('status')->dateBetween('create_time');
             $query->where(['deleted' => 0, 'status' => intval($this->type === 'index')]);
         });
     }

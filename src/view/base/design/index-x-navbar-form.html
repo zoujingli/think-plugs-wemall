@@ -12,9 +12,10 @@
                 <transition-group>
                     <div v-for="(x,$index) in pages" :key="x.unid">
                         <div class="flex-x">
-                            <div class="flex-1"><a @click="setPage($index)">编辑页面</a></div>
                             <div class="flex-2">类型：<span class="color-green">{{x.type}}</span></div>
-                            <label class="flex-2 think-checkbox text-right" style="margin:0 0 4px">
+                            <div class="flex-1 text-right"><a @click="setPage($index)">编辑页面</a></div>
+                            <label class="flex-2 think-checkbox text-right layui-hide" style="margin:0 0 4px">
+                                <!-- 暂时不开发隐藏菜单，如果合并隐藏了将彻底失败底部菜单控制 -->
                                 <input type="checkbox" @click="x.show=this.checked=!this.checked" :checked="x.show" lay-ignore> 显示在导航条
                             </label>
                         </div>
@@ -30,7 +31,7 @@
                                     <span class="design-form-label" style="min-width:2.5em">名称</span>
                                     <input class="layui-input flex-1" v-model="x.foot.name" placeholder="请输入名称">
                                 </label>
-                                <div class="relative flex margin-top-5">
+                                <div class="relative flex ta-mt-5">
                                     <span class="design-form-label" style="min-width:2.5em">链接</span>
                                     <div class="layui-input-wrap pointer flex-1" @click="setLink(x.link,'value')">
                                         <label><input type="text" placeholder="可选，请选择链接" class="layui-input" v-model="x.link.value"></label>

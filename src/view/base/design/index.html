@@ -9,7 +9,7 @@
 
 {block name="content"}
 {include file="base/design/index-style"}
-<form id="DesignForm" method="post" data-auto action="{:url('save')}" class="padding-20 layui-anim layui-anim-fadein">
+<form id="DesignForm" method="post" data-auto action="{:url('save')}" class="ta-p-20 layui-anim layui-anim-fadein">
     <div class="design-layout" id="TemplateApp">
         <div class="design-layout-menu shadow-mini">
             <div class="layui-tab layui-tab-brief">
@@ -24,9 +24,14 @@
                                 <div class="layui-colla-title">{{x.name}}</div>
                                 <div class="layui-colla-content layui-show">
                                     <div class="flex">
-                                        <a v-for="xx in x.items" @click="addItem(xx)">
-                                            <i v-if="xx.icon" class="layui-icon" :class="xx.icon"></i> {{xx.name}}
-                                        </a>
+                                        <template v-for="xx in x.items">
+                                            <a v-if="xx.disabled===true" class="color-desc">
+                                                <i v-if="xx.icon" class="layui-icon color-desc" :class="xx.icon"></i> {{xx.name}}
+                                            </a>
+                                            <a v-else @click="addItem(xx)">
+                                                <i v-if="xx.icon" class="layui-icon" :class="xx.icon"></i> {{xx.name}}
+                                            </a>
+                                        </template>
                                     </div>
                                 </div>
                             </div>
@@ -41,27 +46,25 @@
             <div class="design-layout-view-head">
                 <div class="notselect">
                     <div class="design-layout-view-head-image"></div>
-                    <div sv-element :class="idx===-1?'active':''" :style="showStyle(page.head.style)">
+                    <div sv-element :class="[idx===-1?'active':'',page.head.show!==false||page.head.placeholder>0?'':'fadeout']" :style="showStyle(page.head.style)">
                         <div sv-handle class="think-elips-1 pointer font-s14" @click="setPage(pdx,true)">{{page.head.name || ''}}</div>
                     </div>
                 </div>
             </div>
-            <div class='design-layout-view-body'>
+            <div class='design-layout-view-body' :style="{paddingTop:(Number(page.head.placeholder)||20)+'px'}">
                 <div :style="showStyle(page.style)">
-                    <div style="height:0;opacity:0;overflow:hidden">防止MarginTop合并影响到父容器</div>
+                    <div style="height:0;opacity:0;overflow:hidden">防止 MarginTop 合并影响到父容器</div>
                     {include file='base/design/index-view'}
                 </div>
             </div>
             <div class="design-layout-view-foot">
                 <div sv-element :class="idx===-2?'active':''">
-                    <div class="notselect">
-                        <div sv-handle class="flex pointer not-after" @click="setPage(pdx,false,true)" :style="navbar.style">
-                            <a v-for="(x,$index) in pages" v-if="x.show" :key="x.unid" :class="x.active?'active':''" @click="setPage($index,false,true)">
-                                <span class="headimg headimg-ss block auto-center" v-if="x.active && x.foot.icon.active" :style="showBgimg(x.foot.icon.active)"></span>
-                                <span class="headimg headimg-ss block auto-center" v-if="!x.active && x.foot.icon.normal" :style="showBgimg(x.foot.icon.normal)"></span>
-                                <span :style="showColor(x.active?(navbar.style.vActiveColor||''):(navbar.style.vNormalColor||''))">{{x.foot.name}}</span>
-                            </a>
-                        </div>
+                    <div sv-handle class="notselect flex pointer not-after" @click="setPage(pdx,false,true)" :style="navbar.style">
+                        <a v-for="(x,$index) in pages" v-if="x.show" :key="x.unid" :class="x.active?'active':''" @click="setPage($index,false,true)">
+                            <span class="headimg headimg-ss headimg-no block auto-center" v-if="x.active && x.foot.icon.active" :style="showBgimg(x.foot.icon.active)"></span>
+                            <span class="headimg headimg-ss headimg-no block auto-center" v-if="!x.active && x.foot.icon.normal" :style="showBgimg(x.foot.icon.normal)"></span>
+                            <span :style="showColor(x.active?(navbar.style.vActiveColor||''):(navbar.style.vNormalColor||''))">{{x.foot.name}}</span>
+                        </a>
                     </div>
                 </div>
             </div>

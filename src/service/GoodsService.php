@@ -32,7 +32,7 @@ use think\Model;
  * @class GoodsService
  * @package plugin\wemall\service
  */
-class GoodsService
+abstract class GoodsService
 {
     /**
      * 更新商品库存数据
