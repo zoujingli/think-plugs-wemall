@@ -20,15 +20,18 @@ namespace plugin\wemall\service;
 
 use plugin\account\model\PluginAccountUser;
 use plugin\wemall\model\PluginWemallOrderCart;
+use plugin\wemall\model\PluginWemallOrderItem;
 use plugin\wemall\model\PluginWemallUserActionCollect;
+use plugin\wemall\model\PluginWemallUserActionComment;
 use plugin\wemall\model\PluginWemallUserActionHistory;
+use think\admin\Storage;
 
 /**
  * 用户行为数据服务
  * @class UserAction
  * @package plugin\wemall\service
  */
-class UserAction
+abstract class UserAction
 {
     /**
      * 设置行为数据
@@ -111,5 +114,38 @@ class UserAction
             $user->save(['extra' => array_merge($user->getAttr('extra'), $data)]);
         }
         return [$data['collect_total'], $data['history_total'], $data['mycarts_total']];
+    }
+
+    /**
+     * 写入商品评论
+     * @param PluginWemallOrderItem $item
+     * @param string|float $rate
+     * @param string $content
+     * @param string $images
+     * @return bool
+     * @throws \think\admin\Exception
+     */
+    public static function comment(PluginWemallOrderItem $item, $rate, string $content, string $images): bool
+    {
+        // 图片上传转存
+        if (!empty($images)) {
+            $images = explode('|', $images);
+            foreach ($images as &$image) {
+                $image = Storage::saveImage($image, 'comment')['url'];
+            }
+            $images = join('|', $images);
+        }
+        // 根据单号+商品规格查询评论
+        $code = md5("{$item->getAttr('order_no')}#{$item->getAttr('ghash')}");
+        return PluginWemallUserActionComment::mk()->where(['code' => $code])->findOrEmpty()->save([
+            'code'     => $code,
+            'unid'     => $item->getAttr('unid'),
+            'gcode'    => $item->getAttr('gcode'),
+            'ghash'    => $item->getAttr('ghash'),
+            'order_no' => $item->getAttr('order_no'),
+            'rate'     => $rate,
+            'images'   => $images,
+            'content'  => $content,
+        ]);
     }
 }

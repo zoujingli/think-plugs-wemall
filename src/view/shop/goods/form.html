@@ -54,13 +54,13 @@
                     <th class="full-width">轮播图片 <span class="color-desc font-w1">( 轮播图片推荐的宽高比为 5:3 )</span></th>
                 </tr>
                 <tr>
-                    <td class="text-center text-top padding-0">
+                    <td class="text-center text-top ta-p-0">
                         <div class="help-images">
                             <input name="cover" data-max-width="500" data-max-height="500" type="hidden" value="{$vo.cover|default=''}">
                             <script>$('[name="cover"]').uploadOneImage();</script>
                         </div>
                     </td>
-                    <td class="text-left padding-0">
+                    <td class="text-left ta-p-0">
                         <div class="help-images">
                             <input name="slider" data-max-width="2048" data-max-height="1024" type="hidden" value="{$vo.slider|default=''}">
                             <script>$('[name="slider"]').uploadMultipleImage();</script>
@@ -84,43 +84,86 @@
 
         <div class="goods-item-box">
             <div class="flex flex-wrap">
+
+                <fieldset class="layui-bg-gray">
+                    <legend><span class="layui-badge think-bg-violet">商品返佣配置</span></legend>
+                    <div class="layui-input">
+                        {empty name='vo.rebate_type'}{assign name='vo.rebate_type' value='0'}{/empty}
+                        {foreach ['普通商品','返佣商品'] as $k => $v}
+                        {if isset($vo.rebate_type) and $vo.rebate_type eq $k}
+                        <input name="rebate_type" title="{$v}" type="radio" value="{$k}" checked>
+                        {else}
+                        <input name="rebate_type" title="{$v}" type="radio" value="{$k}">
+                        {/if}{/foreach}
+                    </div>
+                    <div class="help-block nowrap">分佣计算时会基于线上支付金额进行计算。</div>
+                </fieldset>
+
+                <!--{if isset($agents) and count($agents)>1}-->
+                <fieldset class="layui-bg-gray">
+                    <legend><span class="layui-badge think-bg-violet">赋予推广权限</span></legend>
+                    <div class="font-code">
+                        <select class="layui-select" name="level_agent">
+                            {foreach $agents as $upgrade}
+                            {if isset($vo.level_agent) and $vo.level_agent eq $upgrade.number}
+                            <option value="{$upgrade.number|default=0}" selected>
+                                [ {$upgrade.prefix|default='0'} ] {if $upgrade.number>0}赋予权限，{$upgrade.name|default=''}{else}不赋权限，默认身份{/if}
+                            </option>
+                            {else}
+                            <option value="{$upgrade.number|default=0}">
+                                [ {$upgrade.prefix|default='0'} ] {if $upgrade.number>0}赋予权限，{$upgrade.name|default=''}{else}不赋权限，默认身份{/if}
+                            </option>
+                            {/if}{/foreach}
+                        </select>
+                    </div>
+                    <div class="help-block nowrap">给会员赋予代理身份后可享有推广权益。</div>
+                </fieldset>
+                <!--{/if}-->
+
                 <!--{if isset($upgrades) and count($upgrades)>1}-->
                 <fieldset class="layui-bg-gray notselect">
-                    <legend><span class="layui-badge think-bg-violet">不是礼包配置</span></legend>
-                    <select class="layui-select" name="level_upgrade">
-                        {foreach $upgrades as $upgrade}{if isset($vo.level_upgrade) and $vo.level_upgrade eq $upgrade.number}
-                        <option value="{$upgrade.number|default=0}" selected>
-                            [ {$upgrade.prefix|default='0'} ] {if $upgrade.number eq 0}入会礼包，不升级{elseif $upgrade.number>0}升级礼包，升级到【{$upgrade.name|default=''}】{else} {$upgrade.name|default=''} {/if}
-                        </option>
-                        {else}
-                        <option value="{$upgrade.number|default=0}">
-                            [ {$upgrade.prefix|default='0'} ] {if $upgrade.number eq 0}入会礼包，不升级{elseif $upgrade.number>0}升级礼包，升级到【{$upgrade.name|default=''}】{else} {$upgrade.name|default=''} {/if}
-                        </option>
-                        {/if}{/foreach}
-                    </select>
-                    <span class="help-block">购买商品后可直接升级到该等级！</span>
+                    <legend><span class="layui-badge think-bg-violet">赋予会员权限</span></legend>
+                    <div class="font-code">
+                        <select class="layui-select" name="level_upgrade">
+                            {foreach $upgrades as $upgrade}
+                            {if isset($vo.level_upgrade) and $vo.level_upgrade eq $upgrade.number}
+                            <option value="{$upgrade.number|default=0}" selected>
+                                [ {$upgrade.prefix|default='0'} ] {if $upgrade.number eq 0} 入会礼包，默认等级 {elseif $upgrade.number>0} 升级礼包，{$upgrade.name|default=''}{else} {$upgrade.name|default=''} {/if}
+                            </option>
+                            {else}
+                            <option value="{$upgrade.number|default=0}">
+                                [ {$upgrade.prefix|default='0'} ] {if $upgrade.number eq 0} 入会礼包，默认等级 {elseif $upgrade.number>0} 升级礼包，{$upgrade.name|default=''}{else} {$upgrade.name|default=''} {/if}
+                            </option>
+                            {/if}{/foreach}
+                        </select>
+                    </div>
+                    <span class="help-block">购买商品后可直接升级到该等级。</span>
                 </fieldset>
+
                 <fieldset class="layui-bg-gray notselect">
                     <legend><span class="layui-badge think-bg-violet">限制购买等级</span></legend>
-                    <select class="layui-select" name="limit_lowvip">
-                        <option value="0">[ - ] 不限等级</option>
-                        {foreach $upgrades as $upgrade}{if $upgrade.number>0}{if isset($vo.limit_lowvip) and $vo.limit_lowvip eq $upgrade.number}
-                        <option selected value="{$upgrade.number|default=0}">[ {$upgrade.number|default=0} ] 限制【{$upgrade.name|default=''}】及以上可购买</option>
-                        {else}
-                        <option value="{$upgrade.number|default=0}">[ {$upgrade.number|default=0} ] 限制【{$upgrade.name|default=''}】及以上可购买</option>
-                        {/if}{/if}{/foreach}
-                    </select>
-                    <span class="help-block">限制低于该等级的用户不能购买！</span>
+                    <div class="font-code">
+                        <select class="layui-select" name="limit_lowvip">
+                            <option value="0">[ - ] 不限等级</option>
+                            {foreach $upgrades as $upgrade}{if $upgrade.number>0}{if isset($vo.limit_lowvip) and $vo.limit_lowvip eq $upgrade.number}
+                            <option value="{$upgrade.number|default=0}" selected>[ {$upgrade.number|default=0} ] 最低等级，{$upgrade.name|default=''}</option>
+                            {else}
+                            <option value="{$upgrade.number|default=0}">[ {$upgrade.number|default=0} ] 最低等级，{$upgrade.name|default=''}</option>
+                            {/if}{/if}{/foreach}
+                        </select>
+                    </div>
+                    <span class="help-block">限制低于该等级的用户不能购买。</span>
                 </fieldset>
                 <!--{else}-->
                 <input type="hidden" name="limit_lowvip" value="0">
                 <input type="hidden" name="level_upgrade" value="-1">
                 <!--{/if}-->
+
                 <fieldset class="layui-bg-gray">
                     <legend><span class="layui-badge think-bg-violet">限制购买数量</span></legend>
                     <label>
-                        <input class="layui-input" type="number" min="0" data-blur-number="0" name="limit_maxnum" placeholder="请输入商品限购数量" value="{$vo.limit_maxnum|default=0}">
-                        <span class="help-block">限制每人购买数量，值为 0 时不限制！</span>
+                        <input class="layui-input" type="number" data-blur-number="0" lay-affix="number" min="0" name="limit_maxnum" placeholder="请输入商品限购数量" value="{$vo.limit_maxnum|default=0}">
+                        <span class="help-block">限制每人购买数量，为 0 时表示不限制。</span>
                     </label>
                 </fieldset>
                 <!--{if isset($discounts) and count($discounts)>1}-->
@@ -128,29 +171,16 @@
                     <legend><span class="layui-badge think-bg-violet">会员折扣方案</span></legend>
                     <select class="layui-select" name="discount_id" lay-search>
                         {foreach $discounts as $discount}{if isset($vo.discount_id) and $vo.discount_id eq $discount.id}
-                        <option selected value="{$discount.id|default=0}">[ {$discount.id?:'-'} ] {$discount.name|default='0'}</option>
+                        <option selected value="{$discount.id|default=0}">{$discount.name|default='0'}</option>
                         {else}
-                        <option value="{$discount.id|default=0}">[ {$discount.id?:'-'} ] {$discount.name|default='0'}</option>
+                        <option value="{$discount.id|default=0}">{$discount.name|default='0'}</option>
                         {/if}{/foreach}
                     </select>
-                    <span class="help-block">当用户等级达到指定等级后可享有折扣！</span>
+                    <span class="help-block">当会员等级达到指定等级后可享有折扣。</span>
                 </fieldset>
                 <!--{else}-->
                 <input type="hidden" name="discount_id" value="0">
                 <!--{/if}-->
-                <fieldset class="layui-bg-gray">
-                    <legend><span class="layui-badge think-bg-violet">商品返佣配置</span></legend>
-                    <div class="padding-top-5 padding-bottom-5 nowrap">
-                        {empty name='vo.rebate_type'}{assign name='vo.rebate_type' value='0'}{/empty}
-                        {foreach ['非返佣商品','是返佣商品'] as $k => $v}
-                        {if isset($vo.rebate_type) and $vo.rebate_type eq $k}
-                        <input name="rebate_type" title="{$v}" type="radio" value="{$k}" checked>
-                        {else}
-                        <input name="rebate_type" title="{$v}" type="radio" value="{$k}">
-                        {/if}{/foreach}
-                    </div>
-                    <div class="help-block nowrap">代理获得该商品线上支付部分的返佣比例！</div>
-                </fieldset>
             </div>
         </div>
 
@@ -158,8 +188,8 @@
             <span class="help-label label-required-prev">
                 <b>商品规格</b><span class="color-red font-s12">( 规格填写后不允许再次增加规格分组，规格图片推荐的宽高比为 5:3，成本价用于计算利润以及发放拥金 )</span>
             </span>
-            <div class="margin-bottom-10" v-for="(x,$index) in specs" :key="$index">
-                <div class="goods-spec-box padding-right-10" style="background:#ddd">
+            <div class="ta-mb-10" v-for="(x,$index) in specs" :key="$index">
+                <div class="goods-spec-box ta-pr-10" style="background:#ddd">
                     <span class="text-center goods-spec-name">分组</span>
                     <label class="label-required-null inline-block">
                         <input v-model.trim="x.name" @change="trimSpace(x,'name')" vali-name="分组" placeholder="请输入分组名称" required>
@@ -183,7 +213,7 @@
             </div>
             <div v-if="mode==='add'">
                 <a class="layui-btn layui-btn-sm layui-btn-primary" @click="addSpecRow(specs)" v-if="specs.length<3">增加规则分组</a>
-                <p class="margin-top-10"><span class="color-red">请完成属性修改后再编辑下面的规格信息，否则规格数据会丢失！</span></p>
+                <p class="ta-mt-10"><span class="color-red">请完成属性修改后再编辑下面的规格信息，否则规格数据会丢失！</span></p>
             </div>
             <table class="layui-table goods-spec-table">
                 <thead>
@@ -251,7 +281,7 @@
                     <td><label><input class="layui-input" @blur="syncSet(hash)" v-model.trim="item.v.virtual"></label></td>
                     <td><label><input class="layui-input" @blur="syncSet(hash)" v-model.trim="item.v.express"></label></td>
                     <td><label><input class="layui-input font-code" v-model.trim="item.v.gsku"></label></td>
-                    <td class="upload-image-xs padding-0 text-center">
+                    <td class="upload-image-xs ta-p-0 text-center">
                         <upload-image v-model.trim="item.v.image" :showinput="false"></upload-image>
                     </td>
                     <td class="layui-bg-gray"><label class="think-checkbox"><input lay-ignore v-model.trim="item.v.status" type="checkbox"></label></td>
@@ -275,7 +305,7 @@
             <textarea class="layui-hide" name="content">{$vo.content|default=''|raw}</textarea>
         </div>
 
-        <div class="hr-line-dashed margin-top-40"></div>
+        <div class="hr-line-dashed ta-mt-40"></div>
         <input name="code" type="hidden" value="{$vo.code}">
 
         <div class="layui-form-item text-center">

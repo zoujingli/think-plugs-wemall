@@ -1,6 +1,5 @@
 <?php
 
-
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
@@ -82,7 +81,7 @@ class Discount extends Controller
             $vo['items'] = json_encode($rule, JSON_UNESCAPED_UNICODE);
         } else {
             $this->levels = PluginWemallConfigLevel::items();
-            if (empty($this->levels)) $this->error('未配置用户等级！');
+            if (empty($this->levels)) $this->error('未配置会员等级！');
             foreach ($vo['items'] ?? [] as $item) {
                 $vo["_level_{$item['level']}"] = $item['discount'];
             }

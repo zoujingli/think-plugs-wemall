@@ -18,10 +18,14 @@ declare (strict_types=1);
 
 namespace plugin\wemall\model;
 
-use plugin\account\model\Abs;
 use think\model\relation\HasOne;
 
-class PluginWemallUserActionCollect extends Abs
+/**
+ * 用户收藏行为数据
+ * @class PluginWemallUserActionCollect
+ * @package plugin\wemall\model
+ */
+class PluginWemallUserActionCollect extends AbsUser
 {
     /**
      * 关联商品信息

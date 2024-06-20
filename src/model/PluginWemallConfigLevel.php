@@ -21,22 +21,29 @@ namespace plugin\wemall\model;
 use plugin\account\model\Abs;
 
 /**
- * 用户等级配置模型
+ * 商城会员等级数据
  * @class PluginWemallConfigLevel
  * @package plugin\wemall\model
  */
 class PluginWemallConfigLevel extends Abs
 {
     /**
-     * 获取用户等级
+     * 获取会员等级
      * @param ?string $first 增加首项内容
-     * @param string $fields 指定查询字段
+     * @param string $field 指定查询字段
      * @return array
      */
-    public static function items(string $first = null, string $fields = 'name,number as prefix,number,upgrade_team'): array
+    public static function items(string $first = null, string $field = 'name,number as prefix,number,upgrade_team,extra'): array
     {
-        $items = $first ? [-1 => ['name' => $first, 'prefix' => '-', 'number' => -1, 'upgrade_team' => 0]] : [];
-        return array_merge($items, static::mk()->where(['status' => 1])->withoutField('id,utime,status,update_time,create_time')->order('number asc')->column($fields, 'number'));
+        try {
+            $query = static::mk()->withoutField('id,utime,status,update_time,create_time');
+            $items = $query->field($field)->where(['status' => 1])->order('number asc')->select()->toArray();
+            if ($first) array_unshift($items, ['name' => $first, 'prefix' => '-', 'number' => -1, 'upgrade_team' => 0, 'extra' => []]);
+            return $items;
+        } catch (\Exception $exception) {
+            trace_file($exception);
+            return [];
+        }
     }
 
     /**

@@ -22,7 +22,7 @@ use plugin\account\model\PluginAccountUser;
 use plugin\wemall\model\PluginWemallExpressCompany;
 use plugin\wemall\model\PluginWemallExpressTemplate;
 use plugin\wemall\model\PluginWemallOrder;
-use plugin\wemall\model\PluginWemallOrderSend;
+use plugin\wemall\model\PluginWemallOrderSender;
 use plugin\wemall\service\ExpressService;
 use think\admin\Controller;
 use think\admin\helper\QueryHelper;
@@ -30,10 +30,10 @@ use think\exception\HttpResponseException;
 
 /**
  * 订单发货管理
- * @class Send
+ * @class Sender
  * @package plugin\wemall\controller\shop
  */
-class Send extends Controller
+class Sender extends Controller
 {
     /**
      * 订单状态
@@ -52,13 +52,13 @@ class Send extends Controller
     public function index()
     {
         $this->type = trim(input('type', 'ta'), 't');
-        PluginWemallOrderSend::mQuery()->layTable(function () {
+        PluginWemallOrderSender::mQuery()->layTable(function () {
             $this->title = '订单发货管理';
             $this->total = ['t0' => 0, 't1' => 0, 't2' => 0, 'ta' => 0];
             $this->address = sysdata('plugin.wemall.address');
             // 订单状态统计
             $order = PluginWemallOrder::mk()->whereIn('status', $this->oStatus)->where(['delivery_type' => 1]);
-            $query = PluginWemallOrderSend::mk()->whereRaw("order_no in {$order->field('order_no')->buildSql()}");
+            $query = PluginWemallOrderSender::mk()->whereRaw("order_no in {$order->field('order_no')->buildSql()}");
             foreach ($query->fieldRaw('status,count(1) total')->group('status')->cursor() as $vo) {
                 $this->total["ta"] += $vo['total'];
                 $this->total["t{$vo['status']}"] = $vo['total'];
@@ -105,7 +105,7 @@ class Send extends Controller
      */
     public function delivery()
     {
-        PluginWemallOrderSend::mForm('delivery_form', 'order_no');
+        PluginWemallOrderSender::mForm('delivery_form', 'order_no');
     }
 
     /**
@@ -134,6 +134,10 @@ class Send extends Controller
             $vo['status'] = 2;
             $vo['company_name'] = $company['name'];
             $vo['express_time'] = $vo['express_time'] ?? date('Y-m-d H:i:s');
+
+            $vo['region_prov'] = $vo['form_prov'] ?? '';
+            $vo['region_city'] = $vo['form_city'] ?? '';
+            $vo['region_area'] = $vo['form_area'] ?? '';
 
             // 更新订单发货状态
             if ($order['status'] === 4) $order->save(['status' => 5]);

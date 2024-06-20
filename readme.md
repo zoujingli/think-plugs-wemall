@@ -51,4 +51,8 @@ composer remove zoujingli/think-plugs-wemall
 
 ### 版权说明
 
-**ThinkPlugsWemall** 为 **ThinkAdmin** 会员插件，未授权不可商用，了解商用授权请阅读 [《会员尊享介绍》](https://thinkadmin.top/vip-introduce)。
+**ThinkPlugsWemall** 为 **ThinkAdmin** 会员插件。
+
+未获得此插件授权时仅供参考学习不可商用，了解商用授权请阅读 [《会员授权》](https://thinkadmin.top/vip-introduce)。
+
+版权所有 Copyright © 2014-2024 by ThinkAdmin (https://thinkadmin.top) All rights reserved。

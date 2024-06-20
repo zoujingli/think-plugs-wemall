@@ -18,7 +18,6 @@ declare (strict_types=1);
 
 namespace plugin\wemall\model;
 
-use plugin\account\model\Abs;
 use plugin\wemall\service\UserTransfer;
 
 /**
@@ -26,8 +25,19 @@ use plugin\wemall\service\UserTransfer;
  * @class PluginWemallUserTransfer
  * @package plugin\wemall\model
  */
-class PluginWemallUserTransfer extends Abs
+class PluginWemallUserTransfer extends AbsUser
 {
+
+    /**
+     * 格式化输出时间
+     * @param mixed $value
+     * @return string
+     */
+    public function getChangeTimeAttr($value): string
+    {
+        return format_datetime($value);
+    }
+
     /**
      * 自动显示类型名称
      * @return array
@@ -36,7 +46,8 @@ class PluginWemallUserTransfer extends Abs
     {
         $data = parent::toArray();
         if (isset($data['type'])) {
-            $data['type_name'] = UserTransfer::types($data['type']);
+            $map = ['platform' => '平台发放'];
+            $data['type_name'] = $map[$data['type']] ?? (UserTransfer::types[$data['type']] ?? $data['type']);
         }
         return $data;
     }

@@ -25,19 +25,17 @@
 <script>
     $(function () {
         // 初始化表格组件
-        $('#DiscountTable').layTable({
+        let $table = $('#DiscountTable').layTable({
             even: true, height: 'full',
             sort: {field: 'sort desc,id', type: 'desc'},
             cols: [[
                 {field: 'id', title: 'ID', align: "center", width: 80},
                 {field: 'sort', title: '排序权重', align: 'center', width: 100, sort: true, templet: '#SortInputTpl'},
-                {field: 'name', title: '折扣名称', align: 'left', minWidth: 140},
+                {field: 'name', title: '方案名称', align: 'left', minWidth: 140},
                 {
-                    field: 'items', title: '折扣方案', align: 'left', width: '33%', templet: function (d) {
+                    title: '方案规则', align: 'left', width: '33%', templet: function (d) {
                         let tags = [];
-                        d.items.forEach(function (item) {
-                            tags.push(laytpl('<span class="layui-badge think-bg-violet">VIP{{d.level}} 折扣 {{d.discount}}%</span>').render(item));
-                        });
+                        d.items.forEach((item) => tags.push(laytpl('<span class="layui-badge think-bg-violet">VIP{{d.level}} 折扣 {{d.discount}}%</span>').render(item)));
                         return tags.join('');
                     }
                 },
@@ -51,11 +49,8 @@
         layui.form.on('switch(StatusSwitch)', function (obj) {
             let data = {id: obj.value, status: obj.elem.checked > 0 ? 1 : 0};
             $.form.load("{:url('state')}", data, 'post', function (ret) {
-                if (ret.code < 1) $.msg.error(ret.info, 3, function () {
-                    $('#DiscountTable').trigger('reload');
-                }); else {
-                    $('#DiscountTable').trigger('reload');
-                }
+                let fn = () => $table.trigger('reload');
+                ret.code > 0 ? $.msg.error(ret.info, 3, fn) : fn();
                 return false;
             }, false);
         });
@@ -80,11 +75,10 @@
 <!-- 数据操作工具条模板 -->
 <script type="text/html" id="toolbar">
     <!--{if auth("edit") and isset($type) and $type eq 'index'}-->
-    <a class="layui-btn layui-btn-primary layui-btn-sm" data-title="编辑折扣" data-modal='{:url("edit")}?id={{d.id}}'>编 辑</a>
+    <a class="layui-btn layui-btn-primary layui-btn-sm" data-title="编辑方案" data-modal='{:url("edit")}?id={{d.id}}'>编 辑</a>
     <!--{/if}-->
-
     <!--{if auth("remove") and isset($type) and $type neq 'index'}-->
-    <a class="layui-btn layui-btn-danger layui-btn-sm" data-action="{:url('remove')}" data-value="id#{{d.id}}" data-confirm="确定要删除折扣吗?">删 除</a>
+    <a class="layui-btn layui-btn-danger layui-btn-sm" data-action="{:url('remove')}" data-value="id#{{d.id}}" data-confirm="确定要删除方案吗?">删 除</a>
     <!--{/if}-->
 </script>
 {/block}

@@ -18,13 +18,11 @@ declare (strict_types=1);
 
 namespace plugin\wemall\model;
 
-use plugin\account\model\Abs;
-
 /**
- * 推广海报管理
- * @class PluginWemallConfigSpread
+ * 用户余额充值模型
+ * @class PluginWemallUserRecharge
  * @package plugin\wemall\model
  */
-class PluginWemallConfigSpread extends Abs
+class PluginWemallUserRecharge extends AbsUser
 {
 }

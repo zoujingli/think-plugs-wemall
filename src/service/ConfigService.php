@@ -23,7 +23,7 @@ namespace plugin\wemall\service;
  * @class ConfigService
  * @package plugin\wemall\service
  */
-class ConfigService
+abstract class ConfigService
 {
 
     /**
@@ -37,7 +37,8 @@ class ConfigService
      * @var string[]
      */
     public static $pageTypes = [
-        'user_agreement' => '用户使用协议'
+        'user_privacy'   => '用户隐私政策',
+        'user_agreement' => '用户使用协议',
     ];
 
     /**
@@ -50,7 +51,7 @@ class ConfigService
     public static function get(?string $name = null, $default = null)
     {
         $syscfg = sysvar(self::$skey) ?: sysvar(self::$skey, sysdata(self::$skey));
-        if (empty($syscfg['domain'])) $syscfg['domain'] = sysconf('base.site_host') . '/h5';
+        if (empty($syscfg['base_domain'])) $syscfg['base_domain'] = sysconf('base.site_host') . '/h5';
         return is_null($name) ? $syscfg : ($syscfg[$name] ?? $default);
     }
 
@@ -63,8 +64,8 @@ class ConfigService
     public static function set(array $data)
     {
         // 修改前端域名处理
-        if (!empty($data['domain'])) {
-            $data['domain'] = rtrim($data['domain'], '\\/');
+        if (!empty($data['base_domain'])) {
+            $data['base_domain'] = rtrim($data['base_domain'], '\\/');
         }
         // 自动处理减免金额范围
         if (!empty($data['enable_reduct'])) {

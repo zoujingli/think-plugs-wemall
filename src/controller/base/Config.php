@@ -19,6 +19,7 @@ declare (strict_types=1);
 
 namespace plugin\wemall\controller\base;
 
+use plugin\account\service\Account;
 use plugin\wemall\service\ConfigService;
 use think\admin\Controller;
 
@@ -53,13 +54,25 @@ class Config extends Controller
      */
     public function params()
     {
+        $this->vo = ConfigService::get();
         if ($this->request->isGet()) {
-            $this->vo = ConfigService::get();
-            $this->fetch('index_params');
+            $this->enableAndroid = !!Account::field(Account::ANDROID);
+            $this->fetch();
         } else {
-            ConfigService::set($this->request->post());
+            ConfigService::set(array_merge($this->vo, $this->request->post()));
             $this->success('配置更新成功！');
         }
+    }
+
+    /**
+     * 修改订单配置
+     * @auth true
+     * @return void
+     * @throws \think\admin\Exception
+     */
+    public function order()
+    {
+        $this->params();
     }
 
     /**

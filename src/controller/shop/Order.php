@@ -1,6 +1,5 @@
 <?php
 
-
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
@@ -22,8 +21,9 @@ namespace plugin\wemall\controller\shop;
 use plugin\account\model\PluginAccountUser;
 use plugin\payment\service\Payment;
 use plugin\wemall\model\PluginWemallOrder;
-use plugin\wemall\model\PluginWemallOrderSend;
+use plugin\wemall\model\PluginWemallOrderSender;
 use plugin\wemall\service\UserOrder;
+use plugin\wemall\service\UserRefund;
 use think\admin\Controller;
 use think\admin\extend\CodeExtend;
 use think\admin\helper\QueryHelper;
@@ -66,19 +66,20 @@ class Order extends Controller
             $this->title = '订单数据管理';
             $this->total = ['t0' => 0, 't1' => 0, 't2' => 0, 't3' => 0, 't4' => 0, 't5' => 0, 't6' => 0, 't7' => 0, 'ta' => 0];
             $this->types = ['ta' => '全部订单', 't2' => '待支付', 't3' => '待审核', 't4' => '待发货', 't5' => '已发货', 't6' => '已收货', 't7' => '已评论', 't0' => '已取消'];
+            $this->refunds = UserRefund::states2;
             foreach ($query->db()->field('status,count(1) total')->group('status')->cursor() as $vo) {
                 [$this->total["t{$vo['status']}"] = $vo['total'], $this->total['ta'] += $vo['total']];
             }
         }, function (QueryHelper $query) {
 
-            $query->with(['user', 'items', 'address']);
+            $query->with(['user', 'from', 'items', 'address']);
 
-            $query->equal('status')->like('order_no');
+            $query->equal('status,refund_status')->like('order_no');
             $query->dateBetween('create_time,payment_time,cancel_time,delivery_type');
 
             // 发货信息搜索
-            $db = PluginWemallOrderSend::mQuery()->dateBetween('express_time')
-                ->like('user_name|user_phone|region_prov|region_city|region_area|region_addr#address')->db();
+            $db = PluginWemallOrderSender::mQuery()->dateBetween('express_time')
+                ->like('user_name|user_phone|region_prov|region_city|region_area|region_addr#address,express_code#delivery_express_code')->db();
             if ($db->getOptions('where')) $query->whereRaw("order_no in {$db->field('order_no')->buildSql()}");
 
             // 用户搜索查询
@@ -151,8 +152,9 @@ class Order extends Controller
     }
 
     /**
-     * 清理订单数据
+     * 订单自动处理
      * @auth true
+     * @return void
      */
     public function clean()
     {

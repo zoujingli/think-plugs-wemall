@@ -19,6 +19,7 @@ declare (strict_types=1);
 
 namespace plugin\wemall\controller\shop;
 
+use plugin\wemall\model\PluginWemallConfigAgent;
 use plugin\wemall\model\PluginWemallConfigDiscount;
 use plugin\wemall\model\PluginWemallConfigLevel;
 use plugin\wemall\model\PluginWemallExpressTemplate;
@@ -57,6 +58,7 @@ class Goods extends Controller
             $this->title = '商品数据管理';
             $this->cates = PluginWemallGoodsCate::items();
             $this->marks = PluginWemallGoodsMark::items();
+            $this->agents = PluginWemallConfigAgent::items();
             $this->upgrades = PluginWemallConfigLevel::items('普通商品');
             $this->deliverys = PluginWemallExpressTemplate::items(true);
             $this->enableBalance = ConfigService::get('enable_balance');
@@ -143,6 +145,7 @@ class Goods extends Controller
         if ($this->request->isGet()) {
             $this->marks = PluginWemallGoodsMark::items();
             $this->cates = PluginWemallGoodsCate::items(true);
+            $this->agents = PluginWemallConfigAgent::items();
             $this->upgrades = PluginWemallConfigLevel::items('普通商品');
             $this->discounts = PluginWemallConfigDiscount::items(true);
             $this->deliverys = PluginWemallExpressTemplate::items(true);
@@ -159,13 +162,15 @@ class Goods extends Controller
             if (empty($data['slider'])) $this->error('轮播图片不能为空！');
             // 商品规格保存
             [$count, $items] = [0, json_decode($data['items'], true)];
-            foreach ($items as $item) $item['status'] > 0 && $count++;
-            if (empty($count)) $this->error('无效的的商品价格信息！');
             $data['marks'] = arr2str($data['marks'] ?? []);
-            $data['price_market'] = min(array_column($items, 'market'));
-            $data['price_selling'] = min(array_column($items, 'selling'));
-            $data['allow_balance'] = max(array_column($items, 'allow_balance'));
-            $data['allow_integral'] = max(array_column($items, 'allow_integral'));
+            foreach ($items as $item) if ($item['status'] > 0) {
+                $count++;
+                $data['price_market'] = min($data['price_market'] ?? $item['market'], $item['market']);
+                $data['price_selling'] = min($data['price_selling'] ?? $item['selling'], $item['selling']);
+                $data['allow_balance'] = max($data['allow_balance'] ?? $item['allow_balance'], $item['allow_balance']);
+                $data['allow_integral'] = max($data['allow_integral'] ?? $item['allow_integral'], $item['allow_integral']);
+            }
+            if (empty($count)) $this->error('无效的的商品价格信息！');
             $this->app->db->transaction(static function () use ($data, $items) {
                 // 标识所有规格无效
                 PluginWemallGoodsItem::mk()->where(['gcode' => $data['code']])->update(['status' => 0]);
@@ -205,18 +210,14 @@ class Goods extends Controller
      * 商品库存入库
      * @auth true
      * @return void
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
      */
     public function stock()
     {
-        $map = $this->_vali(['code.require' => '编号不能为空哦！']);
+        $input = $this->_vali(['code.require' => '商品不能为空哦！']);
         if ($this->request->isGet()) {
-            $this->vo = PluginWemallGoods::mk()->where($map)->with('items')->findOrEmpty()->toArray();
-            if (empty($this->vo)) $this->error('无效的商品数据，请稍候再试！');
-            $this->fetch();
-        } else {
+            $this->vo = PluginWemallGoods::mk()->where($input)->with('items')->findOrEmpty()->toArray();
+            empty($this->vo) ? $this->error('无效的商品！') : $this->fetch();
+        } else try {
             [$data, $post, $batch] = [[], $this->request->post(), CodeExtend::uniqidDate(12, 'B')];
             if (isset($post['gcode']) && is_array($post['gcode'])) {
                 foreach (array_keys($post['gcode']) as $key) if ($post['gstock'][$key] > 0) $data[] = [
@@ -226,13 +227,14 @@ class Goods extends Controller
                     'gspec'    => $post['gspec'][$key],
                     'gstock'   => $post['gstock'][$key],
                 ];
-                if (!empty($data)) {
-                    PluginWemallGoodsStock::mk()->saveAll($data);
-                    GoodsService::stock($map['code']);
-                    $this->success('商品数据入库成功！');
-                }
+                empty($data) || PluginWemallGoodsStock::mk()->saveAll($data);
             }
-            $this->error('没有需要商品入库的数据！');
+            GoodsService::stock($input['code']);
+            $this->success('库存更新成功！');
+        } catch (HttpResponseException $exception) {
+            throw $exception;
+        } catch (\Exception $e) {
+            $this->error($e->getMessage());
         }
     }
 

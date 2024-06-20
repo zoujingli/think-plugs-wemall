@@ -1,6 +1,5 @@
 <?php
 
-
 // +----------------------------------------------------------------------
 // | WeMall Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
@@ -74,6 +73,7 @@ class Notify extends Controller
 
     /**
      * 表单数据处理
+     * @param array $data
      * @return void
      */
     protected function _form_filter(array &$data)

@@ -12,10 +12,10 @@
         <div class="layui-form-item layui-inline">
             <label class="layui-form-label">提现方式</label>
             <div class="layui-input-inline">
-                <select name="type">
+                <select name="type" class="layui-select">
                     <option value="">-- 全部 --</option>
                     {foreach $types as $k=>$v}
-                    {if input('type') eq $k.''}
+                    {if isset($get.type) and $get.type eq $k.''}
                     <option selected value="{$k}">{$v}</option>
                     {else}
                     <option value="{$k}">{$v}</option>

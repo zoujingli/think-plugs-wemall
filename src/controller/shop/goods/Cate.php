@@ -34,7 +34,7 @@ class Cate extends Controller
      * 最大级别
      * @var integer
      */
-    protected $maxLevel = 5;
+    protected $maxLevel = 3;
 
     /**
      * 商品分类管理
@@ -49,7 +49,7 @@ class Cate extends Controller
             $this->title = "商品分类管理";
         }, static function (QueryHelper $query) {
             $query->where(['deleted' => 0]);
-            $query->like('name')->equal('status')->dateBetween('create_at');
+            $query->like('name')->equal('status')->dateBetween('create_time');
         });
     }
 
@@ -57,7 +57,7 @@ class Cate extends Controller
      * 列表数据处理
      * @param array $data
      */
-    protected function _index_page_filter(array &$data)
+    protected function _page_filter(array &$data)
     {
         $data = DataExtend::arr2table($data);
     }
@@ -91,7 +91,7 @@ class Cate extends Controller
     {
         if ($this->request->isGet()) {
             $data['pid'] = intval($data['pid'] ?? input('pid', '0'));
-            $this->cates = PluginWemallGoodsCate::getParentData($this->maxLevel, $data, [
+            $this->cates = PluginWemallGoodsCate::pdata($this->maxLevel, $data, [
                 'id' => '0', 'pid' => '-1', 'name' => '顶部分类',
             ]);
         }

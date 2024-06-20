@@ -1,12 +1,11 @@
-{block name="content"}
-<div class="think-box-shadow relative padding-top-0 shadow-none">
+<div class="relative">
     <table id="CateTableSelect" data-url="{:request()->url()}" data-target-search="form.form-search"></table>
 </div>
 
 <script>
     $(function () {
         $('#CateTableSelect').layTable({
-            even: true, height: 'full', page: false,
+            even: true, height: 'full', page: false, width: 'full',
             sort: {field: 'sort desc,id', type: 'asc'},
             cols: [[
                 {checkbox: true, fixed: true, hide: true},
@@ -31,4 +30,3 @@
     <a class="layui-btn layui-btn-sm layui-btn-disabled">已 选</a>
     {{# } }}
 </script>
-{/block}

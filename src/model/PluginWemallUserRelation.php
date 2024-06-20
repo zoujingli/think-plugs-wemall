@@ -18,8 +18,11 @@ declare (strict_types=1);
 
 namespace plugin\wemall\model;
 
-use plugin\account\model\Abs;
 use plugin\account\model\PluginAccountUser;
+use plugin\wemall\service\UserAgent;
+use plugin\wemall\service\UserOrder;
+use plugin\wemall\service\UserUpgrade;
+use think\admin\Exception;
 use think\model\relation\HasOne;
 
 /**
@@ -27,25 +30,8 @@ use think\model\relation\HasOne;
  * @class PluginWemallUserRelation
  * @package plugin\wemall\model
  */
-class PluginWemallUserRelation extends Abs
+class PluginWemallUserRelation extends AbsUser
 {
-    /**
-     * 关联当前用户
-     * @return \think\model\relation\HasOne
-     */
-    public function user(): HasOne
-    {
-        return $this->hasOne(PluginAccountUser::class, 'id', 'unid');
-    }
-
-    /**
-     * 关联临时上级
-     * @return \think\model\relation\HasOne
-     */
-    public function user0(): HasOne
-    {
-        return $this->hasOne(PluginAccountUser::class, 'id', 'puid0');
-    }
 
     /**
      * 关联上1级用户
@@ -66,50 +52,67 @@ class PluginWemallUserRelation extends Abs
     }
 
     /**
-     * 关联临时上级关系
-     * @return \think\model\relation\HasOne
-     */
-    public function relation0(): HasOne
-    {
-        return $this->hasOne(PluginWemallUserRelation::class, 'unid', 'puid0')->with('user');
-    }
-
-    /**
      * 关联上1级关系
      * @return \think\model\relation\HasOne
      */
-    public function relation1(): HasOne
+    public function agent1(): HasOne
     {
-        return $this->hasOne(PluginWemallUserRelation::class, 'unid', 'puid1')->with('user');
+        return $this->hasOne(PluginWemallUserRelation::class, 'unid', 'puid1');
     }
 
     /**
      * 关联上2级关系
      * @return \think\model\relation\HasOne
      */
-    public function relation2(): HasOne
+    public function agent2(): HasOne
     {
-        return $this->hasOne(PluginWemallUserRelation::class, 'unid', 'puid2')->with('user');
+        return $this->hasOne(PluginWemallUserRelation::class, 'unid', 'puid2');
     }
 
     /**
      * 更新用户推荐关系
      * @param integer $unid 用户编号
-     * @param integer $from 上级用户
-     * @return bool|string
+     * @return $this
+     * @throws \think\admin\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
      */
-    public static function sync(int $unid, int $from = 0)
+    public static function withInit(int $unid): PluginWemallUserRelation
     {
         $user = PluginAccountUser::mk()->findOrEmpty($unid);
-        if ($user->isEmpty()) return '无效的用户信息';
-        $data = ['unid' => $unid, 'path' => ',,'];
-        if ($from > 0) {
-            $parent = static::mk()->where(['unid' => $from])->findOrEmpty();
-            if ($parent->isEmpty()) return '无效的上级用户';
-            $data['path'] = arr2str(str2arr("{$from},{$parent->getAttr('path')}"));
-            $data['puid1'] = $parent->getAttr('unid');
-            $data['puid2'] = $parent->getAttr('puid1');
+        if ($user->isEmpty()) throw new Exception("无效的用户！");
+        if ($user->getAttr('deleted') > 0) throw new Exception('账号已删除！');
+        $rela = static::mk()->lock(true)->where(['unid' => $unid])->findOrEmpty();
+        if ($rela->isEmpty() || empty($rela->getAttr('path')) || empty($rela->getAttr('level_name'))) {
+            $data = ['id' => $unid, 'unid' => $unid, 'path' => ',', 'level_name' => '普通会员', 'agent_level_name' => '普通用户'];
+            if (!($rela->isExists() && $rela->save($data))) {
+                // ON DUPLICATE KEY UPDATE 实现 MySQL 不重复插入
+                $rela->duplicate($data)->insert($data);
+                $rela = $rela->where(['unid' => $unid])->findOrEmpty();
+            }
+            UserOrder::entry(UserUpgrade::upgrade(UserAgent::upgrade($rela)));
         }
-        return static::mk()->where(['unid' => $unid])->findOrEmpty()->save($data);
+        return $rela;
+    }
+
+    /**
+     * 转换用户关联模型
+     * @param int|PluginWemallUserRelation $unid
+     * @return array [Relation, UNID]
+     * @throws \think\admin\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    public static function withRelation($unid): array
+    {
+        if (is_numeric($unid)) {
+            return [self::withInit(intval($unid)), intval($unid)];
+        } elseif ($unid instanceof self) {
+            return [$unid, intval($unid->getAttr('unid'))];
+        } else {
+            throw new Exception('无效的参数数据！');
+        }
     }
 }

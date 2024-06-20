@@ -19,7 +19,7 @@
                 </div>
             </div>
 
-            <div class="flex-1 padding-left-30">
+            <div class="flex-1 ta-pl-30">
                 <a class="absolute" style="right:20px;top:20px" @click="show()">预 览</a>
 
                 <label class="layui-form-item block relative">
@@ -49,7 +49,7 @@
                 </div>
 
                 <div class="layui-form-item block relative">
-                    <span class="help-label label-required-prev"><b>授权用户等级</b><code>Level</code></span>
+                    <span class="help-label label-required-prev"><b>授权会员等级</b><code>Level</code></span>
                     <div class="layui-textarea help-checks">
                         {empty name='vo.levels'}{php}$vo['levels']=[];{/php}{/empty}
                         {foreach $levels as $l}
@@ -67,7 +67,7 @@
                 <div class="layui-form-item">
                     <span class="help-label label-required-prev"><b>推广海报底图</b>( 推荐尺寸 1008 x 1426 或相应比例 )</span>
                     <label class="block relative">
-                        <input class="layui-input think-bg-gray" readonly v-model="image" name="image">
+                        <input class="layui-input think-bg-gray" data-tips-image data-tips-hover readonly v-model="image" name="image">
                         <a class="layui-icon layui-icon-upload input-right-icon" data-file data-field="image" data-type="png,jpg,jpeg"></a>
                     </label>
                 </div>
@@ -89,7 +89,7 @@
                             <div v-if="x.type=='text'" class="layui-input-group ta-mt-10">
                                 <div class="layui-input-prefix nowrap">文字大小</div>
                                 <label><input type="number" v-model="x.size" min="12" max="99" value="12" class="layui-input ta-pr-0"></label>
-                                <div class="layui-input-suffix"><span :data-color-picker="k" class="margin-0"></span></div>
+                                <div class="layui-input-suffix"><span :data-color-picker="k" class="ta-m-0"></span></div>
                             </div>
                             <div v-if="x.rule=='item.value'" class="layui-input-group ta-mt-10">
                                 <div class="layui-input-prefix nowrap">文字内容</div>
@@ -114,7 +114,7 @@
             <textarea class="layui-textarea" readonly id="EditValue">{$vo.content|default=[]|json_encode}</textarea>
         </label>
 
-        <div class="hr-line-dashed margin-top-40"></div>
+        <div class="hr-line-dashed ta-mt-40"></div>
         {notempty name='vo.id'}<input name="id" type="hidden" value="{$vo.id}">{/notempty}
 
         <div class="layui-form-item text-center">

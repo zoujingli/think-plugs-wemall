@@ -15,8 +15,9 @@
 
 {block name='script'}
 <script>
+
     $(function () {
-        $('#LevelTable').layTable({
+        let $table = $('#LevelTable').layTable({
             even: true, height: 'full',
             sort: {field: 'number', type: 'asc'},
             cols: [[
@@ -24,42 +25,28 @@
                 {field: 'cover', title: '图标', width: 70, align: 'center', templet: '<div>{{-$.layTable.showImage(d.cover)}}</div>'},
                 {field: 'name', title: '等级名称', align: 'center', minWidth: 80, width: '12%'},
                 {
-                    field: 'upgrade_team', title: '团队计数', align: 'center', minWidth: 80, width: '5%', templet: function (d) {
+                    title: '团队计数', align: 'center', minWidth: 80, templet: function (d) {
                         return d.upgrade_team ? '<b class="layui-icon layui-icon-ok-circle color-green"></b>' : '-';
                     }
                 },
                 {
-                    field: 'upgrade_type', title: '升级规则', align: 'center', minWidth: 80, width: '5%', templet: function (d) {
+                    title: '升级规则', align: 'center', minWidth: 80, templet: function (d) {
                         return d.upgrade_type === 1 ? '<span class="color-green">全部条件</span>' : '<span class="color-blue">任意条件</span>';
                     }
                 },
                 {
-                    field: 'enter_vip_status', title: '入会礼包', align: 'center', minWidth: 80, width: '5%', templet: function (d) {
-                        return d.enter_vip_status ? '<b class="layui-icon layui-icon-ok-circle color-green"></b>' : '-';
+                    title: '入会礼包', align: 'center', minWidth: 80, templet: function (d) {
+                        return d.extra.enter_vip_status ? '<b class="layui-icon layui-icon-ok-circle color-green"></b>' : '-';
                     }
                 },
+
                 {
-                    field: 'teams_users_status', title: '团队总数', align: 'center', minWidth: 80, width: '5%', templet: function (d) {
-                        return d.teams_users_status ? laytpl('<b>{{d.teams_users_number}}</b>').render(d) : '-';
-                    }
-                },
-                {
-                    field: 'teams_direct_status', title: '直属团队', align: 'center', minWidth: 80, width: '5%', templet: function (d) {
-                        return d.teams_direct_status ? laytpl('<b>{{d.teams_direct_number}}</b>').render(d) : '-';
-                    }
-                },
-                {
-                    field: 'teams_indirect_status', title: '间接团队', align: 'center', minWidth: 80, width: '5%', templet: function (d) {
-                        return d.teams_indirect_status ? laytpl('<b>{{d.teams_indirect_number}}</b>').render(d) : '-';
-                    }
-                },
-                {
-                    field: 'order_amount_status', title: '订单金额', align: 'center', minWidth: 80, width: '5%', templet: function (d) {
-                        return d.order_amount_status ? laytpl('<b>{{d.order_amount_number}}</b>').render(d) : '-';
+                    title: '订单金额', align: 'center', minWidth: 80, templet: function (d) {
+                        return d.extra.order_amount_status ? laytpl('<b>{{d.extra.order_amount_number}}</b>').render(d) : '-';
                     }
                 },
                 {field: 'status', title: '等级状态', align: 'center', minWidth: 110, width: '8%', templet: '#StatusSwitchTpl'},
-                {field: 'create_time', title: '创建时间', align: 'center', minWidth: 170, width: '15%', sort: true},
+                // {field: 'create_time', title: '创建时间', align: 'center', minWidth: 170, width: '15%', sort: true},
                 {toolbar: '#toolbar', title: '操作面板', align: 'center', minWidth: 150, fixed: 'right'},
             ]]
         });
@@ -68,9 +55,8 @@
         layui.form.on('switch(StatusSwitch)', function (obj) {
             let data = {id: obj.value, status: obj.elem.checked > 0 ? 1 : 0};
             $.form.load("{:url('state')}", data, 'post', function (ret) {
-                if (ret.code < 1) $.msg.error(ret.info, 3, function () {
-                    $('#LevelTable').trigger('reload');
-                });
+                let fn = () => $table.trigger('reload');
+                ret.code > 0 ? fn() : $.msg.error(ret.info, 3, fn)
                 return false;
             }, false);
         });

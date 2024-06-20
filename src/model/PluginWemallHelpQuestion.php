@@ -18,32 +18,37 @@ declare (strict_types=1);
 
 namespace plugin\wemall\model;
 
-use plugin\account\model\Abs;
-use plugin\account\model\PluginAccountUser;
-use think\model\relation\HasOne;
+use think\model\relation\HasMany;
 
 /**
- * 商城订单发货模型
- * @class PluginWemallOrderSend
+ * 工单数据模型
+ * @class PluginWemallHelpQuestion
  * @package plugin\wemall\model
  */
-class PluginWemallOrderSend extends Abs
+class PluginWemallHelpQuestion extends AbsUser
 {
+
+    // 工单状态
+    public const tStatus = [
+        '已取消', '新工单', '后台回复', '用户回复', '已完结'
+    ];
+
     /**
-     * 关联用户数据
-     * @return \think\model\relation\HasOne
+     * 格式化图片格式
+     * @param mixed $value
+     * @return array
      */
-    public function user(): HasOne
+    public function getImagesAttr($value): array
     {
-        return $this->hasOne(PluginAccountUser::class, 'id', 'unid');
+        return str2arr($value ?? '', '|');
     }
 
     /**
-     * 关联订单数据
-     * @return \think\model\relation\HasOne
+     * 关联回复记录
+     * @return \think\model\relation\HasMany
      */
-    public function main(): HasOne
+    public function comments(): HasMany
     {
-        return $this->hasOne(PluginWemallOrder::class, 'order_no', 'order_no')->with(['items']);
+        return $this->hasMany(PluginWemallHelpQuestionX::class, 'ccid', 'id');
     }
 }

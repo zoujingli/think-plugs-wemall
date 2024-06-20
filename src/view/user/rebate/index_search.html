@@ -10,9 +10,24 @@
         </div>
 
         <div class="layui-form-item layui-inline">
-            <label class="layui-form-label">会员账号</label>
+            <label class="layui-form-label">用户账号</label>
             <label class="layui-input-inline">
-                <input class="layui-input" name="user" placeholder="请输入会员账号" value="{$get.user|default=''}">
+                <input class="layui-input" name="user" placeholder="请输入用户账号" value="{$get.user|default=''}">
+            </label>
+        </div>
+
+        <div class="layui-form-item layui-inline">
+            <label class="layui-form-label">返佣状态</label>
+            <label class="layui-input-inline">
+                <select class="layui-select" name="status">
+                    <option value=''>- 全部 -</option>
+                    {foreach ['未到账','已到账'] as $k=>$v}
+                    {if isset($get.status) and $get.status eq $k.''}
+                    <option selected value="{$k}">{$v}</option>
+                    {else}
+                    <option value="{$k}">{$v}</option>
+                    {/if}{/foreach}
+                </select>
             </label>
         </div>
 

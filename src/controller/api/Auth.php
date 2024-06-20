@@ -20,6 +20,7 @@ namespace plugin\wemall\controller\api;
 
 use plugin\account\controller\api\Auth as AccountAuth;
 use plugin\wemall\model\PluginWemallUserRelation;
+use think\exception\HttpResponseException;
 
 /**
  * 基础授权控制器
@@ -28,9 +29,17 @@ use plugin\wemall\model\PluginWemallUserRelation;
  */
 abstract class Auth extends AccountAuth
 {
-    protected $relation = [];
+    /**
+     * 用户关系
+     * @var PluginWemallUserRelation
+     */
+    protected $relation;
+
+    /**
+     * 等级序号
+     * @var integer
+     */
     protected $levelCode;
-    protected $levelName;
 
     /**
      * 控制器初始化
@@ -38,23 +47,28 @@ abstract class Auth extends AccountAuth
      */
     protected function initialize()
     {
-        parent::initialize();
-        $this->checkUserStatus()->withUserRelation();
+        try {
+            parent::initialize();
+            $this->checkUserStatus()->withUserRelation();
+        } catch (HttpResponseException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->error($exception->getMessage());
+        }
     }
 
     /**
      * 初始化当前用户
      * @return static
+     * @throws \think\admin\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
      */
     protected function withUserRelation(): Auth
     {
-        $relation = PluginWemallUserRelation::mk()->where(['unid' => $this->unid])->findOrEmpty();
-        $this->relation = $relation->toArray();
-        $this->levelCode = intval($relation->getAttr('level_code'));
-        $this->levelName = $relation->getAttr('level_name') ?: '普通用户';
-        if ($relation->getAttr('level_name') !== $this->levelName) {
-            $relation->save(['level_name' => $this->levelName]);
-        }
+        $this->relation = PluginWemallUserRelation::withInit($this->unid);
+        $this->levelCode = intval($this->relation->getAttr('level_code'));
         return $this;
     }
 }

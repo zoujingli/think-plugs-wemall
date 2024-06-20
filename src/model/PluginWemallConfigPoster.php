@@ -23,7 +23,7 @@ use plugin\account\service\Account;
 use think\db\Query;
 
 /**
- * 推广海报数据模型
+ * 商城推广海报数据
  * @class PluginWemallConfigPoster
  * @package plugin\wemall\model
  */
@@ -31,8 +31,8 @@ class PluginWemallConfigPoster extends Abs
 {
 
     /**
-     * 指定用户等级获取配置
-     * @param integer $level 指定用户等级
+     * 指定会员等级获取配置
+     * @param integer $level 指定会员等级
      * @param string $device 指定终端类型
      * @return array
      * @throws \think\db\exception\DataNotFoundException
@@ -41,7 +41,7 @@ class PluginWemallConfigPoster extends Abs
      */
     public static function items(int $level, string $device = ''): array
     {
-        // 指定用户等级查看终端授权
+        // 指定会员等级查看终端授权
         $query = self::mk()->where(static function (Query $query) use ($level) {
             $query->whereOr([['levels', 'like', "%,{$level},%"], ['levels', 'like', '%,-,%']]);
         })->where(['status' => 1, 'deleted' => 0])->order('sort desc,id desc');
@@ -53,7 +53,7 @@ class PluginWemallConfigPoster extends Abs
     }
 
     /**
-     * 获取用户等级数据
+     * 获取会员等级数据
      * @param mixed $value
      * @return array
      */
@@ -63,7 +63,7 @@ class PluginWemallConfigPoster extends Abs
     }
 
     /**
-     * 设置用户等级数据
+     * 设置会员等级数据
      * @param mixed $value
      * @return string
      */
